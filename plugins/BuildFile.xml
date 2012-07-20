@@ -12,10 +12,12 @@
   <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/METReco"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/HepMCCandidate"/>
   <use   name="CommonTools/UtilAlgos"/>
+  <use   name="RecoEgamma/EgammaTools"/>
   <use   name="PhysicsTools/PatAlgos"/>
   <use   name="PhysicsTools/PatUtils"/>
   <use   name="CondFormats/JetMETObjects"/>
@@ -28,4 +30,6 @@
   <use   name="RecoMET/METAlgorithms"/>
   <use   name="TrackingTools/IPTools"/>
   <use   name="root"/>
+  <flags CXXFLAGS="-O0 -g3 -fno-inline"/>
+  <flags CXX_FLAGS="-O0 -g3 -fno-inline"/>
 </library>
