@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id$
+// $Id: AcceptanceG.h,v 1.1 2012/05/16 20:25:39 sturdy Exp $
 //
 //
 
@@ -41,16 +41,14 @@ Implementation:
 #include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //Used data formats
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
@@ -76,18 +74,38 @@ private:
   virtual void endJob() ;
   
   // ----------member data ---------------------------
-public:
+private:
   bool debug_;
   std::string debugString_;
   
   edm::InputTag genLabel_;
-  edm::InputTag jetLabel_;
+  int genStatus_;
+
+  bool doPUReweight_;
+  edm::InputTag puWeightLabel_;
+
+  edm::InputTag jetHTLabel_;
+  edm::InputTag jetMHTLabel_;
+  edm::InputTag htLabel_;
+  edm::InputTag mhtLabel_;
+  std::vector<double> htBins_ ;
+  std::vector<double> mhtBins_;
+
+  edm::InputTag cleanJetHTLabel_;
+  edm::InputTag cleanJetMHTLabel_;
+  edm::InputTag cleanHTLabel_;
+  edm::InputTag cleanMHTLabel_;
   
   edm::InputTag photonLabel_ ;
+  std::vector<double> photonPtBins_ ;
+  std::vector<double> photonEtaBins_;
   double photonMinPt_        ;
-  double photonMaxEta_       ;
+  double photonEBMaxEta_       ;
+  double photonEEMinEta_       ;
+  double photonEEMaxEta_       ;
 
-  int genStatus_;
+  //double photonPtBinsTmp_[7]  ;// = photonPtBins_.data();
+  //double photonEtaBinsTmp_[11];// = photonEtaBins_.data();
   std::map<std::string, TH1D*> histos1D_;
   std::map<std::string, TH2D*> histos2D_;
 };

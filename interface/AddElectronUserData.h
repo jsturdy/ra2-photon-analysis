@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Photons
-// Class:      Photons
+// Package:    Electrons
+// Class:      Electrons
 // 
-/**\class Photons AddPhotonUserData.h ZInvisibleBkgds/Photons/interface/AddPhotonUserData.h
+/**\class Electrons AddElectronUserData.h ZInvisibleBkgds/Photons/interface/AddElectronUserData.h
 
 Description: [one line class summary]
 
@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: AddPhotonUserData.h,v 1.1 2012/07/09 14:31:37 sturdy Exp $
+// $Id: AddElectronUserData.h,v 1.1 2012/07/09 14:31:37 sturdy Exp $
 //
 //
 
@@ -51,17 +51,17 @@ Implementation:
 
 
 //Used data formats
-#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 
 
 //
 // class declaration
 //
 
-class AddPhotonUserData : public edm::EDProducer {
+class AddElectronUserData : public edm::EDProducer {
 public:
-  explicit AddPhotonUserData(const edm::ParameterSet&);
-  ~AddPhotonUserData();
+  explicit AddElectronUserData(const edm::ParameterSet&);
+  ~AddElectronUserData();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -72,21 +72,20 @@ private:
   
   // ----------member data ---------------------------
 private:
-  GreaterByEt<pat::Photon> eTComparator_;
+  GreaterByEt<pat::Electron> eTComparator_;
 
   bool debug_;
   std::string debugString_;
-  edm::InputTag photonLabel_ ;
+  edm::InputTag electronLabel_ ;
   std::vector<edm::InputTag> floatLabels_ ;
   std::vector<std::string>   floatNames_ ;
   bool useUserData_;
 
   //only for adding conversion stuff
   bool addConversions_;
-  edm::InputTag gsfElecLabel_ ;
   edm::InputTag conversionsLabel_ ;
   edm::InputTag beamspotLabel_ ;
 
-  pat::PATUserDataHelper<pat::Photon>      userDataHelper_;
+  pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
 };
 

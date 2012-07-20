@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Photons
-// Class:      Photons
+// Package:    Electrons
+// Class:      Electrons
 // 
-/**\class Photons AddPhotonUserData.cc ZInvisibleBkgds/Photons/plugins/AddPhotonUserData.cc
+/**\class Electrons AddElectronUserData.cc ZInvisibleBkgds/Photons/plugins/AddElectronUserData.cc
 
 Description: [one line class summary]
 
@@ -13,12 +13,12 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: AddPhotonUserData.cc,v 1.1 2012/07/09 14:33:58 sturdy Exp $
+// $Id: AddElectronUserData.cc,v 1.1 2012/07/09 14:33:58 sturdy Exp $
 //
 //
 
 
-#include "ZInvisibleBkgds/Photons/interface/AddPhotonUserData.h"
+#include "ZInvisibleBkgds/Photons/interface/AddElectronUserData.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 //
@@ -33,30 +33,30 @@ Implementation:
 //
 // constructors and destructor
 //
-AddPhotonUserData::AddPhotonUserData(const edm::ParameterSet& pset) :
+AddElectronUserData::AddElectronUserData(const edm::ParameterSet& pset) :
   debug_         ( pset.getParameter< bool >( "debug" ) ),
   debugString_   ( pset.getParameter< std::string >( "debugString" ) ),
-  photonLabel_   ( pset.getParameter< edm::InputTag >( "photonLabel" ) ),
+  electronLabel_ ( pset.getParameter< edm::InputTag >( "electronLabel" ) ),
   floatLabels_   ( pset.getParameter< std::vector<edm::InputTag> >( "floatLabels" ) ),
   floatNames_    ( pset.getParameter< std::vector<std::string> >  ( "floatNames" ) ),
-  useUserData_   ( pset.exists("userData")),
+  useUserData_   ( pset.exists("userData") ),
   addConversions_( pset.getParameter< bool >  ( "embedConversionInfo" ) )
 {
   using namespace pat;
-  // produces vector of photons
-  produces<std::vector<pat::Photon> >();
+  // produces vector of electrons
+  produces<std::vector<pat::Electron> >();
   if ( useUserData_ ) {
-    userDataHelper_ = PATUserDataHelper<Photon>(pset.getParameter<edm::ParameterSet>("userData"));
+    userDataHelper_ = PATUserDataHelper<Electron>(pset.getParameter<edm::ParameterSet>("userData"));
   }
   if ( addConversions_ ) {
-    gsfElecLabel_     = pset.getParameter< edm::InputTag >( "gsfElectronLabel" );
     conversionsLabel_ = pset.getParameter< edm::InputTag >( "conversionsLabel" );
     beamspotLabel_    = pset.getParameter< edm::InputTag >( "beamspotLabel" );
   }  
+  
 }
 
 
-AddPhotonUserData::~AddPhotonUserData()
+AddElectronUserData::~AddElectronUserData()
 {
  
   // do anything here that needs to be done at desctruction time
@@ -70,21 +70,19 @@ AddPhotonUserData::~AddPhotonUserData()
 //
 
 // ------------ method called to produce the data  ------------
-void AddPhotonUserData::produce(edm::Event& ev, const edm::EventSetup& es)
+void AddElectronUserData::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   using namespace pat;
-  //get the photons
-  edm::Handle<edm::View<pat::Photon> > photons;
-  ev.getByLabel(photonLabel_,photons);
+  //get the electrons
+  edm::Handle<edm::View<pat::Electron> > electrons;
+  ev.getByLabel(electronLabel_,electrons);
 
   edm::Handle<reco::ConversionCollection> conversions;
-  edm::Handle<reco::GsfElectronCollection> gsfElecs;
   edm::Handle<reco::BeamSpot> bs;
   //const reco::BeamSpot &beamspot = *bs.product();
 
   if (addConversions_) {
     ev.getByLabel(conversionsLabel_,conversions);
-    ev.getByLabel(gsfElecLabel_, gsfElecs);
     ev.getByLabel(beamspotLabel_, bs);
   }
   if ( floatLabels_.size()!=floatNames_.size()) {
@@ -102,47 +100,47 @@ void AddPhotonUserData::produce(edm::Event& ev, const edm::EventSetup& es)
     myFloats.push_back(*floatVal);
   }
 
-  std::vector<pat::Photon> * PATPhotons = new std::vector<pat::Photon>(); 
-  for (edm::View<pat::Photon>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
+  std::vector<pat::Electron> * PATElectrons = new std::vector<pat::Electron>(); 
+  for (edm::View<pat::Electron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); itElectron++) {
 
-    pat::Photon aPhoton(*itPhoton);
+    pat::Electron aElectron(*itElectron);
     
     if ( useUserData_ ) {
-      userDataHelper_.add( aPhoton, ev, es );
+      userDataHelper_.add( aElectron, ev, es );
     }
     std::vector<std::string>::const_iterator name = floatNames_.begin();
     for (std::vector<double>::const_iterator val = myFloats.begin(); val != myFloats.end(); ++val) {
-      aPhoton.addUserFloat(*name,*val);
+      aElectron.addUserFloat(*name,*val);
       ++name;
     }
 
     if (addConversions_) {
       const reco::BeamSpot &beamspot = *bs.product();
-      bool passelectronveto = !ConversionTools::hasMatchedPromptElectron(aPhoton.superCluster(), gsfElecs, conversions, beamspot.position());
-      //reco::ConversionRef conv = ConversionTools::matchedConversion(aPhoton.superCluster(),conversions,beamspot.position());
-      aPhoton.addUserInt("passElectronConvVeto",(int)passelectronveto);
+      bool passconversionveto = !ConversionTools::hasMatchedConversion(aElectron,conversions,beamspot.position());
+      aElectron.addUserInt("passConvVeto",(int)passconversionveto);
     }
-    PATPhotons->push_back(aPhoton);
+
+    PATElectrons->push_back(aElectron);
   }
 
-  // sort Photons in ET
-  std::sort(PATPhotons->begin(), PATPhotons->end(), eTComparator_);
+  // sort Electrons in ET
+  std::sort(PATElectrons->begin(), PATElectrons->end(), eTComparator_);
   // put genEvt object in Event
-  std::auto_ptr<std::vector<pat::Photon> > myPhotons(PATPhotons);
-  ev.put(myPhotons);
+  std::auto_ptr<std::vector<pat::Electron> > myElectrons(PATElectrons);
+  ev.put(myElectrons);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void AddPhotonUserData::beginJob()
+void AddElectronUserData::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void AddPhotonUserData::endJob() {
+void AddElectronUserData::endJob() {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void AddPhotonUserData::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void AddElectronUserData::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -151,4 +149,4 @@ void AddPhotonUserData::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(AddPhotonUserData);
+DEFINE_FWK_MODULE(AddElectronUserData);

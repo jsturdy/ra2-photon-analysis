@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: RecoIsoEffG.cc,v 1.1 2012/05/16 20:25:39 sturdy Exp $
+// $Id: RecoIsoEffG.cc,v 1.1 2012/07/09 14:29:00 sturdy Exp $
 //
 //
 
@@ -204,14 +204,14 @@ void RecoIsoEffG::produce(edm::Event& ev, const edm::EventSetup& es)
       //std::cout<<floatNames.at(0)<<std::endl;
       if (debug_) {
 	recop->listUserFloat();
-	std::cout<<"rho25::"  <<recop->userFloat("rho25")<<std::endl;
-	std::cout<<"rhoToPhotonMap::"  <<recop->userFloat("rhoToPhotonMap")<<std::endl;
-	std::cout<<"chargedIsolation::"<<recop->userIsolation(pat::IsolationKeys(pat::UserBaseIso+0))<<std::endl;
-	std::cout<<"neutralIsolation::"<<recop->userIsolation(pat::IsolationKeys(pat::UserBaseIso+2))<<std::endl;
-	std::cout<<"gammaIsolation::"  <<recop->userIsolation(pat::IsolationKeys(pat::UserBaseIso+3))<<std::endl;
-	std::cout<<"chargedIsolation::"<<recop->userIsolation(pat::User1Iso)<<std::endl;
-	std::cout<<"neutralIsolation::"<<recop->userIsolation(pat::User3Iso)<<std::endl;
-	std::cout<<"gammaIsolation::"  <<recop->userIsolation(pat::User4Iso)<<std::endl;
+	std::cout<<"RecoIsoEffG::rho25::"  <<recop->userFloat("rho25")<<std::endl;
+	std::cout<<"RecoIsoEffG::rhoToPhotonMap::"  <<recop->userFloat("rhoToPhotonMap")<<std::endl;
+	std::cout<<"RecoIsoEffG::chargedIsolation::"<<recop->userIsolation(pat::IsolationKeys(pat::UserBaseIso+0))<<std::endl;
+	std::cout<<"RecoIsoEffG::neutralIsolation::"<<recop->userIsolation(pat::IsolationKeys(pat::UserBaseIso+2))<<std::endl;
+	std::cout<<"RecoIsoEffG::gammaIsolation::"  <<recop->userIsolation(pat::IsolationKeys(pat::UserBaseIso+3))<<std::endl;
+	std::cout<<"RecoIsoEffG::chargedIsolation::"<<recop->userIsolation(pat::User1Iso)<<std::endl;
+	std::cout<<"RecoIsoEffG::neutralIsolation::"<<recop->userIsolation(pat::User3Iso)<<std::endl;
+	std::cout<<"RecoIsoEffG::gammaIsolation::"  <<recop->userIsolation(pat::User4Iso)<<std::endl;
       }
       double rphot_eta = recop->eta();
       double rphot_phi = recop->phi();
