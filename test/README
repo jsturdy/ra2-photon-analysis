@@ -11,3 +11,4 @@ mv __temp__/Utilities/plugins/*.cc SandBox/Utilities/plugins
 mv __temp__/Utilities/plugins/*.xml SandBox/Utilities/plugins
 mv __temp__/Utilities/data/*root SandBox/Utilities/data
 mv __temp__/Utilities/interface/*.h SandBox/Utilities/interface
+rm -rf __temp__
