@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-adduserdata1 = cms.EDProducer("AddPhotonUserData",
+addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
     debug          = cms.bool(False),
-    debugString    = cms.string("adduserdata"),
+    debugString    = cms.string("addphotonuserdata"),
     photonLabel    = cms.InputTag("patPhotons"),
     floatLabels    = cms.VInputTag(cms.InputTag("kt6PFJetsForIsolation","rho")),
     floatNames     = cms.vstring("rho25"),
+    embedConversionInfo = cms.bool(True),
+    gsfElectronLabel = cms.InputTag("gsfElectrons"),
+    conversionsLabel = cms.InputTag("conversions"),
+    beamspotLabel    = cms.InputTag("offlineBeamSpot"),
     userData = cms.PSet(
         userCands = cms.PSet(
             src = cms.VInputTag("")
@@ -81,12 +85,16 @@ adduserdata1 = cms.EDProducer("AddPhotonUserData",
         )
     )
 )
-adduserdata2 = cms.EDProducer("AddPhotonUserData",
+addphotonuserdata2 = cms.EDProducer("AddPhotonUserData",
     debug          = cms.bool(False),
-    debugString    = cms.string("adduserdata"),
+    debugString    = cms.string("addphotonuserdata"),
     photonLabel    = cms.InputTag("patPhotonsUser1"),
     floatLabels    = cms.VInputTag(cms.InputTag("kt6PFJetsForIsolation","rho")),
     floatNames     = cms.vstring("rho25"),
+    embedConversionInfo = cms.bool(False),
+    gsfElectronLabel = cms.InputTag("gsfElectrons"),
+    conversionsLabel = cms.InputTag("conversions"),
+    beamspotLabel    = cms.InputTag("offlineBeamSpot"),
     userData = cms.PSet(
         userCands = cms.PSet(
             src = cms.VInputTag("")
