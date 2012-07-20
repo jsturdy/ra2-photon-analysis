@@ -5,3 +5,9 @@ cvs co -rRA2Photons_200712 -d ZInvisibleBkgds/Photons UserCode/JSturdy/SUSY/RA2C
 ##in test directory are several configs, and one SusyPAT config that creates RA2 PAT-tuples
 ##this config needs modification of the sequences to get everything to work out of the box
 ##but shows how to add the photon isolations
+
+cvs co -rRA2Utilities_200712 -d __temp__/Utilities UserCode/JSturdy/SUSY/RA2Code/SandBox/Utilities
+mv __temp__/Utilities/plugins/*.cc SandBox/Utilities/plugins
+mv __temp__/Utilities/plugins/*.xml SandBox/Utilities/plugins
+mv __temp__/Utilities/data/*root SandBox/Utilities/data
+mv __temp__/Utilities/interface/*.h SandBox/Utilities/interface
