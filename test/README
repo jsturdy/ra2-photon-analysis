@@ -1,3 +1,7 @@
 ###Tools for RA2 Photon studies
 cd $CMSSW_BASE/src
 cvs co -rRA2Photons_200712 -d ZInvisibleBkgds/Photons UserCode/JSturdy/SUSY/RA2Code/ZInvisibleBkgds/Photons
+
+##in test directory are several configs, and one SusyPAT config that creates RA2 PAT-tuples
+##this config needs modification of the sequences to get everything to work out of the box
+##but shows how to add the photon isolations
