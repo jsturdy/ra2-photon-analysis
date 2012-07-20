@@ -1,0 +1,3 @@
+###Tools for RA2 Photon studies
+cd $CMSSW_BASE/src
+cvs co -rRA2Photons_200712 -d ZInvisibleBkgds/Photons UserCode/JSturdy/SUSY/RA2Code/ZInvisibleBkgds/Photons
