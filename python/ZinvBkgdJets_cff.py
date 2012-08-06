@@ -171,6 +171,38 @@ patSSVHPTBJetsAK5PFPt50Eta25 = selectedPatJets.clone()
 patSSVHPTBJetsAK5PFPt50Eta25.src = cms.InputTag('patJetsAK5PFPt50Eta25')
 patSSVHPTBJetsAK5PFPt50Eta25.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
+patCSVJetsAK5PF = selectedPatJets.clone()
+patCSVJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
+patCSVJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898')
+
+patCSVJetsAK5PFPt30Eta24 = selectedPatJets.clone()
+patCSVJetsAK5PFPt30Eta24.src = cms.InputTag('patCSVJetsAK5PF')
+patCSVJetsAK5PFPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
+
+patCSVJetsAK5PFPt30Eta50 = selectedPatJets.clone()
+patCSVJetsAK5PFPt30Eta50.src = cms.InputTag('patCSVJetsAK5PF')
+patCSVJetsAK5PFPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
+
+patCSVJetsAK5PFPt50Eta25 = selectedPatJets.clone()
+patCSVJetsAK5PFPt50Eta25.src = cms.InputTag('patCSVJetsAK5PF')
+patCSVJetsAK5PFPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+
+patCSVMVAJetsAK5PF = selectedPatJets.clone()
+patCSVMVAJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
+patCSVMVAJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898')
+
+patCSVMVAJetsAK5PFPt30Eta24 = selectedPatJets.clone()
+patCSVMVAJetsAK5PFPt30Eta24.src = cms.InputTag('patCSVMVAJetsAK5PF')
+patCSVMVAJetsAK5PFPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
+
+patCSVMVAJetsAK5PFPt30Eta50 = selectedPatJets.clone()
+patCSVMVAJetsAK5PFPt30Eta50.src = cms.InputTag('patCSVMVAJetsAK5PF')
+patCSVMVAJetsAK5PFPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
+
+patCSVMVAJetsAK5PFPt50Eta25 = selectedPatJets.clone()
+patCSVMVAJetsAK5PFPt50Eta25.src = cms.InputTag('patCSVMVAJetsAK5PF')
+patCSVMVAJetsAK5PFPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+
 ### count the b-jets
 countSSVHEMBJetsAK5PF = countPatJets.clone()
 countSSVHEMBJetsAK5PF.src = cms.InputTag('patSSVHEMBJetsAK5PF')
@@ -207,10 +239,18 @@ zinvBVetoPt50Eta25 = cms.Sequence(
 )
 ### create the jet collections
 zinvBJets = cms.Sequence(
-    patSSVHEMBJetsAK5PF*
-    patSSVHPTBJetsAK5PF*
-    patSSVHEMBJetsAK5PFPt30*
-    patSSVHPTBJetsAK5PFPt30*
-    patSSVHEMBJetsAK5PFPt50Eta25*
-    patSSVHPTBJetsAK5PFPt50Eta25
+#      patSSVHEMBJetsAK5PF
+#    * patSSVHPTBJetsAK5PF
+#    * patSSVHEMBJetsAK5PFPt30
+#    * patSSVHPTBJetsAK5PFPt30
+#    * patSSVHEMBJetsAK5PFPt50Eta25
+#    * patSSVHPTBJetsAK5PFPt50Eta25
+      patCSVJetsAK5PF
+    * patCSVJetsAK5PFPt30Eta24
+    #* patCSVJetsAK5PFPt30Eta50
+    #* patCSVJetsAK5PFPt50Eta25
+    #* patCSVMVAJetsAK5PF
+    #* patCSVMVAJetsAK5PFPt30Eta24
+    #* patCSVMVAJetsAK5PFPt30Eta50
+    #* patCSVMVAJetsAK5PFPt50Eta25
 )
