@@ -13,14 +13,13 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: AddPhotonUserData.cc,v 1.1 2012/07/09 14:33:58 sturdy Exp $
+// $Id: AddPhotonUserData.cc,v 1.2 2012/07/20 11:34:12 sturdy Exp $
 //
 //
 
 
 #include "ZInvisibleBkgds/Photons/interface/AddPhotonUserData.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
 //
 // constants, enums and typedefs
 //
@@ -34,25 +33,33 @@ Implementation:
 // constructors and destructor
 //
 AddPhotonUserData::AddPhotonUserData(const edm::ParameterSet& pset) :
-  debug_         ( pset.getParameter< bool >( "debug" ) ),
-  debugString_   ( pset.getParameter< std::string >( "debugString" ) ),
-  photonLabel_   ( pset.getParameter< edm::InputTag >( "photonLabel" ) ),
-  floatLabels_   ( pset.getParameter< std::vector<edm::InputTag> >( "floatLabels" ) ),
-  floatNames_    ( pset.getParameter< std::vector<std::string> >  ( "floatNames" ) ),
+  debug_         ( pset.getParameter< bool >( "debug" )),
+  debugString_   ( pset.getParameter< std::string >( "debugString" )),
+  photonLabel_   ( pset.getParameter< edm::InputTag >( "photonLabel" )),
+  floatLabels_   ( pset.getParameter< std::vector<edm::InputTag> >( "floatLabels" )),
+  floatNames_    ( pset.getParameter< std::vector<std::string> >  ( "floatNames" )),
   useUserData_   ( pset.exists("userData")),
-  addConversions_( pset.getParameter< bool >  ( "embedConversionInfo" ) )
+  addConversions_( pset.getParameter< bool >  ( "embedConversionInfo" )),
+  useAlternateIsolations_( pset.getParameter< bool >  ( "useAlternateIsolations" ))
 {
   using namespace pat;
   // produces vector of photons
   produces<std::vector<pat::Photon> >();
-  if ( useUserData_ ) {
-    userDataHelper_ = PATUserDataHelper<Photon>(pset.getParameter<edm::ParameterSet>("userData"));
-  }
+  //if ( useUserData_ ) {
+  //  userDataHelper_ = PATUserDataHelper<Photon>(pset.getParameter<edm::ParameterSet>("userData"));
+  //}
   if ( addConversions_ ) {
     gsfElecLabel_     = pset.getParameter< edm::InputTag >( "gsfElectronLabel" );
     conversionsLabel_ = pset.getParameter< edm::InputTag >( "conversionsLabel" );
     beamspotLabel_    = pset.getParameter< edm::InputTag >( "beamspotLabel" );
   }  
+  if (useAlternateIsolations_) {
+    vetoConeSize_   = pset.getParameter< double >  ( "vetoConeSize" );
+    candidateLabel_ = pset.getParameter< edm::InputTag >  ( "candidateLabel" );
+    vertexLabel_    = pset.getParameter< edm::InputTag >( "vertexLabel" );
+    isolator.initializePhotonIsolation(kTRUE);
+    isolator. setConeSize(vetoConeSize_);
+  }
 }
 
 
@@ -80,13 +87,22 @@ void AddPhotonUserData::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<reco::ConversionCollection> conversions;
   edm::Handle<reco::GsfElectronCollection> gsfElecs;
   edm::Handle<reco::BeamSpot> bs;
-  //const reco::BeamSpot &beamspot = *bs.product();
 
+  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  edm::Handle<reco::VertexCollection> vertices;
+
+  //Add conversion veto information
   if (addConversions_) {
     ev.getByLabel(conversionsLabel_,conversions);
     ev.getByLabel(gsfElecLabel_, gsfElecs);
     ev.getByLabel(beamspotLabel_, bs);
   }
+  //Alternate code for Photon isolations
+  if (useAlternateIsolations_) {
+    ev.getByLabel(candidateLabel_,pfCandidates);
+    ev.getByLabel(vertexLabel_, vertices);
+  }
+  //Config supplied floats
   if ( floatLabels_.size()!=floatNames_.size()) {
     std::cout<<"mismatch between supplied floats and names"<<std::endl;
     std::cout<<"floatLabels_.size()="<<floatLabels_.size()<<std::endl;
@@ -122,6 +138,16 @@ void AddPhotonUserData::produce(edm::Event& ev, const edm::EventSetup& es)
       //reco::ConversionRef conv = ConversionTools::matchedConversion(aPhoton.superCluster(),conversions,beamspot.position());
       aPhoton.addUserInt("passElectronConvVeto",(int)passelectronveto);
     }
+    if (useAlternateIsolations_) {
+      //fGetIsolation(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices)
+      reco::VertexRef vtx(vertices,0);
+      //isolator.fGetIsolation(&(*itPhoton), &(*pfCandidates), vtx, vertices);
+      isolator.fGetIsolation(&(*itPhoton), pfCandidates.product(), vtx, vertices);
+      aPhoton.addUserFloat("pfChargedIsoAlt",isolator.getIsolationCharged());
+      aPhoton.addUserFloat("pfNeutralIsoAlt",isolator.getIsolationNeutral());
+      aPhoton.addUserFloat("pfGammaIsoAlt",  isolator.getIsolationPhoton());
+    }
+
     PATPhotons->push_back(aPhoton);
   }
 
