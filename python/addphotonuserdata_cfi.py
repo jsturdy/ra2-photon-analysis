@@ -1,5 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
+addphotonuserbasic = cms.EDProducer("AddPhotonUserData",
+    debug          = cms.bool(False),
+    debugString    = cms.string("addphotonuserdata"),
+    photonLabel    = cms.InputTag("patPhotons"),
+    floatLabels    = cms.VInputTag(cms.InputTag("kt6PFJetsForIsolation","rho")),
+    floatNames     = cms.vstring("rho25"),
+    embedConversionInfo = cms.bool(True),
+    gsfElectronLabel = cms.InputTag("gsfElectrons"),
+    conversionsLabel = cms.InputTag("conversions"),
+    beamspotLabel    = cms.InputTag("offlineBeamSpot"),
+    useAlternateIsolations = cms.bool(True),
+    vetoConeSize     = cms.double(0.4),
+    candidateLabel   = cms.InputTag("particleFlow"),
+    vertexLabel      = cms.InputTag("offlinePrimaryVertices"),
+    userData = cms.PSet(
+        userCands = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userInts = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFloats = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userClasses = cms.PSet(
+            src = cms.VInputTag("")
+        ),
+        userFunctionLabels = cms.vstring(
+    ),
+        userFunctions = cms.vstring(
+        )
+    )
+)
 addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
     debug          = cms.bool(False),
     debugString    = cms.string("addphotonuserdata"),
