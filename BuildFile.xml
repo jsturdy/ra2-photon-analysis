@@ -7,10 +7,13 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/HLTReco"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
-<flags CXXFLAGS="-O0 -g3 -fno-inline"/>
-<flags CXX_FLAGS="-O0 -g3 -fno-inline"/>
+#<flags CXXFLAGS="-O0 -g3 -fno-inline"/>
+#<flags CXX_FLAGS="-O0 -g3 -fno-inline"/>
 <export>
    <lib name="1"/>
 </export>

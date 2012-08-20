@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: RecoIsoEffG.cc,v 1.1 2012/07/09 14:29:00 sturdy Exp $
+// $Id: RecoIsoEffG.cc,v 1.2 2012/07/20 11:34:12 sturdy Exp $
 //
 //
 
@@ -203,7 +203,7 @@ void RecoIsoEffG::produce(edm::Event& ev, const edm::EventSetup& es)
       const std::vector<std::string> floatNames = recop->userFloatNames();
       //std::cout<<floatNames.at(0)<<std::endl;
       if (debug_) {
-	recop->listUserFloat();
+	//recop->listUserFloat();
 	std::cout<<"RecoIsoEffG::rho25::"  <<recop->userFloat("rho25")<<std::endl;
 	std::cout<<"RecoIsoEffG::rhoToPhotonMap::"  <<recop->userFloat("rhoToPhotonMap")<<std::endl;
 	std::cout<<"RecoIsoEffG::chargedIsolation::"<<recop->userIsolation(pat::IsolationKeys(pat::UserBaseIso+0))<<std::endl;

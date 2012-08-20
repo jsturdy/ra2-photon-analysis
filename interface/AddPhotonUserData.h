@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: AddPhotonUserData.h,v 1.1 2012/07/09 14:31:37 sturdy Exp $
+// $Id: AddPhotonUserData.h,v 1.2 2012/07/20 11:34:50 sturdy Exp $
 //
 //
 
@@ -49,6 +49,7 @@ Implementation:
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "CommonTools/Utils/interface/EtComparator.h"
 
+#include "EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h"
 
 //Used data formats
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -86,6 +87,13 @@ private:
   edm::InputTag gsfElecLabel_ ;
   edm::InputTag conversionsLabel_ ;
   edm::InputTag beamspotLabel_ ;
+
+  //only for adding alternate isolations
+  PFIsolationEstimator isolator;
+  bool useAlternateIsolations_;
+  edm::InputTag candidateLabel_ ;
+  edm::InputTag vertexLabel_ ;
+  double vetoConeSize_;
 
   pat::PATUserDataHelper<pat::Photon>      userDataHelper_;
 };
