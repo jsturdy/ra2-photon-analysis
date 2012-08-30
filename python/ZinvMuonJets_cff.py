@@ -15,13 +15,13 @@ patJetsAK5PFNoMuon.checkOverlaps.electrons.src           = cms.InputTag('patElec
 patJetsAK5PFNoMuon.checkOverlaps.tkIsoElectrons.src      = cms.InputTag('patElectrons')
 patJetsAK5PFNoMuon.checkOverlaps.photons.src             = cms.InputTag('patPhotonsAlt')
 
-patJetsAK5PFNoMuonPt30 = patJetsAK5PFNoMuon.clone()
+patJetsAK5PFNoMuonPt30     = patJetsAK5PFNoMuon.clone()
 patJetsAK5PFNoMuonPt30.src = cms.InputTag('patJetsAK5PFPt30')
 
-patJetsPFNoMuon                         = patJetsAK5PFNoMuonPt30.clone()
+patJetsPFNoMuon     = patJetsAK5PFNoMuonPt30.clone()
 patJetsPFNoMuon.src = cms.InputTag('patJetsPF')
 
-patJetsPFNoMuonPt30                         = patJetsAK5PFNoMuonPt30.clone()
+patJetsPFNoMuonPt30     = patJetsAK5PFNoMuonPt30.clone()
 patJetsPFNoMuonPt30.src = cms.InputTag('patJetsPFPt30')
 
 #####
@@ -129,13 +129,13 @@ countCSVJetsPFNoMuonPt50Eta25.src = cms.InputTag('patCSVJetsPFNoMuonPt50Eta25')
 countCSVJetsPFNoMuonPt50Eta25.minNumber = cms.uint32(1)
 
 
-#zinvBVeto = cms.Sequence(
+#zinvBVetoNoMuon = cms.Sequence(
 #    ~countSSVHEMBJetsAK5PFNoMuon
 #)
-#zinvBVetoPt30 = cms.Sequence(
+#zinvBVetoNoMuonPt30 = cms.Sequence(
 #    ~countSSVHEMBJetsAK5PFNoMuonPt30
 #)
-#zinvBVetoPt50Eta25 = cms.Sequence(
+#zinvBVetoNoMuonPt50Eta25 = cms.Sequence(
 #    ~countSSVHEMBJetsAK5PFNoMuonPt50Eta25
 #)
 ### create the jet collections
