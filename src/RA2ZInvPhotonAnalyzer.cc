@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id$
+// $Id: RA2ZInvPhotonAnalyzer.cc,v 1.1 2012/07/20 11:35:34 sturdy Exp $
 //
 //
 
@@ -77,20 +77,20 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
 
   // reject event if there an isolated electron or muon present
   edm::Handle< std::vector<pat::Electron> > patElectrons;
-  ev.getByLabel("patElectronsPFIDIso", patElectrons);
+  ev.getByLabel("patElectronsIDIso", patElectrons);
 
   edm::Handle< std::vector<pat::Muon> > patMuons;
-  ev.getByLabel("patMuonsPFIDIso", patMuons);
+  ev.getByLabel("patMuonsIDIso", patMuons);
   
   if (patElectrons->size() != 0 || patMuons->size() != 0) { 
-    //std::cout << "Isolated Lepton found : Event Rejected : ( run, event, lumi ) " 
-    //<< run << " " << event << " " << lumi << std::endl;
+    std::cout << "Isolated Lepton found : Event Rejected : ( run, event, lumi ) " 
+    << run << " " << event << " " << lumi << std::endl;
     return;
   }
   
   // get vertices
   edm::Handle< std::vector<reco::Vertex> > Vertices;
-  ev.getByLabel("offlinePrimaryVertices", Vertices);
+  ev.getByLabel("goodVertices", Vertices);
   int nVertices = Vertices->size();
   
   // get photons 
@@ -167,6 +167,10 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
     double pfNeutralIso = p1->userIsolation(pat::IsolationKeys(pat::UserBaseIso+2));
     double pfGammaIso   = p1->userIsolation(pat::IsolationKeys(pat::UserBaseIso+3));
 
+    double pfChargedIsoPU = p1->userFloat("pfChargedPU");
+    double pfNeutralIsoPU = p1->userFloat("pfNeutralPU");
+    double pfGammaIsoPU   = p1->userFloat("pfGammaPU");
+
     double pfChargedIsoRel = p1->userFloat("pfChargedRel");
     double pfNeutralIsoRel = p1->userFloat("pfNeutralRel");
     double pfGammaIsoRel   = p1->userFloat("pfGammaRel");
@@ -176,6 +180,7 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
     double pfGammaIsoPURel   = p1->userFloat("pfGammaPURel");
     
     bool   isPixel     = p1->hasPixelSeed();
+    bool   passElecVeto = p1->userInt("passElectronConvVeto");
     bool   hOverE      = ( hadOverEm < photon_he);
     //bool   hOverE2012  = ( hadOverEm2012 < photon_he);
     bool   hOverE2012  = ( hadOverEm2012 < p1->userFloat("hadTowOverEmTightCut"));
@@ -189,15 +194,19 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
     bool   isPhotonIso       = ( (trackerIso+ecalIso+hcalIso     - areaR04*pf_event_rho)<5.0 );
     bool   isPhotonIso2012   = ( (trackerIso+ecalIso+hcalIso2012 - areaR04*pf_event_rho)<5.0 );
     
-    bool   isPhotonPFChargedIso = (pfChargedIsoPURel < p1->userFloat("pfChargedTightCut"));
-    bool   isPhotonPFNeutralIso = (pfNeutralIsoPURel < p1->userFloat("pfNeutralTightCut"));
-    bool   isPhotonPFGammaIso   = (pfGammaIsoPURel   < p1->userFloat("pfGammaTightCut"));
+    bool   isPhotonPFChargedIso = (pfChargedIsoPU < p1->userFloat("pfChargedTightCut"));
+    bool   isPhotonPFNeutralIso = (pfNeutralIsoPU < p1->userFloat("pfNeutralTightCut"));
+    bool   isPhotonPFGammaIso   = (pfGammaIsoPU   < p1->userFloat("pfGammaTightCut"));
+    bool   isPhotonPFChargedIsoRel = (pfChargedIsoPURel < p1->userFloat("pfChargedRelTightCut"));
+    bool   isPhotonPFNeutralIsoRel = (pfNeutralIsoPURel < p1->userFloat("pfNeutralRelTightCut"));
+    bool   isPhotonPFGammaIsoRel   = (pfGammaIsoPURel   < p1->userFloat("pfGammaRelTightCut"));
 
     bool   isPhotonPFIso = ( isPhotonPFChargedIso && isPhotonPFNeutralIso && isPhotonPFGammaIso );
 
     bool   isPhoton2011    = ( kineAcc && !isPixel && hOverE     && showerShape && isPhotonIso );
     bool   isPhoton2012    = ( kineAcc && !isPixel && hOverE2012 && showerShape && isPhotonIso2012 );
-    bool   isPhoton2012PF  = ( kineAcc && !isPixel && hOverE2012 && showerShape && isPhotonPFIso );
+    //bool   isPhoton2012PF  = ( kineAcc && !isPixel && hOverE2012 && showerShape && isPhotonPFIso );
+    bool   isPhoton2012PF  = ( kineAcc && passElecVeto && hOverE2012 && showerShape && isPhotonPFIso );
 
    
     if( iphot<2 ) {
@@ -241,6 +250,7 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
       bool isPhoton2012PF_tmp(false), 
 	kineAcc_tmp(false), 
 	isPixel_tmp(false), 
+	passElecVeto_tmp(false), 
 	hOverE_tmp(false), 
 	hOverE2012_tmp(false), 
 	showerShape_tmp(false),
@@ -249,7 +259,8 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
 	isPhotonPFGammaIso_tmp(false),
 	isPhotonPFIso_tmp(false);
     
-      isPixel_tmp     = (*patPhotons)[0].hasPixelSeed();
+      isPixel_tmp      = (*patPhotons)[0].hasPixelSeed();
+      passElecVeto_tmp = (*patPhotons)[0].userInt("passElectronConvVeto");
       hOverE_tmp      = ( (*patPhotons)[0].hadronicOverEm() < 0.5);
       hOverE2012_tmp  = ( (*patPhotons)[0].hadTowOverEm() < (*patPhotons)[0].userFloat("hadTowOverEmTightCut"));
       kineAcc_tmp     = ( (*patPhotons)[0].et() > photon_ptcut && 
@@ -263,13 +274,15 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
     
       isPhotonPFIso_tmp = ( isPhotonPFChargedIso_tmp && isPhotonPFNeutralIso_tmp && isPhotonPFGammaIso_tmp );
     
-      isPhoton2012PF_tmp  = ( kineAcc_tmp && !isPixel_tmp && hOverE2012_tmp && showerShape_tmp && isPhotonPFIso_tmp );
+      //isPhoton2012PF_tmp  = ( kineAcc_tmp && !isPixel_tmp && hOverE2012_tmp && showerShape_tmp && isPhotonPFIso_tmp );
+      isPhoton2012PF_tmp  = ( kineAcc_tmp && passElecVeto_tmp && hOverE2012_tmp && showerShape_tmp && isPhotonPFIso_tmp );
     
-      if (patPhotonsIso->size() > 0) {
+      if (patPhotonsIso->size() > 0 && debug_) {
 	std::cout<<
 	  //"isPhoton2012PF pass      ("<<isPhoton2012PF_tmp      <<")  -  "<< 
 	  "kineAcc pass("     <<kineAcc_tmp             <<")  -  "<< 
 	  "!isPixel pass("    <<!isPixel_tmp            <<")  -  "<< 
+	  "passElecVeto pass("<<passElecVeto_tmp        <<")  -  "<< 
 	  "hOverE pass("      <<hOverE_tmp              <<")  -  "<< 
 	  "hOverE2012 pass("  <<hOverE2012_tmp          <<")  -  "<< 
 	  "showerShape pass(" <<showerShape_tmp         <<")  -  "<<
@@ -281,7 +294,7 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
       
 	std::cout<<"          ::   pt      eta    pixel    hOverE    hOverE2012   sieie    pfCHRel    pfNURel   pfGARel    pfCHPURel    pfNUPURel   pfGAPURel    pfCHPUSub    pfNUPUSub   pfGAPUSub"<<std::endl;
 	std::cout<<"tight cuts::"<<
-	  50.0<<"    "<<
+	  20.0<<"    "<<
 	  2.5 <<"    "<<
 	  0   <<"    "<<
 	  0.5 <<"    "<<
@@ -514,11 +527,11 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
 	isPhotonPFIso_tmp(false);
       
       isPixel_tmp     = (*patPhotons)[1].hasPixelSeed();
-      hOverE_tmp      = ( (*patPhotons)[1].hadronicOverEm() < 0.5);
-      hOverE2012_tmp  = ( (*patPhotons)[1].hadTowOverEm() < (*patPhotons)[1].userFloat("hadTowOverEmTightCut"));
-      kineAcc_tmp     = ( (*patPhotons)[1].et() > photon_ptcut && 
-			  (((*patPhotons)[1].isEE() && std::fabs((*patPhotons)[1].eta()) > 1.566 && std::fabs((*patPhotons)[1].eta()) < 2.5) || 
-			   ((*patPhotons)[1].isEB() && std::fabs((*patPhotons)[1].eta()) < 1.4442) ) ) ;
+      hOverE_tmp      = ((*patPhotons)[1].hadronicOverEm() < 0.5);
+      hOverE2012_tmp  = ((*patPhotons)[1].hadTowOverEm() < (*patPhotons)[1].userFloat("hadTowOverEmTightCut"));
+      kineAcc_tmp     = ((*patPhotons)[1].et() > photon_ptcut && 
+			 (((*patPhotons)[1].isEE() && std::fabs((*patPhotons)[1].eta()) > 1.566 && std::fabs((*patPhotons)[1].eta()) < 2.5) || 
+			  ((*patPhotons)[1].isEB() && std::fabs((*patPhotons)[1].eta()) < 1.4442) ) ) ;
       showerShape_tmp = (*patPhotons)[1].sigmaIetaIeta() < (*patPhotons)[1].userFloat("showerShapeTightCut");
       
       isPhotonPFChargedIso_tmp = ((*patPhotons)[1].userFloat("pfChargedPURel") < (*patPhotons)[1].userFloat("pfChargedTightCut"));
@@ -531,7 +544,7 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
       
       if (patPhotonsIso->size() > 1) {
 	std::cout<<
-	  //"isPhoton2012PF pass      ("<<isPhoton2012PF_tmp      <<")  -  "<< 
+	  "isPhoton2012PF pass      ("<<isPhoton2012PF_tmp      <<")  -  "<< 
 	  "kineAcc pass("     <<kineAcc_tmp             <<")  -  "<< 
 	  "!isPixel pass("    <<!isPixel_tmp            <<")  -  "<< 
 	  "hOverE pass("      <<hOverE_tmp              <<")  -  "<< 
@@ -632,19 +645,18 @@ void RA2ZInvPhotonAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&
 	  std::cout<<"0    0    0    0";
 	std::cout<<std::endl;
 	std::cout<<"patPhotonsIso[1]::"<<
-	  (*patPhotonsIso)[1].pt()<<"    "<<
-	  (*patPhotonsIso)[1].eta()<<"    "<<
-	  (*patPhotonsIso)[1].hasPixelSeed()<<"    "<<
+	  (*patPhotonsIso)[1].pt()            <<"    "<<
+	  (*patPhotonsIso)[1].eta()           <<"    "<<
+	  (*patPhotonsIso)[1].hasPixelSeed()  <<"    "<<
 	  (*patPhotonsIso)[1].hadronicOverEm()<<"    "<<
-	  (*patPhotonsIso)[1].hadTowOverEm()<<"    "<<
-	  (*patPhotonsIso)[1].sigmaIetaIeta()<<"    "<<
+	  (*patPhotonsIso)[1].hadTowOverEm()  <<"    "<<
+	  (*patPhotonsIso)[1].sigmaIetaIeta() <<"    "<<
 	  (*patPhotonsIso)[1].userFloat("pfChargedPURel")<<"    "<<
 	  (*patPhotonsIso)[1].userFloat("pfNeutralPURel")<<"    "<<
-	  (*patPhotonsIso)[1].userFloat("pfGammaPURel")<<"    "<<
-	  (*patPhotons)[1].userFloat("pfGammaPURel")<<"    ";
+	  (*patPhotonsIso)[1].userFloat("pfGammaPURel")  <<"    ";
 	if (!data_) {
 	  std::cout<<
-	    (*patPhotonsIso)[1].genPhoton()->pdgId()<<"    "<<
+	    (*patPhotonsIso)[1].genPhoton()->pdgId() <<"    "<<
 	    (*patPhotonsIso)[1].genPhoton()->status()<<"    "<<
 	    (*patPhotonsIso)[1].genPhoton()->mother()->pdgId()<<"    "<<
 	    (*patPhotonsIso)[1].genPhoton()->mother()->status();

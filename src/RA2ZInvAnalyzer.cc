@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id$
+// $Id: RA2ZInvAnalyzer.cc,v 1.1 2012/07/20 11:35:34 sturdy Exp $
 //
 //
 
@@ -74,20 +74,20 @@ void RA2ZInvAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es) {
 
   // reject event if there an isolated electron or muon present
   edm::Handle< std::vector<pat::Electron> > patElectrons;
-  ev.getByLabel("patElectronsPFIDIso", patElectrons);
+  ev.getByLabel("patElectronsIDIso", patElectrons);
 
   edm::Handle< std::vector<pat::Muon> > patMuons;
-  ev.getByLabel("patMuonsPFIDIso", patMuons);
+  ev.getByLabel("patMuonsIDIso", patMuons);
   
   if (patElectrons->size() != 0 || patMuons->size() != 0) { 
-    //std::cout << "Isolated Lepton found : Event Rejected : ( run, event, lumi ) " 
-    //<< run << " " << event << " " << lumi << std::endl;
+    std::cout << "Isolated Lepton found : Event Rejected : ( run, event, lumi ) " 
+    << run << " " << event << " " << lumi << std::endl;
     return;
   }
   
   // get vertices
   edm::Handle< std::vector<reco::Vertex> > Vertices;
-  ev.getByLabel("offlinePrimaryVertices", Vertices);
+  ev.getByLabel("goodVertices", Vertices);
   int nVertices = Vertices->size();
   
   // get jetcollection
@@ -127,9 +127,6 @@ void RA2ZInvAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   //  ev.getByLabel(genParticles_, genParticles);
   //  doGenAnalysis(genParticles, jetsHT, jets, IsoPhotons, pu_event_wt);
   //}
-
-  // require atleast one GenBoson else return
-  //if (IsoPhotons.size()<1) return;
 
   int n_jets_pt30 = 0, n_jets_pt50eta25 = 0;
   double ht  = 0.0;

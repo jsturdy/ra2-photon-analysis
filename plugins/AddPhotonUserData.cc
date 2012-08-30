@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: AddPhotonUserData.cc,v 1.2 2012/07/20 11:34:12 sturdy Exp $
+// $Id: AddPhotonUserData.cc,v 1.3 2012/08/19 23:44:06 sturdy Exp $
 //
 //
 
@@ -45,9 +45,9 @@ AddPhotonUserData::AddPhotonUserData(const edm::ParameterSet& pset) :
   using namespace pat;
   // produces vector of photons
   produces<std::vector<pat::Photon> >();
-  //if ( useUserData_ ) {
-  //  userDataHelper_ = PATUserDataHelper<Photon>(pset.getParameter<edm::ParameterSet>("userData"));
-  //}
+  if ( useUserData_ ) {
+    userDataHelper_ = pat::PATUserDataHelper<pat::Photon>(pset.getParameter<edm::ParameterSet>("userData"));
+  }
   if ( addConversions_ ) {
     gsfElecLabel_     = pset.getParameter< edm::InputTag >( "gsfElectronLabel" );
     conversionsLabel_ = pset.getParameter< edm::InputTag >( "conversionsLabel" );

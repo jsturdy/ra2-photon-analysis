@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialObjectCollection.h,v 1.1 2012/07/20 11:34:50 sturdy Exp $
+// $Id: SpecialObjectCollection.h,v 1.1 2012/08/20 13:00:14 sturdy Exp $
 //
 //
 
@@ -130,7 +130,8 @@ zinvtools::SpecialObjectCollection<PATObjType>::produce(edm::Event& ev, const ed
 {
   using namespace pat;
   //get the muons
-  edm::Handle<std::vector<reco::CompositeCandidate> > cands;
+  //edm::Handle<std::vector<reco::CompositeCandidate> > cands;
+  edm::Handle<reco::CompositeCandidateCollection > cands;
   ev.getByLabel(candidateLabel_,cands);
   
   if (!(cands->size()>0)) {
@@ -153,7 +154,8 @@ zinvtools::SpecialObjectCollection<PATObjType>::produce(edm::Event& ev, const ed
     }
     ++ican;
   }
-  std::vector<PATObjType> * PATObjects = new std::vector<PATObjType>(); 
+  //std::vector<PATObjType> * PATObjects = new std::vector<PATObjType>(); 
+  ObjectCollection * PATObjects = new std::vector<PATObjType>(); 
   //const_iterator_imp_specific 
   for (unsigned int dau = 0; dau < (*cands)[candIndex].numberOfDaughters(); ++dau){
     ObjectRef master(((*cands)[candIndex].daughter(dau))->masterClone().castTo<ObjectRef>());

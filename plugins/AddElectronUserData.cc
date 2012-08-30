@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: AddElectronUserData.cc,v 1.1 2012/07/09 14:33:58 sturdy Exp $
+// $Id: AddElectronUserData.cc,v 1.1 2012/07/20 11:34:12 sturdy Exp $
 //
 //
 
@@ -46,7 +46,7 @@ AddElectronUserData::AddElectronUserData(const edm::ParameterSet& pset) :
   // produces vector of electrons
   produces<std::vector<pat::Electron> >();
   if ( useUserData_ ) {
-    userDataHelper_ = PATUserDataHelper<Electron>(pset.getParameter<edm::ParameterSet>("userData"));
+    userDataHelper_ = pat::PATUserDataHelper<pat::Electron>(pset.getParameter<edm::ParameterSet>("userData"));
   }
   if ( addConversions_ ) {
     conversionsLabel_ = pset.getParameter< edm::InputTag >( "conversionsLabel" );

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialMuonCollection.cc,v 1.1 2012/07/20 11:34:12 sturdy Exp $
+// $Id: SpecialMuonCollection.cc,v 1.1 2012/08/19 23:45:25 sturdy Exp $
 //
 //
 
@@ -69,12 +69,16 @@ void SpecialMuonCollection::produce(edm::Event& ev, const edm::EventSetup& es)
     std::cout<<"Candidate collecition empty"<<std::endl;
     return;
   }
+  if (debug_)
+    std::cout<<"Candidate collection has size "<<cands->size()<<std::endl;
   //
   int candIndex = -1;
   double bestDMInv = 1000.;
   int ican(0);
   for (std::vector<reco::CompositeCandidate>::const_iterator itCand = cands->begin(); itCand != cands->end(); itCand++) {
     double dMInv = fabs(itCand->mass() - mZ_);
+    if (debug_)
+      std::cout<<"mInv = "<<itCand->mass()<<std::endl;
     if (dMInv < bestDMInv) {
       bestDMInv = dMInv;
       candIndex = ican;
@@ -93,11 +97,16 @@ void SpecialMuonCollection::produce(edm::Event& ev, const edm::EventSetup& es)
   pat::Muon aMuon2(*master2);
   PATMuons->push_back(aMuon1);
   PATMuons->push_back(aMuon2);
-
+  if (debug_){
+    std::cout<<"muon1 "<<aMuon1.pt()<<", "<<aMuon2.eta()<<std::endl;
+    std::cout<<"muon2 "<<aMuon2.pt()<<", "<<aMuon2.eta()<<std::endl;
+  }
   // sort Muons in ET
   std::sort(PATMuons->begin(), PATMuons->end(), eTComparator_);
   // put genEvt object in Event
   std::auto_ptr<std::vector<pat::Muon> > myMuons(PATMuons);
+  if (debug_)
+    std::cout<<"Special muon collection has size "<<myMuons->size()<<std::endl;
   ev.put(myMuons);
 }
 
