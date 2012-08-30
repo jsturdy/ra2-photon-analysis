@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Analysis")
+process = cms.Process("TreeMaker")
 
 #===================== Message Logger =============================
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -32,31 +32,23 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source.skipEvents = cms.untracked.uint32(0)
 
 #========================= analysis module =====================================
 
-process.analysis = cms.EDAnalyzer('RA2ZInvPhotonAnalyzer',
+scaleF = 5.274*10*1000/1005925.
+process.analysis = cms.EDAnalyzer('RA2ZInvTreeMaker',
                                   Debug           = cms.bool(False),
                                   Data            = cms.bool(False),
+                                  ScaleFactor     = cms.double(scaleF),
                                   PhotonSrc       = cms.InputTag("patPhotonsUserData"),
-                                  PhotonIsoSrc    = cms.InputTag("patPhotonsIDPFIso"),
                                   JetSrc          = cms.InputTag("patJetsAK5PFPt30"),
-                                  JetNoPhotSrc    = cms.InputTag("patJetsAK5PFPt30NoPhotonIDIso"),
-                                  #JetNoPhotSrc    = cms.InputTag("patJetsAK5PFPt50Eta25NoPhotonIDIso"),
+                                  bJetSrc         = cms.InputTag("patCSVJetsAK5PFPt30Eta24"),
                                   JetHTSource     = cms.InputTag("patJetsAK5PFPt50Eta25"),
-                                  RA2NJets        = cms.uint32(3),
-                                  RA2HT           = cms.double(350.0),
-                                  RA2MHT          = cms.double(200.0),
-                                  RA2ApplyDphiCuts= cms.bool(True),
                                   DoPUReweight    = cms.bool(True),
-                                  PUWeightSource  = cms.InputTag("puWeight"),
-                                  PFRhoSource     = cms.InputTag("kt6PFJetsForIsolation","rho"),
-                                  DoOptimizePlots = cms.bool(True),
-                                  GenParticles    = cms.InputTag("genParticles"),
-                                  DoGenAnalysis   = cms.bool(False),
+                                  PUWeightSource  = cms.InputTag("puWeight")
 )
 
 #================ configure filters and analysis sequence=======================
@@ -65,37 +57,17 @@ process.load('SandBox.Skims.RA2Objects_cff')
 process.load('SandBox.Skims.RA2Selection_cff')
 #from SusyAnalysis.MyAnalysis.filterBoolean_cfi import *
 #process.load("SusyAnalysis.MyAnalysis.filterBoolean_cfi")
-
-process.load('ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff')
-from ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff import *
-process.load('ZInvisibleBkgds.Photons.ZinvBkgdJets_cff')
-from ZInvisibleBkgds.Photons.ZinvBkgdJets_cff import *
-process.load('ZInvisibleBkgds.Photons.ZinvBkgdObjects_cff')
-process.load('ZInvisibleBkgds.Photons.adduserdata_cfi')
 from RecoJets.JetProducers.kt4PFJets_cfi import *
 process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
 process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 
-from ZInvisibleBkgds.Photons.photonmap_cfi import *
-process.rhoToPhotonMap = photonmap.clone()
-from ZInvisibleBkgds.Photons.adduserdata_cfi import *
-process.patPhotonsUser1 = adduserdata1.clone()
-process.patPhotonsUser1.photonLabel = cms.InputTag("patPhotonsAlt")
-process.patPhotonsUser1.userData.userFloats = cms.PSet(
-    src = cms.VInputTag(
-        cms.InputTag("rhoToPhotonMap")
-    )
-)
-process.patPhotonsUserData = adduserdata2.clone()
-process.patPhotonsUserData.photonLabel = cms.InputTag("patPhotonsUser1")
+process.load('ZInvisibleBkgds.Photons.ZinvBkgdJets_cff')
+from ZInvisibleBkgds.Photons.ZinvBkgdJets_cff import *
 
 process.analysisSeq = cms.Sequence(#process.ra2PostCleaning   *
                                    process.ra2Objects
                                    * process.kt6PFJetsForIsolation
-                                   * process.rhoToPhotonMap
-                                   * process.patPhotonsUser1
-                                   * process.patPhotonsUserData
-                                   * process.photonObjects
+                                   * process.zinvBJets
                                    * process.ra2PFMuonVeto
                                    * process.ra2PFElectronVeto
                                    * process.analysis
@@ -104,7 +76,7 @@ process.analysisSeq = cms.Sequence(#process.ra2PostCleaning   *
 #======================= output module configuration ===========================
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('photonMC.root')
+    fileName = cms.string('zinvisibleMC.root')
 )
 
 #=================== run range & HLT filters ===============================
