@@ -40,7 +40,7 @@ patCSVJetsAK5PFPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
 patCSVJetsAK5PFPt50Eta25 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFPt50Eta25.src = cms.InputTag('patCSVJetsAK5PF')
-patCSVJetsAK5PFPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+patCSVJetsAK5PFPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVMVAJetsAK5PF = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PF.src = cms.InputTag('patJetsAK5PF')

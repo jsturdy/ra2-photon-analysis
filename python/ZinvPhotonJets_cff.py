@@ -141,7 +141,7 @@ patCSVJetsAK5PFNoPhotonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
 patCSVJetsAK5PFNoPhotonPt50Eta25 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFNoPhotonPt50Eta25.src = cms.InputTag('patCSVJetsAK5PFNoPhoton')
-patCSVJetsAK5PFNoPhotonPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+patCSVJetsAK5PFNoPhotonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVMVAJetsAK5PFNoPhoton = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoPhoton.src = cms.InputTag('patJetsAK5PFNoPhoton')
@@ -469,7 +469,7 @@ patCSVJetsAK5PFNoPhotonSpecialPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 
 
 patCSVJetsAK5PFNoPhotonSpecialPt50Eta25 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFNoPhotonSpecialPt50Eta25.src = cms.InputTag('patCSVJetsAK5PFNoPhotonSpecial')
-patCSVJetsAK5PFNoPhotonSpecialPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+patCSVJetsAK5PFNoPhotonSpecialPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVMVAJetsAK5PFNoPhotonSpecial = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoPhotonSpecial.src = cms.InputTag('patJetsAK5PFNoPhotonSpecial')

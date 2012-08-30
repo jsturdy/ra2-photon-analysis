@@ -83,7 +83,7 @@ patCSVMVAJetsAK5PFNoMuonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
 patCSVMVAJetsAK5PFNoMuonPt50Eta25 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patCSVMVAJetsAK5PFNoMuon')
-patCSVMVAJetsAK5PFNoMuonPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+patCSVMVAJetsAK5PFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 ###patJetsPFNoMuon
 patCSVJetsPFNoMuon = selectedRA2PatJets.clone()

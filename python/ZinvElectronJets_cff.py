@@ -166,7 +166,7 @@ patCSVJetsAK5PFNoElectronPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
 patCSVJetsAK5PFNoElectronPt50Eta25 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFNoElectronPt50Eta25.src = cms.InputTag('patCSVJetsAK5PFNoElectron')
-patCSVJetsAK5PFNoElectronPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+patCSVJetsAK5PFNoElectronPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVMVAJetsAK5PFNoElectron = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoElectron.src = cms.InputTag('patJetsAK5PFNoElectron')
@@ -182,7 +182,7 @@ patCSVMVAJetsAK5PFNoElectronPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.
 
 patCSVMVAJetsAK5PFNoElectronPt50Eta25 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoElectronPt50Eta25.src = cms.InputTag('patCSVMVAJetsAK5PFNoElectron')
-patCSVMVAJetsAK5PFNoElectronPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+patCSVMVAJetsAK5PFNoElectronPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 ###patJetsPFNoElectron
 patSSVHEMBJetsPFNoElectron = selectedRA2PatJets.clone()
@@ -239,7 +239,7 @@ patCSVMVAJetsPFNoElectronPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
 patCSVMVAJetsPFNoElectronPt50Eta25 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFNoElectronPt50Eta25.src = cms.InputTag('patCSVMVAJetsPFNoElectron')
-patCSVMVAJetsPFNoElectronPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
+patCSVMVAJetsPFNoElectronPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 ### count the b-jets
 countSSVHEMBJetsAK5PFNoElectron = countPatJets.clone()
