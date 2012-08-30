@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-specialMuonCollection = cms.EDProducer("SpecialMuonCollection",
+specialMuonCollection = cms.EDProducer("SpecialPATMuonCollection",
     debug          = cms.bool(False),
     debugString    = cms.string("specialMuonCollection"),
     candidateLabel = cms.InputTag("zMuMuCands"),

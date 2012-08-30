@@ -11,6 +11,15 @@ mhtPFNoPhotID.JetCollection = cms.InputTag("patJetsAK5PFPt30NoPhotonID")
 mhtPFNoPhotIDIso = mht.clone()
 mhtPFNoPhotIDIso.JetCollection = cms.InputTag("patJetsAK5PFPt30NoPhotonIDIso")
 
+mhtPFchsNoPhot = mht.clone()
+mhtPFchsNoPhot.JetCollection = cms.InputTag("patJetsPFPt30NoPhoton")
+
+mhtPFchsNoPhotID = mht.clone()
+mhtPFchsNoPhotID.JetCollection = cms.InputTag("patJetsPFPt30NoPhotonID")
+
+mhtPFchsNoPhotIDIso = mht.clone()
+mhtPFchsNoPhotIDIso.JetCollection = cms.InputTag("patJetsPFPt30NoPhotonIDIso")
+
 from SandBox.Skims.mhtFilter_cfi import *
 
 # filter on PFMHT
@@ -22,3 +31,12 @@ mhtPFNoPhotIDFilter.MHTSource = cms.InputTag("mhtPFNoPhotID")
 
 mhtPFNoPhotIDIsoFilter = mhtFilter.clone()
 mhtPFNoPhotIDIsoFilter.MHTSource = cms.InputTag("mhtPFNoPhotIDIso")
+
+mhtPFchsNoPhotFilter = mhtFilter.clone()
+mhtPFchsNoPhotFilter.MHTSource = cms.InputTag("mhtPFchsNoPhot")
+
+mhtPFchsNoPhotIDFilter = mhtFilter.clone()
+mhtPFchsNoPhotIDFilter.MHTSource = cms.InputTag("mhtPFchsNoPhotID")
+
+mhtPFchsNoPhotIDIsoFilter = mhtFilter.clone()
+mhtPFchsNoPhotIDIsoFilter.MHTSource = cms.InputTag("mhtPFchsNoPhotIDIso")

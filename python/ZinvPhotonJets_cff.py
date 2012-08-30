@@ -4,7 +4,7 @@ from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
 patJetsAK5PFPt30NoPhoton = cleanPatJets.clone()
 patJetsAK5PFPt30NoPhoton.src = cms.InputTag('patJetsAK5PFPt30')
-patJetsAK5PFPt30NoPhoton.checkOverlaps.photons.src             = cms.InputTag('patPhotons')
+patJetsAK5PFPt30NoPhoton.checkOverlaps.photons.src             = cms.InputTag('patPhotonsAlt')
 patJetsAK5PFPt30NoPhoton.checkOverlaps.photons.algorithm         = cms.string('byDeltaR')
 patJetsAK5PFPt30NoPhoton.checkOverlaps.photons.preselection      = cms.string('')
 patJetsAK5PFPt30NoPhoton.checkOverlaps.photons.deltaR            = cms.double(0.1)
@@ -100,117 +100,123 @@ countJetsPFPt50Eta25NoPhotonIDIso.src = cms.InputTag('patJetsPFPt50Eta25NoPhoton
 
 ######
 # b-tagged jets
-from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
-patSSVHEMBJetsAK5PF = selectedBasicPatJets.clone()
+#from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
+from SandBox.Skims.RA2Jets_cff import selectedRA2PatJets
+#selectedBasicPatJets = cms.EDFilter("RA2BasicJetSelector",
+#    src = cms.InputTag("patJets"),
+#    cut = cms.string("")
+#)
+
+patSSVHEMBJetsAK5PF = selectedRA2PatJets.clone()
 patSSVHEMBJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
 patSSVHEMBJetsAK5PF.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
-patSSVHPTBJetsAK5PF = selectedBasicPatJets.clone()
+patSSVHPTBJetsAK5PF = selectedRA2PatJets.clone()
 patSSVHPTBJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
 patSSVHPTBJetsAK5PF.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
-patSSVHEMBJetsAK5PFPt30 = selectedBasicPatJets.clone()
+patSSVHEMBJetsAK5PFPt30 = selectedRA2PatJets.clone()
 patSSVHEMBJetsAK5PFPt30.src = cms.InputTag('patJetsAK5PFPt30')
 patSSVHEMBJetsAK5PFPt30.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
-patSSVHPTBJetsAK5PFPt30 = selectedBasicPatJets.clone()
+patSSVHPTBJetsAK5PFPt30 = selectedRA2PatJets.clone()
 patSSVHPTBJetsAK5PFPt30.src = cms.InputTag('patJetsAK5PFPt30')
 patSSVHPTBJetsAK5PFPt30.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
-patSSVHEMBJetsAK5PFPt50Eta25 = selectedBasicPatJets.clone()
+patSSVHEMBJetsAK5PFPt50Eta25 = selectedRA2PatJets.clone()
 patSSVHEMBJetsAK5PFPt50Eta25.src = cms.InputTag('patJetsAK5PFPt50Eta25')
 patSSVHEMBJetsAK5PFPt50Eta25.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
-patSSVHPTBJetsAK5PFPt50Eta25 = selectedBasicPatJets.clone()
+patSSVHPTBJetsAK5PFPt50Eta25 = selectedRA2PatJets.clone()
 patSSVHPTBJetsAK5PFPt50Eta25.src = cms.InputTag('patJetsAK5PFPt50Eta25')
 patSSVHPTBJetsAK5PFPt50Eta25.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
-patCSVJetsAK5PF = selectedBasicPatJets.clone()
+patCSVJetsAK5PF = selectedRA2PatJets.clone()
 patCSVJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
 patCSVJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898')
 
-patCSVJetsAK5PFPt30Eta24 = selectedBasicPatJets.clone()
+patCSVJetsAK5PFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFPt30Eta24.src = cms.InputTag('patCSVJetsAK5PF')
 patCSVJetsAK5PFPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
 
-patCSVJetsAK5PFPt30Eta50 = selectedBasicPatJets.clone()
+patCSVJetsAK5PFPt30Eta50 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFPt30Eta50.src = cms.InputTag('patCSVJetsAK5PF')
 patCSVJetsAK5PFPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
-patCSVJetsAK5PFPt50Eta25 = selectedBasicPatJets.clone()
+patCSVJetsAK5PFPt50Eta25 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFPt50Eta25.src = cms.InputTag('patCSVJetsAK5PF')
 patCSVJetsAK5PFPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
 
-patCSVMVAJetsAK5PF = selectedBasicPatJets.clone()
+patCSVMVAJetsAK5PF = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
 patCSVMVAJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898')
 
-patCSVMVAJetsAK5PFPt30Eta24 = selectedBasicPatJets.clone()
+patCSVMVAJetsAK5PFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFPt30Eta24.src = cms.InputTag('patCSVMVAJetsAK5PF')
 patCSVMVAJetsAK5PFPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
 
-patCSVMVAJetsAK5PFPt30Eta50 = selectedBasicPatJets.clone()
+patCSVMVAJetsAK5PFPt30Eta50 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFPt30Eta50.src = cms.InputTag('patCSVMVAJetsAK5PF')
 patCSVMVAJetsAK5PFPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
-patCSVMVAJetsAK5PFPt50Eta25 = selectedBasicPatJets.clone()
+patCSVMVAJetsAK5PFPt50Eta25 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFPt50Eta25.src = cms.InputTag('patCSVMVAJetsAK5PF')
 patCSVMVAJetsAK5PFPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
 
 ###patJetsPF
-patSSVHEMBJetsPF = selectedBasicPatJets.clone()
+patSSVHEMBJetsPF = selectedRA2PatJets.clone()
 patSSVHEMBJetsPF.src = cms.InputTag('patJetsPF')
 patSSVHEMBJetsPF.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
-patSSVHPTBJetsPF = selectedBasicPatJets.clone()
+patSSVHPTBJetsPF = selectedRA2PatJets.clone()
 patSSVHPTBJetsPF.src = cms.InputTag('patJetsPF')
 patSSVHPTBJetsPF.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
-patSSVHEMBJetsPFPt30 = selectedBasicPatJets.clone()
+patSSVHEMBJetsPFPt30 = selectedRA2PatJets.clone()
 patSSVHEMBJetsPFPt30.src = cms.InputTag('patJetsPFPt30')
 patSSVHEMBJetsPFPt30.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
-patSSVHPTBJetsPFPt30 = selectedBasicPatJets.clone()
+patSSVHPTBJetsPFPt30 = selectedRA2PatJets.clone()
 patSSVHPTBJetsPFPt30.src = cms.InputTag('patJetsPFPt30')
 patSSVHPTBJetsPFPt30.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
-patSSVHEMBJetsPFPt50Eta25 = selectedBasicPatJets.clone()
+patSSVHEMBJetsPFPt50Eta25 = selectedRA2PatJets.clone()
 patSSVHEMBJetsPFPt50Eta25.src = cms.InputTag('patJetsPFPt50Eta25')
 patSSVHEMBJetsPFPt50Eta25.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
-patSSVHPTBJetsPFPt50Eta25 = selectedBasicPatJets.clone()
+patSSVHPTBJetsPFPt50Eta25 = selectedRA2PatJets.clone()
 patSSVHPTBJetsPFPt50Eta25.src = cms.InputTag('patJetsPFPt50Eta25')
 patSSVHPTBJetsPFPt50Eta25.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
-patCSVJetsPF = selectedBasicPatJets.clone()
+patCSVJetsPF = selectedRA2PatJets.clone()
 patCSVJetsPF.src = cms.InputTag('patJetsPF')
 patCSVJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898')
 
-patCSVJetsPFPt30Eta24 = selectedBasicPatJets.clone()
+patCSVJetsPFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVJetsPFPt30Eta24.src = cms.InputTag('patCSVJetsPF')
 patCSVJetsPFPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
 
-patCSVJetsPFPt30Eta50 = selectedBasicPatJets.clone()
+patCSVJetsPFPt30Eta50 = selectedRA2PatJets.clone()
 patCSVJetsPFPt30Eta50.src = cms.InputTag('patCSVJetsPF')
 patCSVJetsPFPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
-patCSVJetsPFPt50Eta25 = selectedBasicPatJets.clone()
+patCSVJetsPFPt50Eta25 = selectedRA2PatJets.clone()
 patCSVJetsPFPt50Eta25.src = cms.InputTag('patCSVJetsPF')
 patCSVJetsPFPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
 
-patCSVMVAJetsPF = selectedBasicPatJets.clone()
+patCSVMVAJetsPF = selectedRA2PatJets.clone()
 patCSVMVAJetsPF.src = cms.InputTag('patJetsPF')
 patCSVMVAJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898')
 
-patCSVMVAJetsPFPt30Eta24 = selectedBasicPatJets.clone()
+patCSVMVAJetsPFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFPt30Eta24.src = cms.InputTag('patCSVMVAJetsPF')
 patCSVMVAJetsPFPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
 
-patCSVMVAJetsPFPt30Eta50 = selectedBasicPatJets.clone()
+patCSVMVAJetsPFPt30Eta50 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFPt30Eta50.src = cms.InputTag('patCSVMVAJetsPF')
 patCSVMVAJetsPFPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
-patCSVMVAJetsPFPt50Eta25 = selectedBasicPatJets.clone()
+patCSVMVAJetsPFPt50Eta25 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFPt50Eta25.src = cms.InputTag('patCSVMVAJetsPF')
 patCSVMVAJetsPFPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
 

@@ -3,19 +3,19 @@ from PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi import *
 
 photonIDCutTight  = cms.string('et > 50.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
-                               'hadronicOverEm < 0.5  && hasPixelSeed == 0 && '
+                               'hadronicOverEm < 0.5  && userInt("passElectronConvVeto") > 0 && '
                                'hadTowOverEm < userFloat("hadTowOverEmTightCut") && '
                                'sigmaIetaIeta < userFloat("showerShapeTightCut")'
                               )
 
 photonIDCutMedium = cms.string('et > 50.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
-                               'hadronicOverEm < 0.5  && hasPixelSeed == 0 && '
+                               'hadronicOverEm < 0.5  && userInt("passElectronConvVeto") > 0 && '
                                'hadTowOverEm < userFloat("hadTowOverEmMediumCut") && '
                                'sigmaIetaIeta < userFloat("showerShapeMediumCut")'
                               )
 
 photonIDCutLoose  = cms.string('et > 50.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
-                               'hadronicOverEm < 0.5  && hasPixelSeed == 0 && '
+                               'hadronicOverEm < 0.5  && userInt("passElectronConvVeto") > 0 && '
                                'hadTowOverEm < userFloat("hadTowOverEmLooseCut") && '
                                'sigmaIetaIeta < userFloat("showerShapeLooseCut")'
                               )
@@ -27,19 +27,19 @@ photoncombiso04cut = cms.string('trkSumPtSolidConeDR04 + ecalRecHitSumEtConeDR04
                                 'userFloat("hcalIsoConeDR04") - 3.141593*0.4*0.4*userFloat("rho25")< 5.'
                                )
 
-photonISOCutTight  = cms.string('userFloat("pfChargedPURel") < userFloat("pfChargedTightCut") && '
-                                'userFloat("pfNeutralPURel") < userFloat("pfNeutralTightCut") && '
-                                'userFloat("pfGammaPURel")   < userFloat("pfGammaTightCut")'
+photonISOCutTight  = cms.string('userFloat("pfChargedPU") < userFloat("pfChargedTightCut") && '
+                                'userFloat("pfNeutralPU") < userFloat("pfNeutralTightCut") && '
+                                'userFloat("pfGammaPU")   < userFloat("pfGammaTightCut")'
                                )
 
-photonISOCutMedium = cms.string('userFloat("pfChargedPURel") < userFloat("pfChargedMediumCut") && '
-                                'userFloat("pfNeutralPURel") < userFloat("pfNeutralMediumCut") && '
-                                'userFloat("pfGammaPURel")   < userFloat("pfGammaMediumCut")'
+photonISOCutMedium = cms.string('userFloat("pfChargedPU") < userFloat("pfChargedMediumCut") && '
+                                'userFloat("pfNeutralPU") < userFloat("pfNeutralMediumCut") && '
+                                'userFloat("pfGammaPU")   < userFloat("pfGammaMediumCut")'
                                )
 
-photonISOCutLoose  = cms.string('userFloat("pfChargedPURel") < userFloat("pfChargedLooseCut") && '
-                                'userFloat("pfNeutralPURel") < userFloat("pfNeutralLooseCut") && '
-                                'userFloat("pfGammaPURel")   < userFloat("pfGammaLooseCut")'
+photonISOCutLoose  = cms.string('userFloat("pfChargedPU") < userFloat("pfChargedLooseCut") && '
+                                'userFloat("pfNeutralPU") < userFloat("pfNeutralLooseCut") && '
+                                'userFloat("pfGammaPU")   < userFloat("pfGammaLooseCut")'
                                )
 
 

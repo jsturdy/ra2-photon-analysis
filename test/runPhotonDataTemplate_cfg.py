@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Analysis")
+process = cms.Process("TemplateMaker")
 
 #===================== Message Logger =============================
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -14,6 +14,13 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 250
 process.options = cms.untracked.PSet(
             wantSummary = cms.untracked.bool(True)
             )
+
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.GlobalTag.globaltag = "START52_V5::All"
+#if runningOnMC == False:
+process.GlobalTag.globaltag = "GR_R_52_V9D::All"
 
 #================= configure poolsource module ===================
 
@@ -33,31 +40,22 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 process.source.skipEvents = cms.untracked.uint32(0)
 
 #========================= analysis module =====================================
 
-process.analysis = cms.EDAnalyzer('RA2ZInvPhotonAnalyzer',
+process.analysis = cms.EDAnalyzer('RA2ZInvPhotonTemplateMaker',
                                   Debug           = cms.bool(False),
                                   Data            = cms.bool(True),
+                                  ScaleFactor     = cms.double(1.),
                                   PhotonSrc       = cms.InputTag("patPhotonsUserData"),
-                                  PhotonIsoSrc    = cms.InputTag("patPhotonsIDPFIso"),
                                   JetSrc          = cms.InputTag("patJetsAK5PFPt30"),
-                                  JetNoPhotSrc    = cms.InputTag("patJetsAK5PFPt30NoPhotonIDIso"),
-                                  #JetNoPhotSrc    = cms.InputTag("patJetsAK5PFPt50Eta25NoPhotonIDIso"),
+                                  bJetSrc         = cms.InputTag("patCSVJetsAK5PFPt30Eta24"),
                                   JetHTSource     = cms.InputTag("patJetsAK5PFPt50Eta25"),
-                                  RA2NJets        = cms.uint32(3),
-                                  RA2HT           = cms.double(350.0),
-                                  RA2MHT          = cms.double(200.0),
-                                  RA2ApplyDphiCuts= cms.bool(True),
                                   DoPUReweight    = cms.bool(False),
                                   PUWeightSource  = cms.InputTag("puWeight"),
-                                  PFRhoSource     = cms.InputTag("kt6PFJetsForIsolation","rho"),
-                                  DoOptimizePlots = cms.bool(True),
-                                  GenParticles    = cms.InputTag("genParticles"),
-                                  DoGenAnalysis   = cms.bool(False),
 )
 
 #================ configure filters and analysis sequence=======================
@@ -97,35 +95,21 @@ process.analysisSeq = cms.Sequence(#process.ra2PostCleaning   *
                                    * process.patPhotonsUser1
                                    * process.patPhotonsUserData
                                    * process.photonObjects
-                                   * process.ra2PFMuonVeto
-                                   * process.ra2PFElectronVeto
+                                   * process.zinvBJets
+                                   * process.ra2MuonVeto
+                                   * process.ra2ElectronVeto
                                    * process.analysis
 )
 
 #======================= output module configuration ===========================
 
 process.TFileService = cms.Service("TFileService",
-   #fileName = cms.string('histPhotonRun2011AMay10ReReco_160404to163869.root')
-    fileName = cms.string('photonData.root')
+    fileName = cms.string('photonDataTemplate.root')
 )
 
 #=================== run range & HLT filters ===============================
 #process.load('SusyAnalysis.PhotonAnalysis.Photon_RunRangeHLTSeq_cfi')
-
 process.load('SandBox.Utilities.puWeightProducer_cfi')
-##process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/May10_Prompt167151_pudist.root"
-#process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/Cert_160404-177515_JSON.pileup.root"
-
 #============================== configure paths ===============================
-#process.p1 = cms.Path( process.analysisSeq )
 process.p1 = cms.Path(process.puWeight * process.analysisSeq )
 ##process.p1 = cms.Path( process.runRangeFilter1 * process.analysisSeq )  #160431 - 161176
-##process.p2 = cms.Path( process.runRangeFilter2 * process.analysisSeq )  #161217 - 163261
-##process.p3 = cms.Path( process.runRangeFilter3 * process.analysisSeq )  #163270 - 163869
-##process.p4 = cms.Path( process.runRangeFilter4 * process.analysisSeq )  #165088 - 165633
-###process.p5 = cms.Path( process.runRangeFilter5 * process.analysisSeq )  #165088 - 165633 
-##process.p6 = cms.Path( process.runRangeFilter6 * process.analysisSeq )  #165970 - 166967
-##process.p7 = cms.Path( process.runRangeFilter7 * process.analysisSeq )  #167039 - 167784
-##process.p8 = cms.Path( process.runRangeFilter8 * process.analysisSeq )  #170249 - 173198
-##process.p9 = cms.Path( process.runRangeFilter9 * process.analysisSeq )  #173236 - 177515
-

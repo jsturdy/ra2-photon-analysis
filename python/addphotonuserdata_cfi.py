@@ -33,17 +33,18 @@ addphotonuserbasic = cms.EDProducer("AddPhotonUserData",
         )
     )
 )
+
 addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
     debug          = cms.bool(False),
     debugString    = cms.string("addphotonuserdata"),
-    photonLabel    = cms.InputTag("patPhotons"),
+    photonLabel    = cms.InputTag("patPhotonsAlt"),
     floatLabels    = cms.VInputTag(cms.InputTag("kt6PFJetsForIsolation","rho")),
     floatNames     = cms.vstring("rho25"),
     embedConversionInfo = cms.bool(True),
     gsfElectronLabel = cms.InputTag("gsfElectrons"),
     conversionsLabel = cms.InputTag("conversions"),
     beamspotLabel    = cms.InputTag("offlineBeamSpot"),
-    useAlternateIsolations = cms.bool(True),
+    useAlternateIsolations = cms.bool(False),
     vetoConeSize     = cms.double(0.4),
     candidateLabel   = cms.InputTag("particleFlow"),
     vertexLabel      = cms.InputTag("offlinePrimaryVertices"),
@@ -124,8 +125,8 @@ addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.02 :0.02 """,#pfChargedRel
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.05 :0.05 """,#pfNeutralRel
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.09 :0.09 """,#pfGammaRel
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.7 :0.5 """,#pfCharged
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.4 + 0.04*pt :1.5 + 0.04*pt """,#pfNeutral
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.7 :0.5 """,  #pfCharged
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.4 + 0.04*pt :1.5 + 0.04*pt """,  #pfNeutral
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.5 + 0.005*pt :1.0 + 0.005*pt """,#pfGamma
             ###Medium
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.05 :0.05 """,#singleTowerHOverE
@@ -133,8 +134,8 @@ addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.03 :0.03 """,#pfChargedRel     
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.07 :0.07 """,#pfNeutralRel     
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.08 :0.09 """,#pfGammaRel       
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.5 :1.2 """,#pfCharged
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.0 + 0.04*pt :1.5 + 0.04*pt """,#pfNeutral
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.5 :1.2 """,  #pfCharged
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.0 + 0.04*pt :1.5 + 0.04*pt """,  #pfNeutral
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.7 + 0.005*pt :1.0 + 0.005*pt """,#pfGamma
             ###Loose
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.06 :0.05 """,#singleTowerHOverE
@@ -142,13 +143,13 @@ addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.06 :0.05 """,#pfChargedRel     
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.16 :0.10 """,#pfNeutralRel     
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.08 :0.12 """,#pfGammaRel       
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 2.6 :2.3 """,#pfCharged
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 2.6 :2.3 """,  #pfCharged
             """?0.0   <= abs(superCluster.eta) < 1.4442? 3.5 + 0.04*pt :2.9 + 0.04*pt """,#pfNeutral
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.3 + 0.005*pt : 10000000 """,#pfGamma
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.3 + 0.005*pt : 10000000 """,   #pfGamma
 
-            'userIsolation("User1Iso")/et',
-            'userIsolation("User3Iso")/et',
-            'userIsolation("User4Iso")/et',
+            'userFloat("pfChargedIsoAlt")/et',
+            'userFloat("pfNeutralIsoAlt")/et',
+            'userFloat("pfGammaIsoAlt")/et',
             'trkSumPtSolidConeDR03 + ecalRecHitSumEtConeDR03 + userFloat("hcalIsoConeDR03_2012")',
             'trkSumPtSolidConeDR04 + ecalRecHitSumEtConeDR04 + userFloat("hcalIsoConeDR04_2012")'
         )
@@ -158,12 +159,16 @@ addphotonuserdata2 = cms.EDProducer("AddPhotonUserData",
     debug          = cms.bool(False),
     debugString    = cms.string("addphotonuserdata"),
     photonLabel    = cms.InputTag("patPhotonsUser1"),
-    floatLabels    = cms.VInputTag(cms.InputTag("kt6PFJetsForIsolation","rho")),
-    floatNames     = cms.vstring("rho25"),
+    floatLabels    = cms.VInputTag(),
+    floatNames     = cms.vstring(),
     embedConversionInfo = cms.bool(False),
     gsfElectronLabel = cms.InputTag("gsfElectrons"),
     conversionsLabel = cms.InputTag("conversions"),
     beamspotLabel    = cms.InputTag("offlineBeamSpot"),
+    useAlternateIsolations = cms.bool(False),
+    vetoConeSize     = cms.double(0.4),
+    candidateLabel   = cms.InputTag("particleFlow"),
+    vertexLabel      = cms.InputTag("offlinePrimaryVertices"),
     userData = cms.PSet(
         userCands = cms.PSet(
             src = cms.VInputTag("")
@@ -185,12 +190,12 @@ addphotonuserdata2 = cms.EDProducer("AddPhotonUserData",
             'userFloat("pfChargedEANew")*userFloat("rho25")', #chargedSub
             'userFloat("pfNeutralEANew")*userFloat("rho25")', #neutralSub
             'userFloat("pfGammaEANew")  *userFloat("rho25")', #gammaSub
-            'max((userIsolation("User1Iso") - userFloat("pfChargedEANew")*userFloat("rho25"))/et,0.)',
-            'max((userIsolation("User3Iso") - userFloat("pfNeutralEANew")*userFloat("rho25"))/et,0.)',
-            'max((userIsolation("User4Iso") - userFloat("pfGammaEANew")  *userFloat("rho25"))/et,0.)',
-            'max((userIsolation("User1Iso") - userFloat("pfChargedEANew")*userFloat("rho25")),0.)',
-            'max((userIsolation("User3Iso") - userFloat("pfNeutralEANew")*userFloat("rho25")),0.)',
-            'max((userIsolation("User4Iso") - userFloat("pfGammaEANew")  *userFloat("rho25")),0.)',
+            'max((userFloat("pfChargedIsoAlt") - userFloat("pfChargedEANew")*userFloat("rho25"))/et,0.)',
+            'max((userFloat("pfNeutralIsoAlt") - userFloat("pfNeutralEANew")*userFloat("rho25"))/et,0.)',
+            'max((userFloat("pfGammaIsoAlt")   - userFloat("pfGammaEANew")  *userFloat("rho25"))/et,0.)',
+            'max((userFloat("pfChargedIsoAlt") - userFloat("pfChargedEANew")*userFloat("rho25")),0.)',
+            'max((userFloat("pfNeutralIsoAlt") - userFloat("pfNeutralEANew")*userFloat("rho25")),0.)',
+            'max((userFloat("pfGammaIsoAlt")   - userFloat("pfGammaEANew")  *userFloat("rho25")),0.)',
             'trkSumPtSolidConeDR03 + ecalRecHitSumEtConeDR03 + userFloat("hcalIsoConeDR03_2012") - 3.141593*0.3*0.3*userFloat("rho25")',
             'trkSumPtSolidConeDR04 + ecalRecHitSumEtConeDR04 + userFloat("hcalIsoConeDR04_2012") - 3.141593*0.4*0.4*userFloat("rho25")'
         )
