@@ -42,19 +42,16 @@ private:
   bool debug_;
   bool data_;
   double scale_;
-  edm::InputTag vertexSrc_, jetSrc_, bJetSrc_, jetHTSrc_, genLabel_;
+  edm::InputTag genLabel_;
+  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_;
   bool          doPUReWeight_;
   edm::InputTag puWeightSrc_;
-
-  //int           ra2NJets_;
-  //double        ra2HT_;
-  //double        ra2MHT_;
-  //bool          ra2ApplyDphiCuts_;
 
   //Output stuff
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
   int m_nJetsPt30Eta50, m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_Vertices, m_nBosons;
-  double m_HT, m_MHT, m_bosonPt, m_bosonEta, m_bosonM, m_dPhi1, m_dPhi2, m_dPhi3, m_EventWt, m_PUWt;
+  double m_HT, m_MHT, m_boson1Pt, m_boson1Eta, m_boson1M, m_dPhi1, m_dPhi2, m_dPhi3, m_EventWt, m_PUWt;
+  double m_Jet1Pt, m_Jet1Eta, m_Jet2Pt, m_Jet2Eta, m_Jet3Pt, m_Jet3Eta, m_boson2Pt, m_boson2Eta, m_boson2M;
 };

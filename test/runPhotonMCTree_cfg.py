@@ -29,13 +29,11 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_464_1_f7L.root',
-        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_463_1_KMz.root',
-        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_466_1_f5b.root',
-        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_465_1_ELg.root',
-        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_468_1_xut.root',
-        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_467_1_yXy.root',
-        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_46_1_ezp.root'
+        '/store/user/lpcsusyhad/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_98_1_YIN.root',
+        '/store/user/lpcsusyhad/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_99_1_Gav.root',
+        '/store/user/lpcsusyhad/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_96_1_KJU.root',
+        '/store/user/lpcsusyhad/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_94_1_9ZP.root',
+        '/store/user/lpcsusyhad/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_95_1_wIR.root',
     )
 )
 
@@ -51,13 +49,9 @@ process.analysis = cms.EDAnalyzer('RA2ZInvPhotonTreeMaker',
                                   ScaleFactor     = cms.double(scaleF),
                                   PhotonSrc       = cms.InputTag("patPhotonsUserData"),
                                   VertexSrc       = cms.InputTag("goodVertices"),
-                                  JetSrc          = cms.InputTag("patJetsPFPt30"),
+                                  JetSrc          = cms.InputTag("patJetsPFchsPt30"),
                                   bJetSrc         = cms.InputTag("patCSVJetsPFPt30Eta24"),
-                                  JetHTSource     = cms.InputTag("patJetsPFPt50Eta25"),
-#                                  RA2NJets        = cms.uint32(3),
-#                                  RA2HT           = cms.double(350.0),
-#                                  RA2MHT          = cms.double(200.0),
-#                                  RA2ApplyDphiCuts= cms.bool(True),
+                                  JetHTSource     = cms.InputTag("patJetsPFchsPt50Eta25"),
                                   DoPUReweight    = cms.bool(True),
                                   PUWeightSource  = cms.InputTag("puWeight"),
 )
@@ -66,24 +60,31 @@ process.analysis = cms.EDAnalyzer('RA2ZInvPhotonTreeMaker',
 
 process.load('SandBox.Skims.RA2Objects_cff')
 process.load('SandBox.Skims.RA2Selection_cff')
-#from SusyAnalysis.MyAnalysis.filterBoolean_cfi import *
-#process.load("SusyAnalysis.MyAnalysis.filterBoolean_cfi")
 
-process.load('ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff')
 from ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff import *
-process.load('ZInvisibleBkgds.Photons.ZinvPhotonJets_cff')
+process.patPhotonsIDPFIsoLoose  = patPhotonsIDIso.clone(cut = photonISOCutLoose)
+process.patPhotonsIDPFIsoMedium = patPhotonsIDIso.clone(cut = photonISOCutMedium)
+process.countPhotonsIDPFIsoLoose  = countPhotonsIDPFIso.clone(src = cms.InputTag("patPhotonsIDPFIsoLoose"))
+process.countPhotonsIDPFIsoMedium = countPhotonsIDPFIso.clone(src = cms.InputTag("patPhotonsIDPFIsoMedium"))
+
+#process.load('ZInvisibleBkgds.Photons.ZinvPhotonJets_cff')
 from ZInvisibleBkgds.Photons.ZinvPhotonJets_cff import *
+from ZInvisibleBkgds.Photons.ZinvBkgdJets_cff import *
 process.load('ZInvisibleBkgds.Photons.ZinvBkgdObjects_cff')
+process.load('ZInvisibleBkgds.Photons.ZinvBkgdJets_cff')
+
+from ZInvisibleBkgds.Photons.specialObjectCleaner_cff import specialPhotonCleanedJets
+process.patJetsPFSpecial = specialPhotonCleanedJets.clone()
+process.patJetsPFSpecial.debug = cms.bool(True)
+process.patJetsPFSpecial.objectLabel = cms.InputTag("patPhotonsIDPFIso")
+
 process.load('ZInvisibleBkgds.Photons.addphotonuserdata_cfi')
-from RecoJets.JetProducers.kt4PFJets_cfi import *
-process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
-process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 
 from ZInvisibleBkgds.Photons.photonmap_cfi import *
 process.rhoToPhotonMap = photonmap.clone()
 from ZInvisibleBkgds.Photons.addphotonuserdata_cfi import *
 process.patPhotonsUser1 = addphotonuserdata1.clone()
-process.patPhotonsUser1.photonLabel = cms.InputTag("patPhotons")
+process.patPhotonsUser1.photonLabel = cms.InputTag("patPhotonsAlt")
 process.patPhotonsUser1.userData.userFloats = cms.PSet(
     src = cms.VInputTag(
         cms.InputTag("rhoToPhotonMap")
@@ -93,12 +94,19 @@ process.patPhotonsUserData = addphotonuserdata2.clone()
 process.patPhotonsUserData.photonLabel = cms.InputTag("patPhotonsUser1")
 
 process.analysisSeq = cms.Sequence(#process.ra2PostCleaning   *
-                                   process.ra2ObjectsPF
-                                   * process.kt6PFJetsForIsolation
+                                     process.ra2PFchsJets
                                    * process.rhoToPhotonMap
                                    * process.patPhotonsUser1
                                    * process.patPhotonsUserData
                                    * process.photonObjectsPF
+                                   * process.patPhotonsIDPFIsoLoose
+                                   * process.patPhotonsIDPFIsoMedium
+                                   * process.patPhotonsIDPFIso
+                                   * process.patJetsPFSpecial
+                                   * process.countPhotonsIDPFIsoLoose
+                                   * process.countPhotonsIDPFIsoMedium
+                                   * process.countPhotonsIDPFIso
+                                   * process.zinvBJetsPFNoPhoton
                                    * process.zinvBJetsPF
                                    * process.ra2MuonVeto
                                    * process.ra2ElectronVeto
@@ -106,14 +114,14 @@ process.analysisSeq = cms.Sequence(#process.ra2PostCleaning   *
 )
 
 #======================= output module configuration ===========================
-##process.out = cms.OutputModule("PoolOutputModule",
-##    fileName = cms.untracked.string('mc_userdata.root'),
-##    SelectEvents = cms.untracked.PSet(
-##        SelectEvents = cms.vstring('p1')
-##    ),
-##    outputCommands = cms.untracked.vstring('keep *'),
-##    dropMetaData = cms.untracked.string('DROPPED')
-##)
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('mc_userdata.root'),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('p1')
+    ),
+    outputCommands = cms.untracked.vstring('keep *'),
+    dropMetaData = cms.untracked.string('DROPPED')
+)
 
                                                                       
 process.TFileService = cms.Service("TFileService",
@@ -127,6 +135,6 @@ process.load('SandBox.Utilities.puWeightProducer_cfi')
 process.p1 = cms.Path(process.puWeight * process.analysisSeq )
 ##process.outpath = cms.EndPath(process.out)
 ##process.p1 = cms.Path( process.runRangeFilter1 * process.analysisSeq )  #160431 - 161176
-##file = open('wtf_mc.py','w')
-##file.write(str(process.dumpPython()))
-##file.close()
+file = open('wtf_mc.py','w')
+file.write(str(process.dumpPython()))
+file.close()

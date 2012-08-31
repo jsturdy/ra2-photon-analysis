@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvTreeMaker.cc,v 1.1 2012/07/20 11:35:34 sturdy Exp $
+// $Id: RA2ZInvTreeMaker.cc,v 1.1 2012/08/30 09:43:40 sturdy Exp $
 //
 //
 
@@ -36,17 +36,17 @@ RA2ZInvTreeMaker::RA2ZInvTreeMaker(const edm::ParameterSet& pset) {
 
   // read parameters from config file
   debug_          = pset.getParameter<bool>("Debug");
-  data_           = pset.getParameter<bool>("Data");
   scale_          = pset.getParameter<double>("ScaleFactor");
+  genLabel_       = pset.getParameter<edm::InputTag>("genLabel");  
   vertexSrc_      = pset.getParameter<edm::InputTag>("VertexSrc");
   jetSrc_         = pset.getParameter<edm::InputTag>("JetSrc");
   bJetSrc_        = pset.getParameter<edm::InputTag>("bJetSrc");
-  jetHTSrc_       = pset.getParameter<edm::InputTag>("JetHTSource");
+  htJetSrc_       = pset.getParameter<edm::InputTag>("htJetSrc");
+  htSrc_          = pset.getParameter<edm::InputTag>("htSource");
+  mhtSrc_         = pset.getParameter<edm::InputTag>("mhtSource");
   doPUReWeight_   = pset.getParameter<bool>("DoPUReweight");
   puWeightSrc_    = pset.getParameter<edm::InputTag>("PUWeightSource");
 
-  if (!data_)
-    genLabel_   = pset.getParameter<edm::InputTag>("genLabel");  
 
 }
 
@@ -59,50 +59,47 @@ void RA2ZInvTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) 
 
   using namespace edm;
 
+  if (ev.isRealData()) {
+    std::cout<<"Trying to run Zvv TreeMaker on data is not going to end well for you..."<<std::endl;
+    return;
+  }
   // get event-id
   unsigned int event = (ev.id()).event();
   unsigned int run   = (ev.id()).run();
   unsigned int lumi  =  ev.luminosityBlock();
 
-  // reject event if there an isolated electron or muon present
-  edm::Handle< std::vector<pat::Electron> > patElectrons;
-  ev.getByLabel("patElectronsIDIso", patElectrons);
-
-  edm::Handle< std::vector<pat::Muon> > patMuons;
-  ev.getByLabel("patMuonsIDIso", patMuons);
-  
-  if (patElectrons->size() != 0 || patMuons->size() != 0) { 
-    std::cout << "Isolated Lepton found : Event Rejected : ( run, event, lumi ) " 
-    << run << " " << event << " " << lumi << std::endl;
-    return;
-  }
-
   edm::Handle<reco::GenParticleCollection> gens;
-  m_bosonPt  = 0;
-  m_bosonEta = 0;
-  m_bosonM   = 0;
-  if (!data_) {
-    ev.getByLabel(genLabel_,gens);
-    m_nBosons  = gens->size();
-    if (gens->size() > 0) {
-      m_bosonPt  = (*gens)[0].pt();
-      m_bosonEta = (*gens)[0].eta();
-      m_bosonM   = (*gens)[0].mass();
-    }
-  }
+  ev.getByLabel(genLabel_,gens);
+
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
+  if (debug_)
+    std::cout<<"vertex collection has size "<<vertices->size()<<std::endl;
 
-  // get jetcollection
   edm::Handle<edm::View<pat::Jet> > jets;
   ev.getByLabel(jetSrc_, jets);
+  if (debug_)
+    std::cout<<"Jet collection has size "<<jets->size()<<std::endl;
 
-  edm::Handle<edm::View<pat::Jet> > jetsHT;
-  ev.getByLabel(jetHTSrc_, jetsHT);
+  edm::Handle<edm::View<pat::Jet> > htJets;
+  ev.getByLabel(htJetSrc_, htJets);
+  if (debug_)
+    std::cout<<"HT Jet collection has size "<<htJets->size()<<std::endl;
 
-  // get jetcollection
   edm::Handle<edm::View<pat::Jet> > bJets;
   ev.getByLabel(bJetSrc_, bJets);
+  if (debug_)
+    std::cout<<"b-Jet collection has size "<<bJets->size()<<std::endl;
+
+  edm::Handle<double > ht;
+  ev.getByLabel(htSrc_, ht);
+  if (debug_)
+    std::cout<<"HT value "<<*ht<<std::endl;
+
+  edm::Handle<edm::View<reco::MET> > mht;
+  ev.getByLabel(mhtSrc_, mht);
+  if (debug_)
+    std::cout<<"MHT value "<<(*mht)[0].pt()<<std::endl;
 
   // if MC, do PU reweighting
   double pu_event_wt = 1.0;
@@ -116,53 +113,82 @@ void RA2ZInvTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   m_PUWt    = pu_event_wt;
   m_Vertices = vertices->size();
 
-  m_nJetsPt30Eta50 = 0;
-  m_nJetsPt50Eta25 = 0;
-  m_HT  = 0.0;
-  reco::MET::LorentzVector mht(0,0,0,0);
-  for(unsigned int i=0; i<jets->size(); ++i) {
-    const pat::Jet r = (*jets)[i];
-    if((*jets)[i].pt() > 50.0 && fabs((*jets)[i].eta()) < 2.50) {
-      m_nJetsPt50Eta25++;
-      m_HT  += (*jets)[i].pt();
+   //////
+  if(debug_ && gens->size() > 0) {
+    std::cout << "Gen Z-bosons : " << std::endl;
+    for( unsigned int igen=0; igen<gens->size(); igen++) {
+      std::cout << igen << " " <<(*gens)[igen].pt() 
+		<< " " << (*gens)[igen].eta()
+		<< " " << (*gens)[igen].phi() 
+		<< " " << (*gens)[igen].mass() 
+		<< std::endl;
     }
-    if((*jets)[i].pt() > 30.0 && fabs((*jets)[i].eta()) < 5.0) { 
-      m_nJetsPt30Eta50++;
-      mht  -= (*jets)[i].p4();
+    std::cout << "Jets("<<jets->size()<<") : " << std::endl;
+    for(unsigned int i=0; i<jets->size(); i++) {
+      const pat::Jet *r = &((*jets)[i]);
+      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
+    }
+    std::cout << "bJets("<<bJets->size()<<") : " << std::endl;
+    for(unsigned int i=0; i<bJets->size(); i++) {
+      const pat::Jet *r = &((*bJets)[i]);
+      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
+    }
+  }
+  //////
+  m_boson1Pt  = -10.;
+  m_boson1Eta = -10.;
+  m_boson1M   = -10.;
+  m_boson2Pt  = -10.;
+  m_boson2Eta = -10.;
+  m_boson2M   = -10.;
+  m_nBosons  = gens->size();
+  if (gens->size() > 0) {
+    m_boson1Pt  = (*gens)[0].pt();
+    m_boson1Eta = (*gens)[0].eta();
+    m_boson1M   = (*gens)[0].mass();
+    if (gens->size() > 1) {
+      m_boson2Pt  = (*gens)[1].pt();
+      m_boson2Eta = (*gens)[1].eta();
+      m_boson2M   = (*gens)[1].mass();
     }
   }
 
-  ///Count the b-jets
-  m_bJetsPt30Eta24 = 0;
-  m_bJetsPt30Eta24 = bJets->size();
+  ///////////
+  m_nJetsPt30Eta50 = jets  ->size();
+  m_nJetsPt50Eta25 = htJets->size();
+  m_bJetsPt30Eta24 = bJets ->size();
+  m_HT  = *ht;
+  m_MHT = (*mht)[0].pt();
 
-  reco::MET MHT = reco::MET(mht, reco::MET::Point());
-  m_MHT =  MHT.pt();
-
+  const pat::Jet  *r1, *r2, *r3;
   m_dPhi1 = -1.0;
   m_dPhi2 = -1.0;
   m_dPhi3 = -1.0;
+  m_Jet1Pt  = -10.;
+  m_Jet1Eta = -10.;
+  m_Jet2Pt  = -10.;
+  m_Jet2Eta = -10.;
+  m_Jet3Pt  = -10.;
+  m_Jet3Eta = -10.;
   if(m_nJetsPt30Eta50 >= 1) {
-    m_dPhi1 = fabs(reco::deltaPhi((*jets)[0].phi(),MHT.phi()));
+    r1 = &((*jets)[0]);
+    m_dPhi1 = fabs(reco::deltaPhi(r1->phi(),(*mht)[0].phi()));
+    m_Jet1Pt = r1->pt();
+    m_Jet1Eta = r1->eta();
     if(m_nJetsPt30Eta50 >= 2) {
-      m_dPhi2 = fabs(reco::deltaPhi((*jets)[1].phi(),MHT.phi()));
-      if(m_nJetsPt30Eta50 >= 3) 
-	m_dPhi3 = fabs(reco::deltaPhi((*jets)[2].phi(),MHT.phi()));
+      r2 = &((*jets)[1]);
+      m_dPhi2 = fabs(reco::deltaPhi(r2->phi(),(*mht)[0].phi())); 
+      m_Jet2Pt = r2->pt();
+      m_Jet2Eta = r2->eta();
+     
+      if(m_nJetsPt30Eta50 >= 3) {
+	r3 = &((*jets)[2]);
+	m_dPhi3 = fabs(reco::deltaPhi(r3->phi(),(*mht)[0].phi()));
+	m_Jet3Pt = r3->pt();
+	m_Jet3Eta = r3->eta();
+      }
     }
   }
-
-  //if(n_jets_pt50Eta25 >= ra2NJets_) {
-  //  //if( ht> 500.0) {
-  //  if( ht> ra2HT_) {
-  //    //if(mht_val > 200.0) {
-  //    if(mht_val > ra2MHT_) {
-  //	
-  //	if( !ra2ApplyDphiCuts_ || (ra2ApplyDphiCuts_ && (dphi_mht_j1 > 0.5 && dphi_mht_j2 > 0.5 && dphi_mht_j3 > 0.3)) ) {
-  //	  
-  //	} 
-  //    }
-  //  }
-  //}
   //if (reducedValues)
   reducedValues->Fill();
 }
@@ -188,13 +214,23 @@ void RA2ZInvTreeMaker::BookTree() {
   reducedValues->Branch("ra2_Vertices", &m_Vertices, "m_Vertices/I");
 
   reducedValues->Branch("ra2_nBosons",  &m_nBosons,  "m_nBosons/I" );
-  reducedValues->Branch("ra2_bosonPt",  &m_bosonPt,  "m_bosonPt/D" );
-  reducedValues->Branch("ra2_bosonEta", &m_bosonEta, "m_bosonEta/D" );
-  reducedValues->Branch("ra2_bosonM",   &m_bosonM,   "m_bosonM/D" );
+  reducedValues->Branch("ra2_boson1Pt", &m_boson1Pt, "m_boson1Pt/D" );
+  reducedValues->Branch("ra2_boson1Eta",&m_boson1Eta,"m_boson1Eta/D" );
+  reducedValues->Branch("ra2_boson1M",  &m_boson1M,  "m_boson1M/D" );
+  reducedValues->Branch("ra2_boson2Pt", &m_boson2Pt, "m_boson2Pt/D" );
+  reducedValues->Branch("ra2_boson2Eta",&m_boson2Eta,"m_boson2Eta/D" );
+  reducedValues->Branch("ra2_boson2M",  &m_boson2M,  "m_boson2M/D" );
 
   reducedValues->Branch("ra2_dPhi1", &m_dPhi1, "m_dPhi1/D");
   reducedValues->Branch("ra2_dPhi2", &m_dPhi2, "m_dPhi2/D");
   reducedValues->Branch("ra2_dPhi3", &m_dPhi3, "m_dPhi3/D");
+
+  reducedValues->Branch("ra2_Jet1Pt",  &m_Jet1Pt,  "m_Jet1Pt/D");
+  reducedValues->Branch("ra2_Jet1Eta", &m_Jet1Eta, "m_Jet1Eta/D");
+  reducedValues->Branch("ra2_Jet2Pt",  &m_Jet2Pt,  "m_Jet2Pt/D");
+  reducedValues->Branch("ra2_Jet2Eta", &m_Jet2Eta, "m_Jet2Eta/D");
+  reducedValues->Branch("ra2_Jet3Pt",  &m_Jet3Pt,  "m_Jet3Pt/D");
+  reducedValues->Branch("ra2_Jet3Eta", &m_Jet3Eta, "m_Jet3Eta/D");
 
   reducedValues->Branch("ra2_PUWt",    &m_PUWt,    "m_PUWt/D");
   reducedValues->Branch("ra2_EventWt", &m_EventWt, "m_EventWt/D");

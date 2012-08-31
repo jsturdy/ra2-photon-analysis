@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.1 2012/07/20 11:35:34 sturdy Exp $
+// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.1 2012/08/30 09:43:39 sturdy Exp $
 //
 //
 
@@ -48,10 +48,6 @@ RA2ZInvDiMuonTreeMaker::RA2ZInvDiMuonTreeMaker(const edm::ParameterSet& pset) {
   doPUReWeight_  = pset.getParameter<bool>("DoPUReweight");
   puWeightSrc_   = pset.getParameter<edm::InputTag>("PUWeightSource");
   
-  //getHLTfromConfig_   = pset.getUntrackedParameter<bool>("getHLTfromConfig",false);
-  //if (getHLTfromConfig_)
-  //  hlTriggerResults_ = pset.getUntrackedParameter<edm::InputTag>("hlTriggerResults");
-
   //key to help getting the hlt process from event provenance
   checkedProcess_ = false;
   processName_    = "";
@@ -72,16 +68,6 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   unsigned int run   = (ev.id()).run();
   unsigned int lumi  =  ev.luminosityBlock();
 
-  // reject event if there an isolated electron or muon present
-  edm::Handle< std::vector<pat::Electron> > patElectrons;
-  ev.getByLabel("patElectronsIDIso", patElectrons);
-
-  if (patElectrons->size()) { 
-    std::cout << "Isolated Electron found : Event Rejected : ( run, event, lumi ) " 
-    << run << " " << event << " " << lumi << std::endl;
-    return;
-  }
-  
   // get muons 
   edm::Handle< std::vector<pat::Muon> > patMuons;
   ev.getByLabel(muonSrc_, patMuons); 
@@ -181,16 +167,28 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_dPhi1 = -1.0;
   m_dPhi2 = -1.0;
   m_dPhi3 = -1.0;
+  m_Jet1Pt  = -10.;
+  m_Jet1Eta = -10.;
+  m_Jet2Pt  = -10.;
+  m_Jet2Eta = -10.;
+  m_Jet3Pt  = -10.;
+  m_Jet3Eta = -10.;
   if(m_nJetsPt30Eta50 >= 1) {
     r1 = &((*jets)[0]);
     m_dPhi1 = fabs(reco::deltaPhi(r1->phi(),(*mht)[0].phi()));
+    m_Jet1Pt = r1->pt();
+    m_Jet1Eta = r1->eta();
     if(m_nJetsPt30Eta50 >= 2) {
       r2 = &((*jets)[1]);
-      m_dPhi2 = fabs(reco::deltaPhi(r2->phi(),(*mht)[0].phi()));
-      
+      m_dPhi2 = fabs(reco::deltaPhi(r2->phi(),(*mht)[0].phi())); 
+      m_Jet2Pt = r2->pt();
+      m_Jet2Eta = r2->eta();
+     
       if(m_nJetsPt30Eta50 >= 3) {
 	r3 = &((*jets)[2]);
 	m_dPhi3 = fabs(reco::deltaPhi(r3->phi(),(*mht)[0].phi()));
+	m_Jet3Pt = r3->pt();
+	m_Jet3Eta = r3->eta();
       }
     }
   }
@@ -314,6 +312,13 @@ void RA2ZInvDiMuonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_dPhi1", &m_dPhi1, "m_dPhi1/D");
   reducedValues->Branch("ra2_dPhi2", &m_dPhi2, "m_dPhi2/D");
   reducedValues->Branch("ra2_dPhi3", &m_dPhi3, "m_dPhi3/D");
+
+  reducedValues->Branch("ra2_Jet1Pt",  &m_Jet1Pt,  "m_Jet1Pt/D");
+  reducedValues->Branch("ra2_Jet1Eta", &m_Jet1Eta, "m_Jet1Eta/D");
+  reducedValues->Branch("ra2_Jet2Pt",  &m_Jet2Pt,  "m_Jet2Pt/D");
+  reducedValues->Branch("ra2_Jet2Eta", &m_Jet2Eta, "m_Jet2Eta/D");
+  reducedValues->Branch("ra2_Jet3Pt",  &m_Jet3Pt,  "m_Jet3Pt/D");
+  reducedValues->Branch("ra2_Jet3Eta", &m_Jet3Eta, "m_Jet3Eta/D");
 
   reducedValues->Branch("ra2_PUWt",    &m_PUWt,    "m_PUWt/D");
   reducedValues->Branch("ra2_EventWt", &m_EventWt, "m_EventWt/D");

@@ -74,6 +74,7 @@ private:
   int m_nMuonsIso, m_nJetsPt30Eta50, m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_Vertices;
   double m_HT, m_MHT, m_dPhi1, m_dPhi2, m_dPhi3, m_EventWt, m_PUWt, 
     m_Muon1Pt, m_Muon1Eta, m_Muon2Pt, m_Muon2Eta, m_DiMuonInvM, m_DiMuonPt;
+  double m_Jet1Pt, m_Jet1Eta, m_Jet2Pt, m_Jet2Eta, m_Jet3Pt, m_Jet3Eta;
 
   bool m_DoubleMu8_Mass8_PFHT175, m_DoubleMu8_Mass8_PFHT225, 
     m_DoubleMu8_Mass8_PFNoPUHT175, m_DoubleMu8_Mass8_PFNoPUHT225, 
