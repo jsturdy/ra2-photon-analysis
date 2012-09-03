@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
@@ -66,7 +68,7 @@ patJetsAK5PFNoElectronPt50Eta25IDIso.checkOverlaps.electrons.src      = cms.Inpu
 patJetsAK5PFNoElectronPt50Eta25IDIso.checkOverlaps.tkIsoElectrons.src = cms.InputTag('patElectronsIDIso')
 
 patJetsPFNoElectronPt50Eta25     = patJetsPFNoElectronPt30.clone()
-patJetsPFNoElectronPt50Eta25.src = cms.InputTag('patJetsPFPt50Eta25')
+patJetsPFNoElectronPt50Eta25.src = cms.InputTag('patJetsPFchsPt50Eta25')
 
 patJetsPFNoElectronPt50Eta25ID = patJetsPFNoElectronPt50Eta25.clone()
 patJetsPFNoElectronPt50Eta25ID.checkOverlaps.electrons.src      = cms.InputTag('patElectronsID')

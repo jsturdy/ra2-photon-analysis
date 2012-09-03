@@ -49,8 +49,10 @@ patPhotonsID = cms.EDFilter(
    cut = photonIDCutTight,
    filter = cms.bool(False),
 )
-patPhotonsIDPFIso = patPhotonsID.clone(src = cms.InputTag('patPhotonsID'))
-patPhotonsIDPFIso.cut = photonISOCutTight
+patPhotonsIDPFIso = patPhotonsID.clone(
+    src = cms.InputTag('patPhotonsID'),
+    cut = photonISOCutTight,
+)
 
 patPhotonsIDIso = patPhotonsID.clone(
    src = cms.InputTag('patPhotonsID'),

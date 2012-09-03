@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.1 2012/08/30 09:43:40 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.2 2012/08/31 10:27:22 sturdy Exp $
 //
 //
 
@@ -183,6 +183,24 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     }
   }
 
+  m_dPhiMin  = 10.;
+  m_nJetsPt30Eta24 = 0;
+  edm::View<pat::Jet>::const_iterator jet = jets->begin();
+  for (; jet!= jets->end(); ++jet) {
+    if (jet->pt() > 30 && fabs(jet->eta() < 2.4))
+      ++m_nJetsPt30Eta24;
+    double tmpDPhi = fabs(reco::deltaPhi(jet->phi(),(*mht)[0].phi()));
+    if (tmpDPhi < m_dPhiMin)
+      m_dPhiMin = tmpDPhi;
+  }
+  m_dPhiMinB = 10.;
+  edm::View<pat::Jet>::const_iterator bjet = bJets->begin();
+  for (; bjet!= bJets->end(); ++bjet) {
+    double tmpDPhiB = fabs(reco::deltaPhi(bjet->phi(),(*mht)[0].phi()));
+    if (tmpDPhiB < m_dPhiMinB)
+      m_dPhiMinB = tmpDPhiB;
+  }
+
   /******************************************************************
    * Here we do all the HLT related trigger stuff
    *
@@ -304,6 +322,7 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_Photon150",           &m_Photon150,           "m_Photon150/O" );
 
   reducedValues->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "m_nJetsPt30Eta50/I" );
+  reducedValues->Branch("ra2_nJetsPt30Eta24", &m_nJetsPt30Eta24, "m_nJetsPt30Eta24/I");
   reducedValues->Branch("ra2_bJetsPt30Eta24", &m_bJetsPt30Eta24, "m_bJetsPt30Eta24/I");
   reducedValues->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "m_nJetsPt50Eta25/I" );
 

@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialObjectCollection.h,v 1.1 2012/08/20 13:00:14 sturdy Exp $
+// $Id: SpecialObjectCollection.h,v 1.2 2012/08/30 09:44:42 sturdy Exp $
 //
 //
 
@@ -73,12 +73,12 @@ namespace zinvtools {
     typedef std::vector<PATObjType> ObjectCollection;
     /// presistent reference to a Object
     typedef edm::Ref<ObjectCollection> ObjectRef;
-    ///// references to Object collection
-    //typedef edm::RefProd<ObjectCollection> ObjectRefProd;
-    ///// vector of references to Object objects all in the same collection
-    //typedef edm::RefVector<ObjectCollection> ObjectRefVector;
-    ///// iterator over a vector of references to Object objects all in the same collection
-    //typedef ObjectRefVector::iterator object_iterator;
+    /// references to Object collection
+    typedef edm::RefProd<ObjectCollection> ObjectRefProd;
+    /// vector of references to Object objects all in the same collection
+    typedef edm::RefVector<ObjectCollection> ObjectRefVector;
+    /// iterator over a vector of references to Object objects all in the same collection
+    typedef typename ObjectRefVector::iterator object_iterator;
     
     explicit SpecialObjectCollection(const edm::ParameterSet& pset);
     ~SpecialObjectCollection() {};

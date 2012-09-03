@@ -1,3 +1,4 @@
+import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
@@ -22,14 +23,14 @@ patJetsPFNoMuon     = patJetsAK5PFNoMuonPt30.clone()
 patJetsPFNoMuon.src = cms.InputTag('patJetsPF')
 
 patJetsPFNoMuonPt30     = patJetsAK5PFNoMuonPt30.clone()
-patJetsPFNoMuonPt30.src = cms.InputTag('patJetsPFPt30')
+patJetsPFNoMuonPt30.src = cms.InputTag('patJetsPFchsPt30')
 
 #####
 patJetsAK5PFNoMuonPt50Eta25     = patJetsAK5PFNoMuonPt30.clone()
 patJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patJetsAK5PFPt50Eta25')
 
 patJetsPFNoMuonPt50Eta25     = patJetsPFNoMuonPt30.clone()
-patJetsPFNoMuonPt50Eta25.src = cms.InputTag('patJetsPFPt50Eta25')
+patJetsPFNoMuonPt50Eta25.src = cms.InputTag('patJetsPFchsPt50Eta25')
 
 
 muonCleanedPFJetsAK5PF = cms.Sequence(
@@ -47,7 +48,7 @@ muonCleanedPFJetsPF = cms.Sequence(
 ######
 # b-tagged jets
 #from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
-from SandBox.Skims.RA2Jets_cff import selectedRA2PatJets
+from ZInvisibleBkgds.Photons.specialJetSelector_cff import selectedRA2PatJets
 #selectedBasicPatJets = cms.EDFilter("RA2BasicJetSelector",
 #    src = cms.InputTag("patJets"),
 #    cut = cms.string("")

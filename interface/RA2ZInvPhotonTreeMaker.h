@@ -70,8 +70,8 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  int m_nPhotonsIso, m_nJetsPt30Eta50, m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_Vertices;
-  double m_HT, m_MHT, m_dPhi1, m_dPhi2, m_dPhi3, m_EventWt, m_PUWt, m_Photon1Pt, m_Photon1Eta;
+  int m_nPhotonsIso, m_nJetsPt30Eta50, m_bJetsPt30Eta24, m_nJetsPt30Eta24, m_nJetsPt50Eta25, m_Vertices;
+  double m_HT, m_MHT, m_dPhi1, m_dPhi2, m_dPhi3, m_dPhiMin, m_dPhiMinB, m_EventWt, m_PUWt, m_Photon1Pt, m_Photon1Eta;
   double m_Jet1Pt, m_Jet1Eta, m_Jet2Pt, m_Jet2Eta, m_Jet3Pt, m_Jet3Eta, m_Photon2Pt, m_Photon2Eta;
   bool m_Photon70PFMET100, m_Photon70PFHT400, m_Photon70PFNoPUHT400, m_Photon135, m_Photon150;
 };

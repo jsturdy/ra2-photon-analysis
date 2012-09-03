@@ -1,3 +1,4 @@
+import FWCore.ParameterSet.Config as cms
 # b-tagged jets
 #from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
 from ZInvisibleBkgds.Photons.specialJetSelector_cff import selectedRA2PatJets
@@ -68,19 +69,19 @@ patSSVHPTBJetsPF.src = cms.InputTag('patJetsPF')
 patSSVHPTBJetsPF.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
 patSSVHEMBJetsPFPt30 = selectedRA2PatJets.clone()
-patSSVHEMBJetsPFPt30.src = cms.InputTag('patJetsPFPt30')
+patSSVHEMBJetsPFPt30.src = cms.InputTag('patJetsPFchsPt30')
 patSSVHEMBJetsPFPt30.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
 patSSVHPTBJetsPFPt30 = selectedRA2PatJets.clone()
-patSSVHPTBJetsPFPt30.src = cms.InputTag('patJetsPFPt30')
+patSSVHPTBJetsPFPt30.src = cms.InputTag('patJetsPFchsPt30')
 patSSVHPTBJetsPFPt30.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
 patSSVHEMBJetsPFPt50Eta25 = selectedRA2PatJets.clone()
-patSSVHEMBJetsPFPt50Eta25.src = cms.InputTag('patJetsPFPt50Eta25')
+patSSVHEMBJetsPFPt50Eta25.src = cms.InputTag('patJetsPFchsPt50Eta25')
 patSSVHEMBJetsPFPt50Eta25.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
 
 patSSVHPTBJetsPFPt50Eta25 = selectedRA2PatJets.clone()
-patSSVHPTBJetsPFPt50Eta25.src = cms.InputTag('patJetsPFPt50Eta25')
+patSSVHPTBJetsPFPt50Eta25.src = cms.InputTag('patJetsPFchsPt50Eta25')
 patSSVHPTBJetsPFPt50Eta25.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighPurBJetTags") > 2.00')
 
 patCSVJetsPF = selectedRA2PatJets.clone()
@@ -115,6 +116,7 @@ patCSVMVAJetsPFPt50Eta25 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFPt50Eta25.src = cms.InputTag('patCSVMVAJetsPF')
 patCSVMVAJetsPFPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
+from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 ### count the b-jets
 countSSVHEMBJetsAK5PF = countPatJets.clone()
 countSSVHEMBJetsAK5PF.src = cms.InputTag('patSSVHEMBJetsAK5PF')

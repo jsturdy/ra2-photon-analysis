@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialObjectCleaner.h,v 1.1 2012/07/20 11:34:50 sturdy Exp $
+// $Id: SpecialObjectCleaner.h,v 1.1 2012/08/30 09:44:42 sturdy Exp $
 //
 //
 
@@ -73,12 +73,12 @@ namespace zinvtools {
     typedef std::vector<PATObjType> ObjectCollection;
     /// presistent reference to a Object
     typedef edm::Ref<ObjectCollection> ObjectRef;
-    ///// references to Object collection
-    //typedef edm::RefProd<ObjectCollection> ObjectRefProd;
-    ///// vector of references to Object objects all in the same collection
-    //typedef edm::RefVector<ObjectCollection> ObjectRefVector;
-    ///// iterator over a vector of references to Object objects all in the same collection
-    //typedef ObjectRefVector::iterator object_iterator;
+    /// references to Object collection
+    typedef edm::RefProd<ObjectCollection> ObjectRefProd;
+    /// vector of references to Object objects all in the same collection
+    typedef edm::RefVector<ObjectCollection> ObjectRefVector;
+    /// iterator over a vector of references to Object objects all in the same collection
+    typedef typename ObjectRefVector::iterator object_iterator;
     
     explicit SpecialObjectCleaner(const edm::ParameterSet& pset);
     ~SpecialObjectCleaner() {};
@@ -146,7 +146,18 @@ zinvtools::SpecialObjectCleaner<PATObjType>::produce(edm::Event& ev, const edm::
   ev.getByLabel(jetLabel_,jets);
   
   if (!(objects->size()>0)) {
-    std::cout<<"Object collecition empty"<<std::endl;
+    if (debug_) 
+      std::cout<<"Object collecition empty"<<std::endl;
+    std::vector<pat::Jet> * PATCleanedJets = new std::vector<pat::Jet>(); 
+    for (pat::JetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet)
+      PATCleanedJets->push_back(*jet);
+    
+    std::sort(PATCleanedJets->begin(), PATCleanedJets->end(), eTComparator_);
+    std::auto_ptr<std::vector<pat::Jet> > myObjects(PATCleanedJets);
+    // put object in Event
+    if (debug_)
+      std::cout<<"Cleaned jet collection has size "<<myObjects->size()<<std::endl;
+    ev.put(myObjects);
     return;
   }
   if (debug_) {
@@ -156,19 +167,22 @@ zinvtools::SpecialObjectCleaner<PATObjType>::produce(edm::Event& ev, const edm::
 
   //remove only closest DR object, or all objects within minDR?
   int candIndex = -1;
+  int objIndex  = -1;
   double bestDR = 1000.;
   int ican(0);
+
   for (pat::JetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
     if (!arbitration_) {
       double dR = reco::deltaR((*objects)[0].eta(),(*objects)[0].phi(),jet->eta(),jet->phi());
-      
       if (dR < bestDR) {
 	bestDR = dR;
 	candIndex = ican;
+	objIndex  = 0;
       }
-      ++ican;
+      //++ican;
     }
     if (arbitration_) {
+      int iobj(0);
       for (typename ObjectCollection::const_iterator itObj = objects->begin(); itObj != objects->end(); ++itObj) {
 	double dR = reco::deltaR(itObj->eta(),itObj->phi(),jet->eta(),jet->phi());
 	if (debug_)
@@ -176,10 +190,12 @@ zinvtools::SpecialObjectCleaner<PATObjType>::produce(edm::Event& ev, const edm::
 	if (dR < bestDR) {
 	  bestDR = dR;
 	  candIndex = ican;
+	  objIndex = iobj;
 	}
-	++ican;
+	++iobj;
       }
     }
+    ++ican;
   }
 
 
@@ -190,6 +206,18 @@ zinvtools::SpecialObjectCleaner<PATObjType>::produce(edm::Event& ev, const edm::
     if (ican == candIndex) {
       if (bestDR > maxDR_)
 	PATCleanedJets->push_back(*jet);
+      else 
+	if (debug_)
+	  std::cout<<"Removing jet "<<candIndex
+		   <<" - pt("<<jet->pt()
+		   <<"), eta("<<jet->eta()
+		   <<"), phi("<<jet->phi()
+		   <<")"<<std::endl<<"matched DR("<<bestDR<<") to object "<<objIndex
+		   <<" - pt("<<(*objects)[objIndex].pt()
+		   <<"), eta("<<(*objects)[objIndex].eta()
+		   <<"), phi("<<(*objects)[objIndex].phi()
+		   <<")"
+		   <<std::endl;
     }
     else
       PATCleanedJets->push_back(*jet);

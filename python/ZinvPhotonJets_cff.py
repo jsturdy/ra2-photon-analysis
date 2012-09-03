@@ -1,69 +1,46 @@
+import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
-patJetsAK5PFNoPhotonPt30 = cleanPatJets.clone()
+patJetsAK5PFNoPhoton = cleanPatJets.clone()
+patJetsAK5PFNoPhoton.src = cms.InputTag('patJetsAK5PF')
+patJetsAK5PFNoPhoton.checkOverlaps.photons.src             = cms.InputTag('patPhotonsIDPFIso')
+patJetsAK5PFNoPhoton.checkOverlaps.photons.algorithm         = cms.string('byDeltaR')
+patJetsAK5PFNoPhoton.checkOverlaps.photons.preselection      = cms.string('')
+patJetsAK5PFNoPhoton.checkOverlaps.photons.deltaR            = cms.double(0.1)
+patJetsAK5PFNoPhoton.checkOverlaps.photons.pairCut           = cms.string('')
+patJetsAK5PFNoPhoton.checkOverlaps.photons.requireNoOverlaps = cms.bool(True)
+patJetsAK5PFNoPhoton.checkOverlaps.taus.src                = cms.InputTag('selectedPatTausPF')
+patJetsAK5PFNoPhoton.checkOverlaps.electrons.src           = cms.InputTag('patElectrons')
+patJetsAK5PFNoPhoton.checkOverlaps.tkIsoElectrons.src      = cms.InputTag('patElectrons')
+patJetsAK5PFNoPhoton.checkOverlaps.muons.src               = cms.InputTag('patMuons')
+
+patJetsAK5PFNoPhotonPt30 = patJetsAK5PFNoPhoton.clone()
 patJetsAK5PFNoPhotonPt30.src = cms.InputTag('patJetsAK5PFPt30')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.photons.src             = cms.InputTag('patPhotonsAlt')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.photons.algorithm         = cms.string('byDeltaR')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.photons.preselection      = cms.string('')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.photons.deltaR            = cms.double(0.1)
-patJetsAK5PFNoPhotonPt30.checkOverlaps.photons.pairCut           = cms.string('')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.photons.requireNoOverlaps = cms.bool(True)
-patJetsAK5PFNoPhotonPt30.checkOverlaps.taus.src                = cms.InputTag('selectedPatTausPF')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.electrons.src           = cms.InputTag('patElectrons')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.tkIsoElectrons.src      = cms.InputTag('patElectrons')
-patJetsAK5PFNoPhotonPt30.checkOverlaps.muons.src               = cms.InputTag('patMuons')
 
-patJetsAK5PFNoPhotonPt30ID                         = patJetsAK5PFNoPhotonPt30.clone()
-patJetsAK5PFNoPhotonPt30ID.checkOverlaps.photons.src = cms.InputTag('patPhotonsID')
+patJetsPFNoPhoton     = patJetsAK5PFNoPhoton.clone()
+patJetsPFNoPhoton.src = cms.InputTag('patJetsPF')
 
-patJetsAK5PFNoPhotonPt30IDIso                         = patJetsAK5PFNoPhotonPt30.clone()
-patJetsAK5PFNoPhotonPt30IDIso.checkOverlaps.photons.src = cms.InputTag('patPhotonsIDPFIso')
-
-patJetsPFNoPhotonPt30                         = patJetsAK5PFPt30.clone()
-patJetsPFNoPhotonPt30.src = cms.InputTag('patJetsPF')
-
-patJetsPFNoPhotonPt30ID                         = patJetsPFNoPhotonPt30.clone()
-patJetsPFNoPhotonPt30ID.checkOverlaps.photons.src = cms.InputTag('patPhotonsID')
-
-patJetsPFNoPhotonPt30IDIso                         = patJetsPFNoPhotonPt30.clone()
-patJetsPFNoPhotonPt30IDIso.checkOverlaps.photons.src = cms.InputTag('patPhotonsIDPFIso')
+patJetsPFNoPhotonPt30                         = patJetsAK5PFNoPhotonPt30.clone()
+patJetsPFNoPhotonPt30.src = cms.InputTag('patJetsPFchsPt30')
 
 #####
 patJetsAK5PFNoPhotonPt50Eta25     = patJetsAK5PFNoPhotonPt30.clone()
 patJetsAK5PFNoPhotonPt50Eta25.src = cms.InputTag('patJetsAK5PFPt50Eta25')
 
-patJetsAK5PFNoPhotonPt50Eta25ID                         = patJetsAK5PFNoPhotonPt50Eta25.clone()
-patJetsAK5PFNoPhotonPt50Eta25ID.checkOverlaps.photons.src = cms.InputTag('patPhotonsID')
-
-patJetsAK5PFNoPhotonPt50Eta25IDIso                           = patJetsAK5PFNoPhotonPt50Eta25.clone()
-patJetsAK5PFNoPhotonPt50Eta25IDIso.checkOverlaps.photons.src = cms.InputTag('patPhotonsIDPFIso')
-
 patJetsPFNoPhotonPt50Eta25     = patJetsPFNoPhotonPt30.clone()
-patJetsPFNoPhotonPt50Eta25.src = cms.InputTag('patJetsPFPt50Eta25')
-
-patJetsPFNoPhotonPt50Eta25ID                         = patJetsPFNoPhotonPt50Eta25.clone()
-patJetsPFNoPhotonPt50Eta25ID.checkOverlaps.photons.src = cms.InputTag('patPhotonsID')
-
-patJetsPFNoPhotonPt50Eta25IDIso                           = patJetsPFNoPhotonPt50Eta25.clone()
-patJetsPFNoPhotonPt50Eta25IDIso.checkOverlaps.photons.src = cms.InputTag('patPhotonsIDPFIso')
+patJetsPFNoPhotonPt50Eta25.src = cms.InputTag('patJetsPFchsPt50Eta25')
 
 photonCleanedPFJetsAK5PF = cms.Sequence(
+    patJetsAK5PFNoPhoton               *
     patJetsAK5PFNoPhotonPt30           *
-    patJetsAK5PFNoPhotonPt30ID         *
-    patJetsAK5PFNoPhotonPt30IDIso      *
-    patJetsAK5PFNoPhotonPt50Eta25      *
-    patJetsAK5PFNoPhotonPt50Eta25ID    *
-    patJetsAK5PFNoPhotonPt50Eta25IDIso
+    patJetsAK5PFNoPhotonPt50Eta25
 )
 photonCleanedPFJetsPF = cms.Sequence(
+    patJetsPFNoPhoton               *
     patJetsPFNoPhotonPt30           *
-    patJetsPFNoPhotonPt30ID         *
-    patJetsPFNoPhotonPt30IDIso      *
-    patJetsPFNoPhotonPt50Eta25      *
-    patJetsPFNoPhotonPt50Eta25ID    *
-    patJetsPFNoPhotonPt50Eta25IDIso
+    patJetsPFNoPhotonPt50Eta25
 )
 
 
@@ -77,12 +54,6 @@ countJetsAK5PFNoPhotonPt50Eta25           = countPatJets.clone()
 countJetsAK5PFNoPhotonPt50Eta25.src       = cms.InputTag('patJetsAK5PFNoPhotonPt50Eta25')
 countJetsAK5PFNoPhotonPt50Eta25.minNumber = cms.uint32(3)
 
-countJetsAK5PFNoPhotonPt50Eta25ID     = countJetsAK5PFNoPhotonPt50Eta25.clone()
-countJetsAK5PFNoPhotonPt50Eta25ID.src = cms.InputTag('patJetsAK5PFNoPhotonPt50Eta25ID')
-
-countJetsAK5PFNoPhotonPt50Eta25IDIso     = countJetsAK5PFNoPhotonPt50Eta25.clone()
-countJetsAK5PFNoPhotonPt50Eta25IDIso.src = cms.InputTag('patJetsAK5PFNoPhotonPt50Eta25IDIso')
-
 countJetsPFNoPhotonPt50Eta25DiJets           = countPatJets.clone()
 countJetsPFNoPhotonPt50Eta25DiJets.src       = cms.InputTag('patJetsPFNoPhotonPt50Eta25')
 countJetsPFNoPhotonPt50Eta25DiJets.minNumber = cms.uint32(2)
@@ -90,12 +61,6 @@ countJetsPFNoPhotonPt50Eta25DiJets.minNumber = cms.uint32(2)
 countJetsPFNoPhotonPt50Eta25           = countPatJets.clone()
 countJetsPFNoPhotonPt50Eta25.src       = cms.InputTag('patJetsPFNoPhotonPt50Eta25')
 countJetsPFNoPhotonPt50Eta25.minNumber = cms.uint32(3)
-
-countJetsPFNoPhotonPt50Eta25ID     = countJetsPFNoPhotonPt50Eta25.clone()
-countJetsPFNoPhotonPt50Eta25ID.src = cms.InputTag('patJetsPFNoPhotonPt50Eta25ID')
-
-countJetsPFNoPhotonPt50Eta25IDIso     = countJetsPFNoPhotonPt50Eta25.clone()
-countJetsPFNoPhotonPt50Eta25IDIso.src = cms.InputTag('patJetsPFNoPhotonPt50Eta25IDIso')
 
 
 ######
@@ -317,82 +282,34 @@ from ZInvisibleBkgds.Photons.specialObjectCleaner_cff import specialPhotonCleane
 
 patJetsAK5PFNoPhotonSpecial              = specialPhotonCleanedJets.clone()
 patJetsAK5PFNoPhotonSpecial.jetLabel     = cms.InputTag('patJetsAK5PF')
-patJetsAK5PFNoPhotonSpecial.objectLabel  = cms.InputTag('patPhotonsAlt')
+patJetsAK5PFNoPhotonSpecial.objectLabel  = cms.InputTag('patPhotonsIDPFIso')
 
-patJetsAK5PFNoPhotonSpecialID             = patJetsAK5PFNoPhotonSpecial.clone()
-patJetsAK5PFNoPhotonSpecialID.objectLabel = cms.InputTag('patPhotonsID')
-
-patJetsAK5PFNoPhotonSpecialIDIso             = patJetsAK5PFNoPhotonSpecial.clone()
-patJetsAK5PFNoPhotonSpecialIDIso.objectLabel = cms.InputTag('patPhotonsIDPFIso')
-
-patJetsPFNoPhotonSpecial     = patJetsAK5PF.clone()
+patJetsPFNoPhotonSpecial     = patJetsAK5PFNoPhotonSpecial.clone()
 patJetsPFNoPhotonSpecial.src = cms.InputTag('patJetsPF')
-
-patJetsPFNoPhotonSpecialID             = patJetsPFNoPhotonSpecial.clone()
-patJetsPFNoPhotonSpecialID.objectLabel = cms.InputTag('patPhotonsID')
-
-patJetsPFNoPhotonSpecialIDIso             = patJetsPFNoPhotonSpecial.clone()
-patJetsPFNoPhotonSpecialIDIso.objectLabel = cms.InputTag('patPhotonsIDPFIso')
 
 #MHT Jets
 patJetsAK5PFNoPhotonSpecialPt30              = patJetsAK5PFNoPhotonSpecial.clone()
 patJetsAK5PFNoPhotonSpecialPt30.jetLabel     = cms.InputTag('patJetsAK5PFPt30')
 
-patJetsAK5PFNoPhotonSpecialPt30ID             = patJetsAK5PFNoPhotonSpecialPt30.clone()
-patJetsAK5PFNoPhotonSpecialPt30ID.objectLabel = cms.InputTag('patPhotonsID')
-
-patJetsAK5PFNoPhotonSpecialPt30IDIso             = patJetsAK5PFNoPhotonSpecialPt30.clone()
-patJetsAK5PFNoPhotonSpecialPt30IDIso.objectLabel = cms.InputTag('patPhotonsIDPFIso')
-
-patJetsPFNoPhotonSpecialPt30          = patJetsAK5PFPt30.clone()
-patJetsPFNoPhotonSpecialPt30.jetLabel = cms.InputTag('patJetsPFPt30')
-
-patJetsPFNoPhotonSpecialPt30ID             = patJetsPFNoPhotonSpecialPt30.clone()
-patJetsPFNoPhotonSpecialPt30ID.objectLabel = cms.InputTag('patPhotonsID')
-
-patJetsPFNoPhotonSpecialPt30IDIso             = patJetsPFNoPhotonSpecialPt30.clone()
-patJetsPFNoPhotonSpecialPt30IDIso.objectLabel = cms.InputTag('patPhotonsIDPFIso')
+patJetsPFNoPhotonSpecialPt30          = patJetsPFNoPhotonSpecial.clone()
+patJetsPFNoPhotonSpecialPt30.jetLabel = cms.InputTag('patJetsPFchsPt30')
 
 #HT Jets
 patJetsAK5PFNoPhotonSpecialPt50Eta25          = patJetsAK5PFNoPhotonSpecialPt30.clone()
 patJetsAK5PFNoPhotonSpecialPt50Eta25.jetLabel = cms.InputTag('patJetsAK5PFPt50Eta25')
 
-patJetsAK5PFNoPhotonSpecialPt50Eta25ID             = patJetsAK5PFNoPhotonSpecialPt50Eta25.clone()
-patJetsAK5PFNoPhotonSpecialPt50Eta25ID.objectLabel = cms.InputTag('patPhotonsID')
-
-patJetsAK5PFNoPhotonSpecialPt50Eta25IDIso             = patJetsAK5PFNoPhotonSpecialPt50Eta25.clone()
-patJetsAK5PFNoPhotonSpecialPt50Eta25IDIso.objectLabel = cms.InputTag('patPhotonsIDPFIso')
-
 patJetsPFNoPhotonSpecialPt50Eta25          = patJetsPFNoPhotonSpecialPt30.clone()
-patJetsPFNoPhotonSpecialPt50Eta25.jetLabel = cms.InputTag('patJetsPFPt50Eta25')
-
-patJetsPFNoPhotonSpecialPt50Eta25ID             = patJetsPFNoPhotonSpecialPt50Eta25.clone()
-patJetsPFNoPhotonSpecialPt50Eta25ID.objectLabel = cms.InputTag('patPhotonsID')
-
-patJetsPFNoPhotonSpecialPt50Eta25IDIso             = patJetsPFNoPhotonSpecialPt50Eta25.clone()
-patJetsPFNoPhotonSpecialPt50Eta25IDIso.objectLabel = cms.InputTag('patPhotonsIDPFIso')
+patJetsPFNoPhotonSpecialPt50Eta25.jetLabel = cms.InputTag('patJetsPFchsPt50Eta25')
 
 specialPhotonCleanedPFJetsAK5PF = cms.Sequence(
     patJetsAK5PFNoPhotonSpecial           *
-    patJetsAK5PFNoPhotonSpecialID         *
-    patJetsAK5PFNoPhotonSpecialIDIso      *
     patJetsAK5PFNoPhotonSpecialPt30           *
-    patJetsAK5PFNoPhotonSpecialPt30ID         *
-    patJetsAK5PFNoPhotonSpecialPt30IDIso      *
-    patJetsAK5PFNoPhotonSpecialPt50Eta25      *
-    patJetsAK5PFNoPhotonSpecialPt50Eta25ID    *
-    patJetsAK5PFNoPhotonSpecialPt50Eta25IDIso
+    patJetsAK5PFNoPhotonSpecialPt50Eta25
 )
 specialPhotonCleanedPFJetsPF = cms.Sequence(
     patJetsPFNoPhotonSpecial           *
-    patJetsPFNoPhotonSpecialID         *
-    patJetsPFNoPhotonSpecialIDIso      *
     patJetsPFNoPhotonSpecialPt30           *
-    patJetsPFNoPhotonSpecialPt30ID         *
-    patJetsPFNoPhotonSpecialPt30IDIso      *
-    patJetsPFNoPhotonSpecialPt50Eta25      *
-    patJetsPFNoPhotonSpecialPt50Eta25ID    *
-    patJetsPFNoPhotonSpecialPt50Eta25IDIso
+    patJetsPFNoPhotonSpecialPt50Eta25
 )
 
 #############
@@ -405,12 +322,6 @@ countJetsAK5PFNoPhotonSpecialPt50Eta25           = countPatJets.clone()
 countJetsAK5PFNoPhotonSpecialPt50Eta25.src       = cms.InputTag('patJetsAK5PFNoPhotonSpecialPt50Eta25')
 countJetsAK5PFNoPhotonSpecialPt50Eta25.minNumber = cms.uint32(3)
 
-countJetsAK5PFNoPhotonSpecialPt50Eta25ID     = countJetsAK5PFNoPhotonSpecialPt50Eta25.clone()
-countJetsAK5PFNoPhotonSpecialPt50Eta25ID.src = cms.InputTag('patJetsAK5PFNoPhotonSpecialPt50Eta25ID')
-
-countJetsAK5PFNoPhotonSpecialPt50Eta25IDIso     = countJetsAK5PFNoPhotonSpecialPt50Eta25.clone()
-countJetsAK5PFNoPhotonSpecialPt50Eta25IDIso.src = cms.InputTag('patJetsAK5PFNoPhotonSpecialPt50Eta25IDIso')
-
 countJetsPFNoPhotonSpecialPt50Eta25DiJets           = countPatJets.clone()
 countJetsPFNoPhotonSpecialPt50Eta25DiJets.src       = cms.InputTag('patJetsPFNoPhotonSpecialPt50Eta25')
 countJetsPFNoPhotonSpecialPt50Eta25DiJets.minNumber = cms.uint32(2)
@@ -418,12 +329,6 @@ countJetsPFNoPhotonSpecialPt50Eta25DiJets.minNumber = cms.uint32(2)
 countJetsPFNoPhotonSpecialPt50Eta25           = countPatJets.clone()
 countJetsPFNoPhotonSpecialPt50Eta25.src       = cms.InputTag('patJetsPFNoPhotonSpecialPt50Eta25')
 countJetsPFNoPhotonSpecialPt50Eta25.minNumber = cms.uint32(3)
-
-countJetsPFNoPhotonSpecialPt50Eta25ID     = countJetsPFNoPhotonSpecialPt50Eta25.clone()
-countJetsPFNoPhotonSpecialPt50Eta25ID.src = cms.InputTag('patJetsPFNoPhotonSpecialPt50Eta25ID')
-
-countJetsPFNoPhotonSpecialPt50Eta25IDIso     = countJetsPFNoPhotonSpecialPt50Eta25.clone()
-countJetsPFNoPhotonSpecialPt50Eta25IDIso.src = cms.InputTag('patJetsPFNoPhotonSpecialPt50Eta25IDIso')
 
 
 ######
