@@ -1,7 +1,6 @@
-<export>
-</export>
 <library   name="ZInvisibleBkgdsPhotons_plugins" file="*.cc">
   <use   name="FWCore/Framework"/>
+  <use   name="FWCore/PluginManager"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/MessageService"/>
@@ -34,3 +33,5 @@
   <flags CXXFLAGS="-O0 -g3 -fno-inline"/>
   <flags CXX_FLAGS="-O0 -g3 -fno-inline"/>
 </library>
+<export>
+</export>

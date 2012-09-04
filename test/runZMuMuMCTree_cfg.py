@@ -20,7 +20,17 @@ process.options = cms.untracked.PSet(
 #process.load('SusyAnalysis.PhotonAnalysis.PhotonRun2011AMay10ReReco_160404to163869_cfi');
 #process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(FILELIST ))
 
-FILELIST = ['/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_473_1_xt4.root']
+FILELIST = ['/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_473_1_xt4.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_100_1_pAN.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_101_1_fEs.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_102_1_kr1.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_103_1_3Ho.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_104_1_LRu.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_105_1_ceN.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_107_1_qGd.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_108_1_h7f.root',
+            '/store/user/lpcsusyhad/sturdy/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_110_1_AjL.root',
+            ]
 MAXEVENTS = -1
 SKIPEVENTS = 0
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(FILELIST ))

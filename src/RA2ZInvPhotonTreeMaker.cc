@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.2 2012/08/31 10:27:22 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.3 2012/09/03 10:33:30 sturdy Exp $
 //
 //
 
@@ -154,9 +154,9 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_MHT = (*mht)[0].pt();
 
   const pat::Jet  *r1, *r2, *r3;
-  m_dPhi1 = -1.0;
-  m_dPhi2 = -1.0;
-  m_dPhi3 = -1.0;
+  m_dPhi1 = 10.0;
+  m_dPhi2 = 10.0;
+  m_dPhi3 = 10.0;
   m_Jet1Pt  = -10.;
   m_Jet1Eta = -10.;
   m_Jet2Pt  = -10.;
@@ -298,6 +298,8 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_dPhi1", &m_dPhi1, "m_dPhi1/D");
   reducedValues->Branch("ra2_dPhi2", &m_dPhi2, "m_dPhi2/D");
   reducedValues->Branch("ra2_dPhi3", &m_dPhi3, "m_dPhi3/D");
+  reducedValues->Branch("ra2_dPhiMin", &m_dPhiMin, "m_dPhiMin/D");
+  reducedValues->Branch("ra2_dPhiMinB", &m_dPhiMinB, "m_dPhiMinB/D");
 
   reducedValues->Branch("ra2_Jet1Pt",  &m_Jet1Pt,  "m_Jet1Pt/D");
   reducedValues->Branch("ra2_Jet1Eta", &m_Jet1Eta, "m_Jet1Eta/D");

@@ -15,35 +15,39 @@ process.options = cms.untracked.PSet(
             wantSummary = cms.untracked.bool(True)
             )
 
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.GlobalTag.globaltag = "START52_V5::All"
+#if runningOnMC == False:
+process.GlobalTag.globaltag = "GR_P_V39_AN1::All"
+
 #================= configure poolsource module ===================
 
 #process.load('SusyAnalysis.PhotonAnalysis.PhotonRun2011AMay10ReReco_160404to163869_cfi');
 #process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(FILELIST ))
 
-##process.source = cms.Source("PoolSource",
-##    fileNames = cms.untracked.vstring(
-##        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_464_1_f7L.root',
-##        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_463_1_KMz.root',
-##        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_466_1_f5b.root',
-##        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_465_1_ELg.root',
-##        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_468_1_xut.root',
-##        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_467_1_yXy.root',
-##        '/store/user/sturdy07/RA2_525_Skims/GJets_HT400_cmslpc/sturdy/GJets_HT-400ToInf_8TeV-madgraph/RA2_525_Skims_GJets_HT400_cmslpc/7d4ef27531e2177d5832a38a4c4fa602/susypat_mc_46_1_ezp.root'
-##    )
-##)
-##
-##process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-##
-##process.source.skipEvents = cms.untracked.uint32(0)
-##
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+        '/store/user/lpcsusyhad/sudan/DoubleMu/Run2012B-PromptReco-v1/82c5ab7277a61a422bf46e5043813259/susypat_1000_1_0oT.root'
+       ,'/store/user/lpcsusyhad/sudan/DoubleMu/Run2012B-PromptReco-v1/82c5ab7277a61a422bf46e5043813259/susypat_1001_1_p9p.root'
+       ,'/store/user/lpcsusyhad/sudan/DoubleMu/Run2012B-PromptReco-v1/82c5ab7277a61a422bf46e5043813259/susypat_1002_1_jBI.root'
+       ,'/store/user/lpcsusyhad/sudan/DoubleMu/Run2012B-PromptReco-v1/82c5ab7277a61a422bf46e5043813259/susypat_1008_1_x6m.root'
+   )
+)
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+
+process.source.skipEvents = cms.untracked.uint32(0)
+
 ##FILELIST = ['/store/user/lpcsusyhad/kasmi/2012AUG16/kasmi/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12-PU_S7_START52_V9-v1_NOCUTS_SkimsCode_09Aug2012V1/30d962f2384a73745773eb8ebda4b94d/SUSYPAT_1584_1_Mo2.root']
 ##MAXEVENTS = -1
 ##SKIPEVENTS = 0
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(FILELIST ))
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTS) )
-
-process.source.skipEvents = cms.untracked.uint32(SKIPEVENTS)  
+##process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(FILELIST ))
+##
+##process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTS) )
+##
+##process.source.skipEvents = cms.untracked.uint32(SKIPEVENTS)  
 
 #========================= analysis module =====================================
 process.zToMuMu = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -53,20 +57,21 @@ process.zToMuMu = cms.EDProducer("CandViewShallowCloneCombiner",
                                  roles = cms.vstring('muon1', 'muon2')
                                  )
 
-scaleF = 2950*10*1000/30460994.
-process.analysis = cms.EDAnalyzer('RA2ZInvDiMuonTreeMaker',
-                                  Debug           = cms.bool(False),
-                                  Data            = cms.bool(False),
-                                  ScaleFactor     = cms.double(1.0),
-                                  MuonSrc         = cms.InputTag("specialMuonCollection"),
-                                  VertexSrc       = cms.InputTag("goodVertices"),
-                                  JetSrc          = cms.InputTag("patJetsPFNoMuonPt30"),
-                                  htJetSrc        = cms.InputTag("patJetsPFNoMuonPt50Eta25"),
-                                  bJetSrc         = cms.InputTag("patCSVJetsPFNoMuonPt30Eta24"),
-                                  htSource        = cms.InputTag("htPFchsNoMuon"),
-                                  mhtSource       = cms.InputTag("mhtPFchsNoMuon"),
-                                  DoPUReweight    = cms.bool(False),
-                                  PUWeightSource  = cms.InputTag("puWeight")
+#scaleF = 2950*10*1000/30460994.
+from ZInvisibleBkgds.Photons.treemaker_cfi import dimuonTree
+process.analysis = dimuonTree.clone(
+    Debug           = cms.bool(False),
+    Data            = cms.bool(True),
+    ScaleFactor     = cms.double(1.0),
+    MuonSrc         = cms.InputTag("specialMuonCollection"),
+    VertexSrc       = cms.InputTag("goodVertices"),
+    JetSrc          = cms.InputTag("patJetsPFNoMuonPt30"),
+    htJetSrc        = cms.InputTag("patJetsPFNoMuonPt50Eta25"),
+    bJetSrc         = cms.InputTag("patCSVJetsPFNoMuonPt30Eta24"),
+    htSource        = cms.InputTag("htPFchsNoMuon"),
+    mhtSource       = cms.InputTag("mhtPFchsNoMuon"),
+    DoPUReweight    = cms.bool(False),
+    PUWeightSource  = cms.InputTag("puWeight")
 )
 
 #================ configure filters and analysis sequence=======================
@@ -86,7 +91,8 @@ process.load('ZInvisibleBkgds.Photons.MuonHT_cff')
 process.load('ZInvisibleBkgds.Photons.MuonMHT_cff')
 
 process.analysisSeq = cms.Sequence(#process.ra2PostCleaning   *
-                                   process.ra2ObjectsPF
+                                     process.ra2PFchsJets
+                                   * process.ra2ElectronVeto
                                    * process.zToMuMu
                                    * process.zCandFilter
                                    * process.specialMuonCollection
@@ -94,7 +100,6 @@ process.analysisSeq = cms.Sequence(#process.ra2PostCleaning   *
                                    * process.zinvBJetsPFNoMuon
                                    * process.htPFchsNoMuon
                                    * process.mhtPFchsNoMuon
-                                   * process.ra2ElectronVeto
                                    * process.analysis
 )
 

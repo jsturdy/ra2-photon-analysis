@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.cc,v 1.1 2012/08/30 09:45:14 sturdy Exp $
+// $Id: GenStudyTree.cc,v 1.1 2012/09/03 10:30:39 sturdy Exp $
 //
 //
 // system include files
@@ -232,9 +232,9 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
   //reco::MET MHTNoPhot = reco::MET(mhtNoPhot, reco::MET::Point());
   //mhtGenJetsNoPhot = MHTNoPhot.pt();
   ////meffGenJetsNoPhot = mhtGenJetsNoPhot + htGenJets;
-  m_genDPhi1 = -1.0;
-  m_genDPhi2 = -1.0;
-  m_genDPhi3 = -1.0;
+  m_genDPhi1 = 10.0;
+  m_genDPhi2 = 10.0;
+  m_genDPhi3 = 10.0;
   m_genJet1Pt  = -10.;
   m_genJet1Eta = -10.;
   m_genJet2Pt  = -10.;

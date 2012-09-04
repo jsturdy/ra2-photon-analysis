@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.1 2012/08/30 09:43:39 sturdy Exp $
+// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.2 2012/08/31 10:27:22 sturdy Exp $
 //
 //
 
@@ -74,13 +74,6 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   if (debug_)
     std::cout<<"Muon collection has size "<<patMuons->size()<<std::endl;
 
-  // require atleast one isolated muon else return
-  if (patMuons->size()<2) {
-    std::cout << "No isolated di-muons found : Event Rejected : ( run, event, lumi ) " 
-	      << run << " " << event << " " << lumi << std::endl;
-    return;
-  }
-  
   // get jetcollection
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
@@ -157,6 +150,7 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   
   m_DiMuonInvM = ((*patMuons)[0].p4()+(*patMuons)[1].p4()).mass();
   m_DiMuonPt   = ((*patMuons)[0].p4()+(*patMuons)[1].p4()).pt();
+
   m_nJetsPt30Eta50 = jets  ->size();
   m_nJetsPt50Eta25 = htJets->size();
   m_bJetsPt30Eta24 = bJets ->size();
@@ -164,9 +158,9 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_MHT = (*mht)[0].pt();
 
   const pat::Jet  *r1, *r2, *r3;
-  m_dPhi1 = -1.0;
-  m_dPhi2 = -1.0;
-  m_dPhi3 = -1.0;
+  m_dPhi1 = 10.0;
+  m_dPhi2 = 10.0;
+  m_dPhi3 = 10.0;
   m_Jet1Pt  = -10.;
   m_Jet1Eta = -10.;
   m_Jet2Pt  = -10.;
@@ -193,6 +187,24 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     }
   }
 
+  m_dPhiMin  = 10.;
+  m_nJetsPt30Eta24 = 0;
+  edm::View<pat::Jet>::const_iterator jet = jets->begin();
+  for (; jet!= jets->end(); ++jet) {
+    if (jet->pt() > 30 && fabs(jet->eta() < 2.4))
+      ++m_nJetsPt30Eta24;
+    double tmpDPhi = fabs(reco::deltaPhi(jet->phi(),(*mht)[0].phi()));
+    if (tmpDPhi < m_dPhiMin)
+      m_dPhiMin = tmpDPhi;
+  }
+  m_dPhiMinB = 10.;
+  edm::View<pat::Jet>::const_iterator bjet = bJets->begin();
+  for (; bjet!= bJets->end(); ++bjet) {
+    double tmpDPhiB = fabs(reco::deltaPhi(bjet->phi(),(*mht)[0].phi()));
+    if (tmpDPhiB < m_dPhiMinB)
+      m_dPhiMinB = tmpDPhiB;
+  }
+
   /******************************************************************
    * Here we do all the HLT related trigger stuff
    *
@@ -200,14 +212,6 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
    ******************************************************************/
 
   /////Trigger information
-  m_DoubleMu8_Mass8_PFHT175 = true;
-  m_DoubleMu8_Mass8_PFHT225 = true;
-  m_DoubleMu8_Mass8_PFNoPUHT175 = true;
-  m_DoubleMu8_Mass8_PFNoPUHT225 = true;
-  m_DoubleRelIso1p0Mu5_Mass8_PFHT175 = true;
-  m_DoubleRelIso1p0Mu5_Mass8_PFHT225 = true;
-  m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT175 = true;
-  m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT225 = true;
   m_Mu13_Mu8 = true;
   m_Mu17_Mu8 = true;
   m_DoubleMu5_IsoMu5 = true;
@@ -215,14 +219,6 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   // Get the HLT results and check validity for data
   
   if (data_) {
-    m_DoubleMu8_Mass8_PFHT175 = false;
-    m_DoubleMu8_Mass8_PFHT225 = false;
-    m_DoubleMu8_Mass8_PFNoPUHT175 = false;
-    m_DoubleMu8_Mass8_PFNoPUHT225 = false;
-    m_DoubleRelIso1p0Mu5_Mass8_PFHT175 = false;
-    m_DoubleRelIso1p0Mu5_Mass8_PFHT225 = false;
-    m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT175 = false;
-    m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT225 = false;
     m_Mu13_Mu8 = false;
     m_Mu17_Mu8 = false;
     m_DoubleMu5_IsoMu5 = false;
@@ -260,23 +256,7 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
       int          trgResult   = hltHandle->accept(trgIndex);
       
       if (trgResult > 0) {
-	if (tmpName.rfind("HLT_Muon70_CaloIdXL_PFHT400_v") != std::string::npos)
-	  m_DoubleMu8_Mass8_PFHT175 = true;
-	else if (tmpName.rfind("HLT_DoubleMu8_Mass8_PFHT225_v") != std::string::npos)
-	  m_DoubleMu8_Mass8_PFHT225 = true;
-	else if (tmpName.rfind("HLT_DoubleMu8_Mass8_PFNoPUHT175_v") != std::string::npos)
-	  m_DoubleMu8_Mass8_PFNoPUHT175 = true;
-	else if (tmpName.rfind("HLT_DoubleMu8_Mass8_PFNoPUHT225_v") != std::string::npos)
-	  m_DoubleMu8_Mass8_PFNoPUHT225 = true;
-	else if (tmpName.rfind("HLT_DoubleRelIso1p0Mu5_Mass8_PFHT175_v") != std::string::npos)
-	  m_DoubleRelIso1p0Mu5_Mass8_PFHT175 = true;
-	else if (tmpName.rfind("HLT_DoubleRelIso1p0Mu5_Mass8_PFHT225_v") != std::string::npos)
-	  m_DoubleRelIso1p0Mu5_Mass8_PFHT225 = true;
-	else if (tmpName.rfind("HLT_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT175_v") != std::string::npos)
-	  m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT175 = true;
-	else if (tmpName.rfind("HLT_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT225_v") != std::string::npos)
-	  m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT225 = true;
-	else if (tmpName.rfind("HLT_Mu13_Mu8_v") != std::string::npos)
+	if (tmpName.rfind("HLT_Mu13_Mu8_v") != std::string::npos)
 	  m_Mu13_Mu8 = true;
 	else if (tmpName.rfind("HLT_Mu17_Mu8_v") != std::string::npos)
 	  m_Mu17_Mu8 = true;
@@ -312,6 +292,8 @@ void RA2ZInvDiMuonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_dPhi1", &m_dPhi1, "m_dPhi1/D");
   reducedValues->Branch("ra2_dPhi2", &m_dPhi2, "m_dPhi2/D");
   reducedValues->Branch("ra2_dPhi3", &m_dPhi3, "m_dPhi3/D");
+  reducedValues->Branch("ra2_dPhiMin", &m_dPhiMin, "m_dPhiMin/D");
+  reducedValues->Branch("ra2_dPhiMinB", &m_dPhiMinB, "m_dPhiMinB/D");
 
   reducedValues->Branch("ra2_Jet1Pt",  &m_Jet1Pt,  "m_Jet1Pt/D");
   reducedValues->Branch("ra2_Jet1Eta", &m_Jet1Eta, "m_Jet1Eta/D");
@@ -331,19 +313,12 @@ void RA2ZInvDiMuonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_DiMuonInvM", &m_DiMuonInvM, "m_DiMuonInvM/D");
   reducedValues->Branch("ra2_DiMuonPt",   &m_DiMuonPt,   "m_DiMuonPt/D");
 
-  reducedValues->Branch("ra2_DoubleMu8_Mass8_PFHT175",             &m_DoubleMu8_Mass8_PFHT175             , "m_DoubleMu8_Mass8_PFHT175/O"             );
-  reducedValues->Branch("ra2_DoubleMu8_Mass8_PFHT225",             &m_DoubleMu8_Mass8_PFHT225             , "m_DoubleMu8_Mass8_PFHT225/O"             );
-  reducedValues->Branch("ra2_DoubleMu8_Mass8_PFNoPUHT175",         &m_DoubleMu8_Mass8_PFNoPUHT175         , "m_DoubleMu8_Mass8_PFNoPUHT175/O"         );
-  reducedValues->Branch("ra2_DoubleMu8_Mass8_PFNoPUHT225",         &m_DoubleMu8_Mass8_PFNoPUHT225         , "m_DoubleMu8_Mass8_PFNoPUHT225/O"         );
-  reducedValues->Branch("ra2_DoubleRelIso1p0Mu5_Mass8_PFHT175",    &m_DoubleRelIso1p0Mu5_Mass8_PFHT175    , "m_DoubleRelIso1p0Mu5_Mass8_PFHT175/O"    );
-  reducedValues->Branch("ra2_DoubleRelIso1p0Mu5_Mass8_PFHT225",    &m_DoubleRelIso1p0Mu5_Mass8_PFHT225    , "m_DoubleRelIso1p0Mu5_Mass8_PFHT225/O"    );
-  reducedValues->Branch("ra2_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT175",&m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT175, "m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT175/O");
-  reducedValues->Branch("ra2_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT225",&m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT225, "m_DoubleRelIso1p0Mu5_Mass8_PFNoPUHT225/O");
-  reducedValues->Branch("ra2_Mu13_Mu8",                            &m_Mu13_Mu8                            , "m_Mu13_Mu8/O"                            );
-  reducedValues->Branch("ra2_Mu17_Mu8",                            &m_Mu17_Mu8                            , "m_Mu17_Mu8/O"                            );
-  reducedValues->Branch("ra2_DoubleMu5_IsoMu5",                    &m_DoubleMu5_IsoMu5                    , "m_DoubleMu5_IsoMu5/O"                    );
+  reducedValues->Branch("ra2_Mu13_Mu8",         &m_Mu13_Mu8        , "m_Mu13_Mu8/O"        );
+  reducedValues->Branch("ra2_Mu17_Mu8",         &m_Mu17_Mu8        , "m_Mu17_Mu8/O"        );
+  reducedValues->Branch("ra2_DoubleMu5_IsoMu5", &m_DoubleMu5_IsoMu5, "m_DoubleMu5_IsoMu5/O");
 
   reducedValues->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "m_nJetsPt30Eta50/I" );
+  reducedValues->Branch("ra2_nJetsPt30Eta24", &m_nJetsPt30Eta24, "m_nJetsPt30Eta24/I");
   reducedValues->Branch("ra2_bJetsPt30Eta24", &m_bJetsPt30Eta24, "m_bJetsPt30Eta24/I");
   reducedValues->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "m_nJetsPt50Eta25/I" );
 

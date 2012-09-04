@@ -26,7 +26,7 @@ dimuonTree = cms.EDAnalyzer('RA2ZInvDiMuonTreeMaker',
                           bJetSrc         = cms.InputTag("patCSVJetsPFNoMuonPt30Eta24"),
                           htSource        = cms.InputTag("htPFchsNoMuon"),
                           mhtSource       = cms.InputTag("mhtPFchsNoMuon"),
-                          DoPUReweight    = cms.bool(True),
+                          DoPUReweight    = cms.bool(False),
                           PUWeightSource  = cms.InputTag("puWeight")
 )
 
