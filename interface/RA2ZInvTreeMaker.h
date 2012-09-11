@@ -51,7 +51,9 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  int m_nJetsPt30Eta50, m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_Vertices, m_nBosons;
-  double m_HT, m_MHT, m_boson1Pt, m_boson1Eta, m_boson1M, m_dPhi1, m_dPhi2, m_dPhi3, m_EventWt, m_PUWt;
+  int m_nJetsPt30Eta50, m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_nJetsPt30Eta24, m_Vertices, m_nBosons;
+  double m_HT, m_MHT, m_boson1Pt, m_boson1Eta, m_boson1M,
+    m_dPhi1, m_dPhi2, m_dPhi3, m_dPhiMin, m_dPhiMinB,
+    m_EventWt, m_PUWt;
   double m_Jet1Pt, m_Jet1Eta, m_Jet2Pt, m_Jet2Eta, m_Jet3Pt, m_Jet3Eta, m_boson2Pt, m_boson2Eta, m_boson2M;
 };
