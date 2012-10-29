@@ -130,6 +130,11 @@ countJetsPFNoElectronPt50Eta25IDIso.src = cms.InputTag('patJetsPFNoElectronPt50E
 #from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
 from ZInvisibleBkgds.Photons.specialJetSelector_cff import selectedRA2PatJets
 
+CSVL = 0.244
+CSVM = 0.679
+CSVT = 0.898 
+csvPoint = CSVM
+
 patSSVHEMBJetsAK5PFNoElectron = selectedRA2PatJets.clone()
 patSSVHEMBJetsAK5PFNoElectron.src = cms.InputTag('patJetsAK5PFNoElectron')
 patSSVHEMBJetsAK5PFNoElectron.cut = cms.string('bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74')
@@ -156,7 +161,7 @@ patSSVHPTBJetsAK5PFNoElectronPt50Eta25.cut = cms.string('bDiscriminator("simpleS
 
 patCSVJetsAK5PFNoElectron = selectedRA2PatJets.clone()
 patCSVJetsAK5PFNoElectron.src = cms.InputTag('patJetsAK5PFNoElectron')
-patCSVJetsAK5PFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898')
+patCSVJetsAK5PFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(csvPoint))
 
 patCSVJetsAK5PFNoElectronPt30Eta24 = selectedRA2PatJets.clone()
 patCSVJetsAK5PFNoElectronPt30Eta24.src = cms.InputTag('patCSVJetsAK5PFNoElectron')
@@ -172,7 +177,7 @@ patCSVJetsAK5PFNoElectronPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVMVAJetsAK5PFNoElectron = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoElectron.src = cms.InputTag('patJetsAK5PFNoElectron')
-patCSVMVAJetsAK5PFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898')
+patCSVMVAJetsAK5PFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %d'%(csvPoint))
 
 patCSVMVAJetsAK5PFNoElectronPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoElectronPt30Eta24.src = cms.InputTag('patCSVMVAJetsAK5PFNoElectron')
@@ -213,7 +218,7 @@ patSSVHPTBJetsPFNoElectronPt50Eta25.cut = cms.string('bDiscriminator("simpleSeco
 
 patCSVJetsPFNoElectron = selectedRA2PatJets.clone()
 patCSVJetsPFNoElectron.src = cms.InputTag('patJetsPFNoElectron')
-patCSVJetsPFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898')
+patCSVJetsPFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(csvPoint))
 
 patCSVJetsPFNoElectronPt30Eta24 = selectedRA2PatJets.clone()
 patCSVJetsPFNoElectronPt30Eta24.src = cms.InputTag('patCSVJetsPFNoElectron')
@@ -229,7 +234,7 @@ patCSVJetsPFNoElectronPt50Eta25.cut = cms.string('pt > 30 && abs(eta) < 2.5')
 
 patCSVMVAJetsPFNoElectron = selectedRA2PatJets.clone()
 patCSVMVAJetsPFNoElectron.src = cms.InputTag('patJetsPFNoElectron')
-patCSVMVAJetsPFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898')
+patCSVMVAJetsPFNoElectron.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %d'%(csvPoint))
 
 patCSVMVAJetsPFNoElectronPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFNoElectronPt30Eta24.src = cms.InputTag('patCSVMVAJetsPFNoElectron')

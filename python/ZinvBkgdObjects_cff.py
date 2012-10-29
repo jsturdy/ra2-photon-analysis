@@ -8,16 +8,20 @@ from ZInvisibleBkgds.Photons.PhotonMHT_cff import *
 photonObjectsAK5PF = cms.Sequence(
     zinvPhotons *
     photonCleanedPFJetsAK5PF *
-    htPFNoPhot  *
-    mhtPFNoPhot
+    htPFNoPhotID  *
+    mhtPFNoPhotID *
+    htPFNoPhotIDPFIso  *
+    mhtPFNoPhotIDPFIso
 )
 
 photonObjectsPF = cms.Sequence(
     zinvPhotons *
     photonCleanedPFJetsPF *
     specialPhotonCleanedPFJetsPF *
-    htPFchsNoPhot  *
-    mhtPFchsNoPhot
+    htPFchsNoPhotID  *
+    mhtPFchsNoPhotID *
+    htPFchsNoPhotIDPFIso  *
+    mhtPFchsNoPhotIDPFIso
 )
 
 #from ZInvisibleBkgds.Photons.ZinvBkgdMuons_cff import *

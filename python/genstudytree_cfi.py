@@ -5,23 +5,26 @@ genstudytree = cms.EDProducer("GenStudyTree",
     debugString    = cms.string("genstudytree"),
     genSrc       = cms.InputTag("zinvBkgdDirectPhotons"),
     genJetSrc    = cms.InputTag("ak5GenJets"),
+    genMETSrc    = cms.InputTag("genMetTrue"),
 
     ScaleFactor   = cms.double(1.),
     VertexSrc     = cms.InputTag("goodVertices"),
 
     recoPhotonSrc = cms.InputTag("patPhotonsIDPFIso"),
 
-    recoJetSrc    = cms.InputTag("patJetsPFNoPhotonSpecialPt30"),
-    htJetSrc      = cms.InputTag("patJetsPFNoPhotonSpecialPt50Eta25"),
-    bJetSrc       = cms.InputTag("patCSVJetsPFNoPhotonSpecialPt30Eta24"),
+    recoJetSrc    = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt30"),
+    htJetSrc      = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25"),
+    bJetSrc       = cms.InputTag("patCSVTJetsPFNoPhotonIDPFIsoSpecialPt30Eta24"),
     htSource      = cms.InputTag("htPFchs"),
     mhtSource     = cms.InputTag("mhtPFchs"),
-    htNoBosonSource  = cms.InputTag("htPFchsNoPhot"),
-    mhtNoBosonSource = cms.InputTag("mhtPFchsNoPhot"),
+    htNoBosonSource  = cms.InputTag("htPFchsNoPhotIDPFIso"),
+    mhtNoBosonSource = cms.InputTag("mhtPFchsNoPhotIDPFIso"),
+    metSource     = cms.InputTag("patMETsPF"),
 
 
     doPUReweight = cms.bool(True),
-    puWeight     = cms.InputTag("puWeight"),
+    puWeights    = cms.InputTag("puWeight"   ,"weight"),
+    eventWeights = cms.InputTag("eventWeight","weight"),
 
     studyAcceptance = cms.bool(True),
     studyRecoIso    = cms.bool(True),

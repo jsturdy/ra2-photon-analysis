@@ -53,26 +53,49 @@ from ZInvisibleBkgds.Photons.specialJetSelector_cff import selectedRA2PatJets
 #    src = cms.InputTag("patJets"),
 #    cut = cms.string("")
 #)
+CSVL = 0.244
+CSVM = 0.679
+CSVT = 0.898 
+csvPoint = CSVT
 
-patCSVJetsAK5PFNoMuon = selectedRA2PatJets.clone()
-patCSVJetsAK5PFNoMuon.src = cms.InputTag('patJetsAK5PFNoMuon')
-patCSVJetsAK5PFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898')
+####Medium
+patCSVMJetsAK5PFNoMuon = selectedRA2PatJets.clone()
+patCSVMJetsAK5PFNoMuon.src = cms.InputTag('patJetsAK5PFNoMuon')
+patCSVMJetsAK5PFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVM))
 
-patCSVJetsAK5PFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
-patCSVJetsAK5PFNoMuonPt30Eta24.src = cms.InputTag('patCSVJetsAK5PFNoMuon')
-patCSVJetsAK5PFNoMuonPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
+patCSVMJetsAK5PFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
+patCSVMJetsAK5PFNoMuonPt30Eta24.src = cms.InputTag('patCSVMJetsAK5PFNoMuon')
+patCSVMJetsAK5PFNoMuonPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
 
-patCSVJetsAK5PFNoMuonPt30Eta50 = selectedRA2PatJets.clone()
-patCSVJetsAK5PFNoMuonPt30Eta50.src = cms.InputTag('patCSVJetsAK5PFNoMuon')
-patCSVJetsAK5PFNoMuonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
+patCSVMJetsAK5PFNoMuonPt30Eta50 = selectedRA2PatJets.clone()
+patCSVMJetsAK5PFNoMuonPt30Eta50.src = cms.InputTag('patCSVMJetsAK5PFNoMuon')
+patCSVMJetsAK5PFNoMuonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
-patCSVJetsAK5PFNoMuonPt50Eta25 = selectedRA2PatJets.clone()
-patCSVJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patCSVJetsAK5PFNoMuon')
-patCSVJetsAK5PFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
+patCSVMJetsAK5PFNoMuonPt50Eta25 = selectedRA2PatJets.clone()
+patCSVMJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patCSVMJetsAK5PFNoMuon')
+patCSVMJetsAK5PFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
+####Tight
+patCSVTJetsAK5PFNoMuon = selectedRA2PatJets.clone()
+patCSVTJetsAK5PFNoMuon.src = cms.InputTag('patJetsAK5PFNoMuon')
+patCSVTJetsAK5PFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVT))
+
+patCSVTJetsAK5PFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
+patCSVTJetsAK5PFNoMuonPt30Eta24.src = cms.InputTag('patCSVTJetsAK5PFNoMuon')
+patCSVTJetsAK5PFNoMuonPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
+
+patCSVTJetsAK5PFNoMuonPt30Eta50 = selectedRA2PatJets.clone()
+patCSVTJetsAK5PFNoMuonPt30Eta50.src = cms.InputTag('patCSVTJetsAK5PFNoMuon')
+patCSVTJetsAK5PFNoMuonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
+
+patCSVTJetsAK5PFNoMuonPt50Eta25 = selectedRA2PatJets.clone()
+patCSVTJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patCSVTJetsAK5PFNoMuon')
+patCSVTJetsAK5PFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
+
+####
 patCSVMVAJetsAK5PFNoMuon = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoMuon.src = cms.InputTag('patJetsAK5PFNoMuon')
-patCSVMVAJetsAK5PFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898')
+patCSVMVAJetsAK5PFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %d'%(csvPoint))
 
 patCSVMVAJetsAK5PFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFNoMuonPt30Eta24.src = cms.InputTag('patCSVMVAJetsAK5PFNoMuon')
@@ -87,25 +110,44 @@ patCSVMVAJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patCSVMVAJetsAK5PFNoMuon')
 patCSVMVAJetsAK5PFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 ###patJetsPFNoMuon
-patCSVJetsPFNoMuon = selectedRA2PatJets.clone()
-patCSVJetsPFNoMuon.src = cms.InputTag('patJetsPFNoMuon')
-patCSVJetsPFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898')
+###Medium
+patCSVMJetsPFNoMuon = selectedRA2PatJets.clone()
+patCSVMJetsPFNoMuon.src = cms.InputTag('patJetsPFNoMuon')
+patCSVMJetsPFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVM))
 
-patCSVJetsPFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
-patCSVJetsPFNoMuonPt30Eta24.src = cms.InputTag('patCSVJetsPFNoMuon')
-patCSVJetsPFNoMuonPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
+patCSVMJetsPFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
+patCSVMJetsPFNoMuonPt30Eta24.src = cms.InputTag('patCSVMJetsPFNoMuon')
+patCSVMJetsPFNoMuonPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
 
-patCSVJetsPFNoMuonPt30Eta50 = selectedRA2PatJets.clone()
-patCSVJetsPFNoMuonPt30Eta50.src = cms.InputTag('patCSVJetsPFNoMuon')
-patCSVJetsPFNoMuonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
+patCSVMJetsPFNoMuonPt30Eta50 = selectedRA2PatJets.clone()
+patCSVMJetsPFNoMuonPt30Eta50.src = cms.InputTag('patCSVMJetsPFNoMuon')
+patCSVMJetsPFNoMuonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
 
-patCSVJetsPFNoMuonPt50Eta25 = selectedRA2PatJets.clone()
-patCSVJetsPFNoMuonPt50Eta25.src = cms.InputTag('patCSVJetsPFNoMuon')
-patCSVJetsPFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
+patCSVMJetsPFNoMuonPt50Eta25 = selectedRA2PatJets.clone()
+patCSVMJetsPFNoMuonPt50Eta25.src = cms.InputTag('patCSVMJetsPFNoMuon')
+patCSVMJetsPFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
+###Tight
+patCSVTJetsPFNoMuon = selectedRA2PatJets.clone()
+patCSVTJetsPFNoMuon.src = cms.InputTag('patJetsPFNoMuon')
+patCSVTJetsPFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVT))
+
+patCSVTJetsPFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
+patCSVTJetsPFNoMuonPt30Eta24.src = cms.InputTag('patCSVTJetsPFNoMuon')
+patCSVTJetsPFNoMuonPt30Eta24.cut = cms.string('pt > 30 && abs(eta) < 2.4')
+
+patCSVTJetsPFNoMuonPt30Eta50 = selectedRA2PatJets.clone()
+patCSVTJetsPFNoMuonPt30Eta50.src = cms.InputTag('patCSVTJetsPFNoMuon')
+patCSVTJetsPFNoMuonPt30Eta50.cut = cms.string('pt > 30 && abs(eta) < 5.0')
+
+patCSVTJetsPFNoMuonPt50Eta25 = selectedRA2PatJets.clone()
+patCSVTJetsPFNoMuonPt50Eta25.src = cms.InputTag('patCSVTJetsPFNoMuon')
+patCSVTJetsPFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
+
+##
 patCSVMVAJetsPFNoMuon = selectedRA2PatJets.clone()
 patCSVMVAJetsPFNoMuon.src = cms.InputTag('patJetsPFNoMuon')
-patCSVMVAJetsPFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898')
+patCSVMVAJetsPFNoMuon.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %d'%(csvPoint))
 
 patCSVMVAJetsPFNoMuonPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFNoMuonPt30Eta24.src = cms.InputTag('patCSVMVAJetsPFNoMuon')
@@ -120,30 +162,32 @@ patCSVMVAJetsPFNoMuonPt50Eta25.src = cms.InputTag('patCSVMVAJetsPFNoMuon')
 patCSVMVAJetsPFNoMuonPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 ### count the b-jets
-countCSVJetsAK5PFNoMuonPt50Eta25 = countPatJets.clone()
-countCSVJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patCSVJetsAK5PFNoMuonPt50Eta25')
-countCSVJetsAK5PFNoMuonPt50Eta25.minNumber = cms.uint32(1)
+countCSVMJetsAK5PFNoMuonPt50Eta25 = countPatJets.clone()
+countCSVMJetsAK5PFNoMuonPt50Eta25.src = cms.InputTag('patCSVMJetsAK5PFNoMuonPt50Eta25')
+countCSVMJetsAK5PFNoMuonPt50Eta25.minNumber = cms.uint32(1)
 
 ###patJetsPFNoMuon
-countCSVJetsPFNoMuonPt50Eta25 = countPatJets.clone()
-countCSVJetsPFNoMuonPt50Eta25.src = cms.InputTag('patCSVJetsPFNoMuonPt50Eta25')
-countCSVJetsPFNoMuonPt50Eta25.minNumber = cms.uint32(1)
+countCSVMJetsPFNoMuonPt50Eta25 = countPatJets.clone()
+countCSVMJetsPFNoMuonPt50Eta25.src = cms.InputTag('patCSVMJetsPFNoMuonPt50Eta25')
+countCSVMJetsPFNoMuonPt50Eta25.minNumber = cms.uint32(1)
 
 
 #zinvBVetoNoMuon = cms.Sequence(
-#    ~countSSVHEMBJetsAK5PFNoMuon
+#    ~countCSVMJetsAK5PFNoMuon
 #)
 #zinvBVetoNoMuonPt30 = cms.Sequence(
-#    ~countSSVHEMBJetsAK5PFNoMuonPt30
+#    ~countCSVMJetsAK5PFNoMuonPt30
 #)
 #zinvBVetoNoMuonPt50Eta25 = cms.Sequence(
-#    ~countSSVHEMBJetsAK5PFNoMuonPt50Eta25
+#    ~countCSVMJetsAK5PFNoMuonPt50Eta25
 #)
 ### create the jet collections
 
 zinvBJetsAK5PFNoMuon = cms.Sequence(
-      patCSVJetsAK5PFNoMuon
-    * patCSVJetsAK5PFNoMuonPt30Eta24
+      patCSVMJetsAK5PFNoMuon
+    * patCSVMJetsAK5PFNoMuonPt30Eta24
+    * patCSVTJetsAK5PFNoMuon
+    * patCSVTJetsAK5PFNoMuonPt30Eta24
     #* patCSVJetsAK5PFNoMuonPt30Eta50
     #* patCSVJetsAK5PFNoMuonPt50Eta25
     #* patCSVMVAJetsAK5PFNoMuon
@@ -153,8 +197,10 @@ zinvBJetsAK5PFNoMuon = cms.Sequence(
 )
 
 zinvBJetsPFNoMuon = cms.Sequence(
-      patCSVJetsPFNoMuon
-    * patCSVJetsPFNoMuonPt30Eta24
+      patCSVMJetsPFNoMuon
+    * patCSVMJetsPFNoMuonPt30Eta24
+    * patCSVTJetsPFNoMuon
+    * patCSVTJetsPFNoMuonPt30Eta24
     #* patCSVJetsPFNoMuonPt30Eta50
     #* patCSVJetsPFNoMuonPt50Eta25
     #* patCSVMVAJetsPFNoMuon

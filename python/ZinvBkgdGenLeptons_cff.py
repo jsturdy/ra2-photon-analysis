@@ -10,6 +10,8 @@ secondarycut     = 'pt>10 && abs(pdgId) == 22 && status == 1 && abs(mother.pdgId
 fragmentationcut = 'pt>10 && abs(pdgId) == 22 && status == 1 && (abs(mother.pdgId) < 25 || mother.pdgId != 22)'
 mistagcut        = 'pt>10 && abs(pdgId) == 11 && status == 1'
 
+directzcut        = 'pt>10 && abs(pdgId) == 22 && status == 3 && (abs(mother.pdgId) < 25 || mother.pdgId != 22)'
+
 zinvBkgdDirectPhotons = cms.EDFilter("GenParticleSelector",
                                      src = cms.InputTag("genParticles"),
                                      cut = cms.string(directcut)

@@ -46,12 +46,12 @@ photonISOCutLoose  = cms.string('userFloat("pfChargedPU") < userFloat("pfCharged
 patPhotonsID = cms.EDFilter(
   "PATPhotonSelector",
    src = cms.InputTag('patPhotonsUserData'),
-   cut = photonIDCutTight,
+   cut = photonIDCutLoose,
    filter = cms.bool(False),
 )
 patPhotonsIDPFIso = patPhotonsID.clone(
     src = cms.InputTag('patPhotonsID'),
-    cut = photonISOCutTight,
+    cut = photonISOCutLoose,
 )
 
 patPhotonsIDIso = patPhotonsID.clone(
@@ -62,7 +62,7 @@ patPhotonsIDIso = patPhotonsID.clone(
 patPhotonRefsID = cms.EDFilter(
   "PATPhotonRefSelector",
    src = cms.InputTag('patPhotonsUserData'),
-   cut = photonIDCutTight,
+   cut = photonIDCutLoose,
    filter = cms.bool(False)
 )
 
