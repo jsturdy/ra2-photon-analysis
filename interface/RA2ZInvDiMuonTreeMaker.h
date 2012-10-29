@@ -54,9 +54,10 @@ private:
   bool data_;
   double scale_;
   edm::InputTag muonSrc_;
-  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_;
+  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_;
+  std::string topTaggerSrc_;
   bool          doPUReWeight_;
-  edm::InputTag puWeightSrc_;
+  edm::InputTag puWeightSrc_, eventWeightSrc_;
 
   //Trigger information
   bool getHLTfromConfig_; 
@@ -71,10 +72,23 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  int m_nMuonsIso, m_nJetsPt30Eta50, m_nJetsPt30Eta24, m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_Vertices;
-  double m_HT, m_MHT, m_dPhi1, m_dPhi2, m_dPhi3, m_dPhiMin, m_dPhiMinB, m_EventWt, m_PUWt, 
-    m_Muon1Pt, m_Muon1Eta, m_Muon2Pt, m_Muon2Eta, m_DiMuonInvM, m_DiMuonPt;
-  double m_Jet1Pt, m_Jet1Eta, m_Jet2Pt, m_Jet2Eta, m_Jet3Pt, m_Jet3Eta;
+  int m_nMuonsIso, m_nJetsPt30Eta50, m_nJetsPt30Eta24,
+    m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
+    m_Vertices;
+  double m_HT, m_HTMInv, m_MHT, m_MET, m_modMET,
+    m_dPhiMHT1, m_dPhiMHT2, m_dPhiMHT3, m_dPhiMHT4, m_dPhiMHTMin, m_dPhiMHTMinB,
+    m_dPhiMET1, m_dPhiMET2, m_dPhiMET3, m_dPhiMET4, m_dPhiMETMin, m_dPhiMETMinB,
+    m_dPhiModMET1, m_dPhiModMET2, m_dPhiModMET3, m_dPhiModMET4, m_dPhiModMETMin, m_dPhiModMETMinB,
+    m_EventWt, m_PUWt, 
+    m_Muon1Pt, m_Muon1Eta, m_Muon2Pt, m_Muon2Eta,
+    m_DiMuonInvM, m_DiMuonPt;
+  double m_Jet1Pt, m_Jet1Eta,
+    m_Jet2Pt, m_Jet2Eta,
+    m_Jet3Pt, m_Jet3Eta,
+    m_Jet4Pt, m_Jet4Eta;
 
   bool m_Mu13_Mu8, m_Mu17_Mu8, m_DoubleMu5_IsoMu5;
+  
+  ///Top tagger variables
+  double m_bestTopJetMass, m_TbJet, m_TbestTopJet, m_MT2;
 };
