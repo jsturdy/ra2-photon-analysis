@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialObjectCollection.cc,v 1.1 2012/08/19 23:45:25 sturdy Exp $
+// $Id: SpecialObjectCollection.cc,v 1.1 2012/08/20 12:59:58 sturdy Exp $
 //
 //
 
@@ -36,6 +36,6 @@ namespace zinvtools {
 using namespace zinvtools;
 DEFINE_FWK_MODULE(SpecialPATElectronCollection);
 DEFINE_FWK_MODULE(SpecialPATMuonCollection);
-DEFINE_FWK_MODULE(SpecialPATPhotonCollection);
 DEFINE_FWK_MODULE(SpecialPATTauCollection);
+DEFINE_FWK_MODULE(SpecialPATPhotonCollection);
 DEFINE_FWK_MODULE(SpecialPATJetCollection);

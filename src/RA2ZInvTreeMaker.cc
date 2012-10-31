@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvTreeMaker.cc,v 1.3 2012/09/11 17:04:55 sturdy Exp $
+// $Id: RA2ZInvTreeMaker.cc,v 1.4 2012/10/29 10:46:08 sturdy Exp $
 //
 //
 
@@ -109,26 +109,26 @@ void RA2ZInvTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   if (debug_)
     std::cout<<"MET value "<<(*met)[0].pt()<<std::endl;
 
-  /////top tagger variables
-  //edm::Handle<double > hbestTopJetMass;
-  //ev.getByLabel(topTaggerSrc_,"bestTopJetMass", hbestTopJetMass);
-  //if (debug_)
-  //  std::cout<<"hbestTopJetMass value "<<*hbestTopJetMass<<std::endl;
-  //
-  //edm::Handle<double > hTbJet;
-  //ev.getByLabel(topTaggerSrc_,"mTbJet", hTbJet);
-  //if (debug_)
-  //  std::cout<<"hTbJet value "<<*hTbJet<<std::endl;
-  //
-  //edm::Handle<double > hTbestTopJet;
-  //ev.getByLabel(topTaggerSrc_,"mTbestTopJet", hTbestTopJet);
-  //if (debug_)
-  //  std::cout<<"hTbestTopJet value "<<*hTbestTopJet<<std::endl;
-  //
-  //edm::Handle<double > hMT2;
-  //ev.getByLabel(topTaggerSrc_,"MT2", hMT2);
-  //if (debug_)
-  //  std::cout<<"hMT2 value "<<*hMT2<<std::endl;
+  ///top tagger variables
+  edm::Handle<double > hbestTopJetMass;
+  ev.getByLabel(topTaggerSrc_,"bestTopJetMass", hbestTopJetMass);
+  if (debug_)
+    std::cout<<"hbestTopJetMass value "<<*hbestTopJetMass<<std::endl;
+  
+  edm::Handle<double > hTbJet;
+  ev.getByLabel(topTaggerSrc_,"mTbJet", hTbJet);
+  if (debug_)
+    std::cout<<"hTbJet value "<<*hTbJet<<std::endl;
+  
+  edm::Handle<double > hTbestTopJet;
+  ev.getByLabel(topTaggerSrc_,"mTbestTopJet", hTbestTopJet);
+  if (debug_)
+    std::cout<<"hTbestTopJet value "<<*hTbestTopJet<<std::endl;
+  
+  edm::Handle<double > hMT2;
+  ev.getByLabel(topTaggerSrc_,"MT2", hMT2);
+  if (debug_)
+    std::cout<<"hMT2 value "<<*hMT2<<std::endl;
 
   // if MC, do PU reweighting
   double pu_event_wt = 1.0;
@@ -166,7 +166,7 @@ void RA2ZInvTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     std::cout << "bJets("<<bJets->size()<<") : " << std::endl;
     for(unsigned int i=0; i<bJets->size(); i++) {
       const pat::Jet *r = &((*bJets)[i]);
-      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
+      std::cout << i << ": pt::" << r->pt()<<": eta::"<<r->eta()<<": phi::"<<r->phi()<<": csv::"<<r->bDiscriminator("combinedSecondaryVertexBJetTags")<<std::endl;
     }
   }
   //////

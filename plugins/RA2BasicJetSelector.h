@@ -36,7 +36,7 @@ namespace pat {
 	produces< std::vector<pat::Jet> >();
 	//produces<reco::GenJetCollection> ("genJets");
 	//produces<std::vector<CaloTower>  > ("caloTowers");
-	//produces<reco::PFCandidateCollection > ("pfCandidates");
+	produces<reco::PFCandidateCollection > ("pfCandidates");
 	produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
 
 	if ( params.exists("filter") ) {
@@ -55,13 +55,13 @@ namespace pat {
 
       //std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
       //std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
-      //std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
+      std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
       std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );  
 
 
       //edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
       //edm::RefProd<std::vector<CaloTower>  >  h_caloTowersOut = iEvent.getRefBeforePut<std::vector<CaloTower>  > ( "caloTowers" );
-      //edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
+      edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
       edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
       edm::Handle< edm::View<pat::Jet> > h_jets;
@@ -83,13 +83,13 @@ namespace pat {
 	  //}
 
 	  
-	  //// Copy over the pf candidates
-	  //for ( reco::PFCandidateFwdPtrVector::const_iterator icandBegin = ijet->pfCandidatesFwdPtr().begin(),
-	  //	  icandEnd = ijet->pfCandidatesFwdPtr().end(), icand = icandBegin;
-	  //	icand != icandEnd; ++icand ) {
-	  //  // Add to global pf candidate list
-	  //  pfCandidatesOut->push_back( **icand );
-	  //}
+	  // Copy over the pf candidates
+	  for ( reco::PFCandidateFwdPtrVector::const_iterator icandBegin = ijet->pfCandidatesFwdPtr().begin(),
+	  	  icandEnd = ijet->pfCandidatesFwdPtr().end(), icand = icandBegin;
+	  	icand != icandEnd; ++icand ) {
+	    // Add to global pf candidate list
+	    pfCandidatesOut->push_back( **icand );
+	  }
 	  
 	  // Copy the tag infos
 	  for ( TagInfoFwdPtrCollection::const_iterator iinfoBegin = ijet->tagInfosFwdPtr().begin(),
@@ -111,7 +111,7 @@ namespace pat {
       // Output the secondary collections. 
       //edm::OrphanHandle<reco::GenJetCollection>  oh_genJetsOut = iEvent.put( genJetsOut, "genJets" );
       //edm::OrphanHandle<std::vector<CaloTower> > oh_caloTowersOut = iEvent.put( caloTowersOut, "caloTowers" );
-      //edm::OrphanHandle<reco::PFCandidateCollection> oh_pfCandidatesOut = iEvent.put( pfCandidatesOut, "pfCandidates" );
+      edm::OrphanHandle<reco::PFCandidateCollection> oh_pfCandidatesOut = iEvent.put( pfCandidatesOut, "pfCandidates" );
       edm::OrphanHandle<edm::OwnVector<reco::BaseTagInfo> > oh_tagInfosOut = iEvent.put( tagInfosOut, "tagInfos" );
 
 
@@ -119,7 +119,7 @@ namespace pat {
 
 
       //unsigned int caloTowerIndex = 0;
-      //unsigned int pfCandidateIndex = 0;
+      unsigned int pfCandidateIndex = 0;
       unsigned int tagInfoIndex = 0;
       //unsigned int genJetIndex = 0;
       // Now set the Ptrs with the orphan handles. 
@@ -147,19 +147,19 @@ namespace pat {
 	  //}
 
 	  
-	  //// Copy over the pf candidates
-	  //for ( reco::PFCandidateFwdPtrVector::const_iterator icandBegin = ijet->pfCandidatesFwdPtr().begin(),
-	  //	  icandEnd = ijet->pfCandidatesFwdPtr().end(), icand = icandBegin;
-	  //	icand != icandEnd; ++icand ) {
-	  //  // Update the "forward" bit of the FwdPtr to point at the new tower collection. 
-	  //
-	  //  // ptr to "this" cand in the global list
-	  //  edm::Ptr<reco::PFCandidate> outPtr( oh_pfCandidatesOut, pfCandidateIndex );
-	  //  patJets->back().updateFwdPFCandidateFwdPtr( icand - icandBegin,// index of "this" tower in the jet 
-	  //						outPtr
-	  //						);
-	  //  ++pfCandidateIndex;
-	  //}
+	  // Copy over the pf candidates
+	  for ( reco::PFCandidateFwdPtrVector::const_iterator icandBegin = ijet->pfCandidatesFwdPtr().begin(),
+	  	  icandEnd = ijet->pfCandidatesFwdPtr().end(), icand = icandBegin;
+	  	icand != icandEnd; ++icand ) {
+	    // Update the "forward" bit of the FwdPtr to point at the new tower collection. 
+	  
+	    // ptr to "this" cand in the global list
+	    edm::Ptr<reco::PFCandidate> outPtr( oh_pfCandidatesOut, pfCandidateIndex );
+	    patJets->back().updateFwdPFCandidateFwdPtr( icand - icandBegin,// index of "this" tower in the jet 
+	  						outPtr
+	  						);
+	    ++pfCandidateIndex;
+	  }
 	  
 	  // Copy the tag infos
 	  for ( TagInfoFwdPtrCollection::const_iterator iinfoBegin = ijet->tagInfosFwdPtr().begin(),

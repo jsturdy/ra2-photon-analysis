@@ -3,7 +3,7 @@ import ROOT as r
 from array import array
 import math
 
-def hadStopBaseline(event,nBjets,nJets):
+def hadStopBaseline(event,nBjets,nJets,invert):
     ra2_Vertices        = event.ra2_Vertices      
     ra2_nJetsPt30Eta24  = event.ra2_nJetsPt30Eta24 
     ra2_bJetsPt30Eta24  = event.ra2_bJetsPt30Eta24 
@@ -15,15 +15,26 @@ def hadStopBaseline(event,nBjets,nJets):
     ra2_Jet1Eta         = event.ra2_Jet1Eta        
     ra2_Jet2Pt          = event.ra2_Jet2Pt         
     ra2_Jet2Eta         = event.ra2_Jet2Eta        
+    ra2_Jet3Pt          = event.ra2_Jet3Pt         
+    ra2_Jet3Eta         = event.ra2_Jet3Eta        
+    ra2_Jet4Pt          = event.ra2_Jet4Pt         
+    ra2_Jet4Eta         = event.ra2_Jet4Eta        
     
     jet1Cuts = (ra2_Jet1Pt>70 and (abs(ra2_Jet1Eta)<2.4))
     jet2Cuts = (ra2_Jet2Pt>70 and (abs(ra2_Jet2Eta)<2.4))
+    jet3Cuts = (ra2_Jet3Pt>50 and (abs(ra2_Jet3Eta)<2.4))
+    jet4Cuts = (ra2_Jet4Pt>50 and (abs(ra2_Jet4Eta)<2.4))
+    jetCuts = jet1Cuts and jet2Cuts and jet3Cuts and jet4Cuts and ra2_nJetsPt30Eta24 > (nJets-1)
+
     dPhiCuts = (ra2_dPhi1>0.5 and ra2_dPhi2>0.5 and ra2_dPhi3>0.3)
     bJetCuts = (ra2_bJetsPt30Eta24>(nBjets-1))
-    basecuts = ((ra2_MET>175 and ra2_nJetsPt30Eta24>(nJets-1)) and jet1Cuts and jet2Cuts and dPhiCuts and bJetCuts)
+    invertcuts = (ra2_MET<175 and jetCuts and dPhiCuts and bJetCuts)
+    basecuts   = (ra2_MET>175 and jetCuts and dPhiCuts and bJetCuts)
 
-    return basecuts
-
+    if invert:
+        return invertcuts
+    else:
+        return basecuts
 ####
 def topTaggerCuts(event):
     ##top tagger variables 
@@ -52,20 +63,17 @@ def ra2Baseline(event):
     basecuts = ((ra2_MHT>200 and ra2_HT>500 and ra2_nJetsPt50Eta25>1) and dPhiCuts)
     return basecuts
 ####
-def ra2JetCuts(event,min,max):
-    ra2_nJetsPt50Eta25  = event.ra2_nJetsPt50Eta25 
-    
-    return (ra2_nJetsPt50Eta25>=min and ra2_nJetsPt50Eta25<=max)
+def ra2DPhiCuts(event):
+    return (event.ra2_dPhiMHT1>0.5 and event.ra2_dPhiMHT2>0.5 and event.ra2_dPhiMHT3>0.3)
 ####
-def ra2HTCuts(event,min,max):
-    ra2_HT  = event.ra2_HT 
-    
-    return (ra2_HT>=min and ra2_HT<=max)
+def ra2JetCuts(nJets,min,max):
+    return (nJets>=min and nJets<=max)
 ####
-def ra2MHTCuts(event,min,max):
-    ra2_MHT  = event.ra2_MHT 
-    
-    return (ra2_MHT>=min and ra2_MHT<=max)
+def ra2HTCuts(htVal,min,max):
+    return (htVal>min and htVal<max)
+####
+def ra2MHTCuts(mhtVal,min,max):
+    return (mhtVal>min and mhtVal<max)
 ####
 def genAcceptance(event,minpt):
     ra2_genBosonPt  = event.ra2_genBoson1Pt
@@ -73,48 +81,49 @@ def genAcceptance(event,minpt):
 
     return (ra2_genBosonPt>minpt and abs(ra2_genBosonEta) < 2.5 and ((abs(ra2_genBosonEta) < 1.4442) or (abs(ra2_genBosonEta) > 1.566)))
 ####
-def genRecoIsoEff(event,minpt,recoPt,passReco):
+def genRecoIsoEff(event,minpt,recoPt,passReco,cutDR):
     ra2_nBosons  = event.ra2_nBosons
     ra2_bosonPt  = event.ra2_boson1Pt
     ra2_bosonEta = event.ra2_boson1Eta
+    ra2_bosonDR  = event.ra2_boson1MinDR
     
-    return (recoPt>minpt and passReco and abs(ra2_bosonEta) < 2.5 and ((abs(ra2_bosonEta) < 1.4442) or (abs(ra2_bosonEta) > 1.566)))
+    return (recoPt>minpt and passReco and ra2_bosonDR > cutDR and abs(ra2_bosonEta) < 2.5 and ((abs(ra2_bosonEta) < 1.4442) or (abs(ra2_bosonEta) > 1.566)))
 
 ####
-def genCuts(event,selection,minpt,recoPt,passReco,nJets,jetCuts,htVal,htCuts,mhtCuts):
+def genCuts(event,selection,minpt,recoPt,passReco,nJets,jetCuts,htVal,htCuts,mhtCuts,cutDR):
     if nJets>=jetCuts[0] and nJets<=jetCuts[1]:
         if selection==0:
             return event.ra2_genBoson1Pt > minpt
         elif selection==1:
             return genAcceptance(event,minpt)
         elif selection==2:
-            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco)
+            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco,cutDR)
         elif selection==3:
-            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco)
+            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco,cutDR)
         elif selection==4:
-            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco) and htVal>350 and event.ra2_genMHT>150 and passGenDPhiCuts(event)
+            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco,cutDR) and htVal>350 and event.ra2_genMHT>150 and passGenDPhiCuts(event)
         else:
             return False
     else:
         return False
 
 ####
-def genCutsFull(event,selection,minpt,recoPt,passReco,nJets,jetCuts,htVal,htCuts,mhtCuts):
+def genCutsFull(event,selection,minpt,recoPt,passReco,nJets,jetCuts,htVal,htCuts,mhtCuts,cutDR):
     passDPhi = passGenDPhiCuts(event)
 
     passNJets  = False
-    if nJets>=jetCuts[0] and nJets<=jetCuts[1]:
+    if ra2JetCuts(nJets,jetCuts[0],jetCuts[1]):
         passNJets  = True
-    ###
+    #
     passHT  = False
-    if htVal > htCuts[0] and htVal < htCuts[1]:
+    if ra2HTCuts(htVal,htCuts[0],htCuts[1]):
         passHT  = True
-    ###
+    #
     passMHT = False
-    if event.ra2_genMHT > mhtCuts[0] and event.ra2_genMHT < mhtCuts[1]:
+    if ra2MHTCuts(event.ra2_genMHT,mhtCuts[0],mhtCuts[1]):
         passMHT  = True
 
-    ######    
+    #
     if passNJets and passHT and passMHT and passDPhi:
         if selection==0:
             return event.ra2_genBoson1Pt > 0
@@ -123,39 +132,38 @@ def genCutsFull(event,selection,minpt,recoPt,passReco,nJets,jetCuts,htVal,htCuts
         elif selection==2:
             return genAcceptance(event,minpt)
         elif selection==3:
-            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco)
+            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco,cutDR)
         elif selection==4:
-            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco)
+            return genAcceptance(event,minpt) and genRecoIsoEff(event,minpt,recoPt,passReco,cutDR)
         else:
             return False
     else:
         return False
 
-####
-def phenoCuts(event,cutLevel,minpt,nJets,jetCuts,htVal,htCuts,mhtCuts):
+#
+def phenoCuts(event,cutLevel,minpt,nJets,jetCuts,htVal,htCuts,mhtCuts,cutDR):
     passDPhi = True
     passBase = True
     if cutLevel > 0:
         passDPhi = passGenDPhiCuts(event)
-    if cutLevel > 1:
-        passBase = htVal > 500 and event.ra2_genMHT > 200
 
+    #
     passNJets  = False
-    if nJets>=jetCuts[0] and nJets<=jetCuts[1]:
+    if ra2JetCuts(nJets,jetCuts[0],jetCuts[1]):
         passNJets  = True
-    ###
+    #
     passHT  = False
-    if htVal > htCuts[0] and htVal < htCuts[1]:
+    if ra2HTCuts(htVal,htCuts[0],htCuts[1]):
         passHT  = True
-    ###
+    #
     passMHT = False
-    if event.ra2_genMHT > mhtCuts[0] and event.ra2_genMHT < mhtCuts[1]:
+    if ra2MHTCuts(event.ra2_genMHT,mhtCuts[0],mhtCuts[1]):
         passMHT  = True
-    #print "passDphi %d(%d,%d), nJets %d, bosonPt %2.2f"%(passGenDPhiCuts(event),dphi,passDPhi, nJets, event.ra2_genBoson1Pt)
+
     if passNJets and passHT and passMHT and passDPhi and passBase:
-        return event.ra2_genBoson1Pt > minpt
+        return event.ra2_genBoson1Pt > minpt and event.ra2_genBoson1MinDR > cutDR
     else:
         return False
-
+#
 def passGenDPhiCuts(event):
     return event.ra2_genDPhiMHT1 > 0.5 and event.ra2_genDPhiMHT2 > 0.5 and event.ra2_genDPhiMHT3 > 0.3

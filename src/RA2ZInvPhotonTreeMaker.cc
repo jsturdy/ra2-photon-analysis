@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.4 2012/09/04 10:26:08 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.5 2012/10/29 10:46:08 sturdy Exp $
 //
 //
 
@@ -186,7 +186,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     std::cout << "bJets("<<bJets->size()<<") : " << std::endl;
     for(unsigned int i=0; i<bJets->size(); i++) {
       const pat::Jet *r = &((*bJets)[i]);
-      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
+      std::cout << i << ": pt::" << r->pt()<<": eta::"<<r->eta()<<": phi::"<<r->phi()<<": csv::"<<r->bDiscriminator("combinedSecondaryVertexBJetTags")<<std::endl;
     }
   }
   //////

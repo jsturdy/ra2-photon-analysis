@@ -9,7 +9,7 @@ from ZInvisibleBkgds.Photons.specialJetSelector_cff import selectedRA2PatJets
 
 patCSVMJetsAK5PF = selectedRA2PatJets.clone()
 patCSVMJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
-patCSVMJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVM))
+patCSVMJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %f'%(CSVM))
 
 patCSVMJetsAK5PFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMJetsAK5PFPt30Eta24.src = cms.InputTag('patCSVMJetsAK5PF')
@@ -25,7 +25,7 @@ patCSVMJetsAK5PFPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVTJetsAK5PF = selectedRA2PatJets.clone()
 patCSVTJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
-patCSVTJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVT))
+patCSVTJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %f'%(CSVT))
 
 patCSVTJetsAK5PFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVTJetsAK5PFPt30Eta24.src = cms.InputTag('patCSVTJetsAK5PF')
@@ -41,7 +41,7 @@ patCSVTJetsAK5PFPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVMVAJetsAK5PF = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PF.src = cms.InputTag('patJetsAK5PF')
-patCSVMVAJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %d'%(csvPoint))
+patCSVMVAJetsAK5PF.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %f'%(csvPoint))
 
 patCSVMVAJetsAK5PFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsAK5PFPt30Eta24.src = cms.InputTag('patCSVMVAJetsAK5PF')
@@ -58,7 +58,7 @@ patCSVMVAJetsAK5PFPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 ###patJetsPF
 patCSVMJetsPF = selectedRA2PatJets.clone()
 patCSVMJetsPF.src = cms.InputTag('patJetsPF')
-patCSVMJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVM))
+patCSVMJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %f'%(CSVM))
 
 patCSVMJetsPFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMJetsPFPt30Eta24.src = cms.InputTag('patCSVMJetsPF')
@@ -74,7 +74,7 @@ patCSVMJetsPFPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVTJetsPF = selectedRA2PatJets.clone()
 patCSVTJetsPF.src = cms.InputTag('patJetsPF')
-patCSVTJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %d'%(CSVT))
+patCSVTJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexBJetTags") > %f'%(CSVT))
 
 patCSVTJetsPFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVTJetsPFPt30Eta24.src = cms.InputTag('patCSVTJetsPF')
@@ -90,7 +90,7 @@ patCSVTJetsPFPt50Eta25.cut = cms.string('pt > 50 && abs(eta) < 2.5')
 
 patCSVMVAJetsPF = selectedRA2PatJets.clone()
 patCSVMVAJetsPF.src = cms.InputTag('patJetsPF')
-patCSVMVAJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %d'%(csvPoint))
+patCSVMVAJetsPF.cut = cms.string('bDiscriminator("combinedSecondaryVertexMVABJetTags") > %f'%(csvPoint))
 
 patCSVMVAJetsPFPt30Eta24 = selectedRA2PatJets.clone()
 patCSVMVAJetsPFPt30Eta24.src = cms.InputTag('patCSVMVAJetsPF')
