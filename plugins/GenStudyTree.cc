@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.cc,v 1.2 2012/09/04 10:26:08 sturdy Exp $
+// $Id: GenStudyTree.cc,v 1.3 2012/10/31 17:43:34 sturdy Exp $
 //
 //
 // system include files
@@ -596,9 +596,9 @@ void GenStudyTree::beginJob()
   reducedValues->Branch("ra2_genBoson1Eta",&m_genBoson1Eta,"m_genBoson1Eta/D" );
   reducedValues->Branch("ra2_genBoson1M",  &m_genBoson1M,  "m_genBoson1M/D" );
   reducedValues->Branch("ra2_genBoson1MinDR",  &m_genBoson1MinDR,  "m_genBoson1MinDR/D" );
-  //reducedValues->Branch("ra2_genBoson2Pt", &m_genBoson2Pt, "m_genBoson2Pt/D" );
-  //reducedValues->Branch("ra2_genBoson2Eta",&m_genBoson2Eta,"m_genBoson2Eta/D" );
-  //reducedValues->Branch("ra2_genBoson2M",  &m_genBoson2M,  "m_genBoson2M/D" );
+  reducedValues->Branch("ra2_genBoson2Pt", &m_genBoson2Pt, "m_genBoson2Pt/D" );
+  reducedValues->Branch("ra2_genBoson2Eta",&m_genBoson2Eta,"m_genBoson2Eta/D" );
+  reducedValues->Branch("ra2_genBoson2M",  &m_genBoson2M,  "m_genBoson2M/D" );
 
   reducedValues->Branch("ra2_daughter1Pt", &m_daughter1Pt, "m_daughter1Pt/D" );
   reducedValues->Branch("ra2_daughter1Eta",&m_daughter1Eta,"m_daughter1Eta/D" );

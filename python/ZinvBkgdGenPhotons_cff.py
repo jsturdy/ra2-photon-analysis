@@ -12,14 +12,23 @@ mistagcut        = 'pt>0.0 && abs(pdgId) == 11 && status == 1'
 zbosonst1cut     = 'pt>0.0 && abs(pdgId) == 23 && status == 1'
 zbosonst3cut     = 'pt>0.0 && abs(pdgId) == 23 && status == 3'
 
-zbosonst1mu    = 'pt>0.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-zbosonst3mu    = 'pt>0.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
-zbosonst1el    = 'pt>0.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-zbosonst3el    = 'pt>0.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
-zbosonst1tau   = 'pt>0.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-zbosonst3tau   = 'pt>0.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
-zbosonst1nu    = 'pt>0.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-zbosonst3nu    = 'pt>0.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1mu    = 'pt>0.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3mu    = 'pt>0.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1el    = 'pt>0.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3el    = 'pt>0.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1tau   = 'pt>0.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3tau   = 'pt>0.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1nu    = 'pt>0.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3nu    = 'pt>0.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+
+zbosonst1mu    = 'pt>0.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 13'
+zbosonst3mu    = 'pt>0.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 13'
+zbosonst1el    = 'pt>0.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 11'
+zbosonst3el    = 'pt>0.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 11'
+zbosonst1tau   = 'pt>0.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 15'
+zbosonst3tau   = 'pt>0.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 15'
+zbosonst1nu    = 'pt>0.0 && (abs(daughter(0).pdgId) == 12 || abs(daughter(0).pdgId) == 14 || abs(daughter(0).pdgId) == 16) && status == 3 && abs(pdgId) == 23 && status == 1'
+zbosonst3nu    = 'pt>0.0 && (abs(daughter(0).pdgId) == 12 || abs(daughter(0).pdgId) == 14 || abs(daughter(0).pdgId) == 16) && status == 3 && abs(pdgId) == 23 && status == 3'
 
 zinvBkgdDirectPhotons = cms.EDFilter("GenParticleSelector",
                                      src = cms.InputTag("genParticles"),
@@ -83,83 +92,83 @@ zinvBkgdst1ZBosonRefs = cms.EDFilter("GenParticleRefSelector",
 
 ##dimuon
 zinvBkgdst3ZMuMuBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst3ZBosons"),
                                   cut = cms.string(zbosonst3mu)
                                   )
 
 zinvBkgdst3ZMuMuBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst3ZBosons"),
                                      cut = cms.string(zbosonst3mu)
                                      )
 
 zinvBkgdst1ZMuMuBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst1ZBosons"),
                                   cut = cms.string(zbosonst1mu)
                                   )
 
 zinvBkgdst1ZMuMuBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst1ZBosons"),
                                      cut = cms.string(zbosonst1mu)
                                      )
 
 ##dielectron
 zinvBkgdst3ZElElBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst3ZBosons"),
                                   cut = cms.string(zbosonst3el)
                                   )
 
 zinvBkgdst3ZElElBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst3ZBosons"),
                                      cut = cms.string(zbosonst3el)
                                      )
 
 zinvBkgdst1ZElElBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst1ZBosons"),
                                   cut = cms.string(zbosonst1el)
                                   )
 
 zinvBkgdst1ZElElBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst1ZBosons"),
                                      cut = cms.string(zbosonst1el)
                                      )
 ##ditaus
 zinvBkgdst3ZTauTauBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst3ZBosons"),
                                   cut = cms.string(zbosonst3tau)
                                   )
 
 zinvBkgdst3ZTauTauBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst3ZBosons"),
                                      cut = cms.string(zbosonst3tau)
                                      )
 
 zinvBkgdst1ZTauTauBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst1ZBosons"),
                                   cut = cms.string(zbosonst1tau)
                                   )
 
 zinvBkgdst1ZTauTauBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst1ZBosons"),
                                      cut = cms.string(zbosonst1tau)
                                      )
 ##dinu
 zinvBkgdst3ZNuNuBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst3ZBosons"),
                                   cut = cms.string(zbosonst3nu)
                                   )
 
 zinvBkgdst3ZNuNuBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst3ZBosons"),
                                      cut = cms.string(zbosonst3nu)
                                      )
 
 zinvBkgdst1ZNuNuBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("genParticles"),
+                                  src = cms.InputTag("zinvBkgdst1ZBosons"),
                                   cut = cms.string(zbosonst1nu)
                                   )
 
 zinvBkgdst1ZNuNuBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("genParticles"),
+                                     src = cms.InputTag("zinvBkgdst1ZBosons"),
                                      cut = cms.string(zbosonst1nu)
                                      )
 

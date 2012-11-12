@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.h,v 1.1 2012/09/03 10:30:38 sturdy Exp $
+// $Id: GenStudyTree.h,v 1.2 2012/10/29 10:40:14 sturdy Exp $
 //
 //
 
@@ -125,14 +125,14 @@ public:
     m_dPhiMET1,    m_dPhiMET2,     m_dPhiMET3,     m_dPhiMET4,
     m_dPhiMETNoBoson1,    m_dPhiMETNoBoson2,     m_dPhiMETNoBoson3,     m_dPhiMETNoBoson4;
 
-  double m_daughter1Pt, m_daughter1Eta,    m_daughter1M,   m_daughter1ID,   
-    m_daughter2Pt,      m_daughter2Eta,    m_daughter2M,   m_daughter2ID,   
-    m_combDaughterPt,   m_combDaughterEta, m_combDaughterM;
+  double m_daughter1Pt, m_daughter1Eta,    m_daughter1M,    m_daughter1MinDR,   m_daughter1ID,   
+    m_daughter2Pt,      m_daughter2Eta,    m_daughter2M,    m_daughter2MinDR,   m_daughter2ID,   
+    m_combDaughterPt,   m_combDaughterEta, m_combDaughterM, m_combDaughterMinDR;
   double m_Jet1Pt, m_Jet1Eta, 
     m_Jet2Pt,      m_Jet2Eta,
     m_Jet3Pt,      m_Jet3Eta,
     m_Jet4Pt,      m_Jet4Eta,
-    m_boson2Pt,    m_boson2Eta, m_boson2M;
+    m_boson2Pt,    m_boson2Eta, m_boson2M, m_boson2MinDR;
   
 };
 
