@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.h,v 1.2 2012/10/29 10:40:14 sturdy Exp $
+// $Id: GenStudyTree.h,v 1.3 2012/11/12 17:07:04 sturdy Exp $
 //
 //
 
@@ -83,8 +83,9 @@ public:
   edm::InputTag vertexSrc_, recoPhotonSrc_;
   edm::InputTag recoJetSrc_,htJetSrc_, bJetSrc_,
     htSrc_, mhtSrc_, metSrc_, htNoBosonSrc_, mhtNoBosonSrc_;
+  edm::InputTag photonSrc_, electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
 
-  bool doPUReweight_;
+  bool doPUReweight_, storeExtraVetos_;
   edm::InputTag puWeightSrc_;
   edm::InputTag eventWeightSrc_;
   
@@ -102,9 +103,11 @@ public:
     m_nJetsGenPt50Eta25MInv,
     m_Vertices,            m_genBosons;
   int m_nJetsPt30Eta50,    m_nJetsPt30Eta24,
-    m_bJetsPt30Eta24,      m_nJetsPt50Eta25,
+    m_nJetsCSVM, m_nJetsCSVT,
+    m_nJetsPt50Eta25,
     m_nJetsPt50Eta25MInv,  m_nBosons;
 
+  int m_event, m_run, m_lumi;
   bool m_genPassAcc, m_genPassRecoIso, m_gen1PassRecoIso;
 
   double m_genHT,  m_genMHT,       m_genHTMInv,  m_genMET,  m_genMETNoBoson,
@@ -134,5 +137,6 @@ public:
     m_Jet4Pt,      m_Jet4Eta,
     m_boson2Pt,    m_boson2Eta, m_boson2M, m_boson2MinDR;
   
+  bool m_passElVeto, m_passMuVeto, m_passTauVeto, m_passIsoTrkVeto;
 };
 

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.cc,v 1.3 2012/10/31 17:43:34 sturdy Exp $
+// $Id: GenStudyTree.cc,v 1.4 2012/11/12 17:07:05 sturdy Exp $
 //
 //
 // system include files
@@ -43,8 +43,15 @@ GenStudyTree::GenStudyTree(const edm::ParameterSet& pset) :
   genMETSrc_  ( pset.getParameter< edm::InputTag >( "genMETSrc" ) ),
 
   doPUReweight_ ( pset.getParameter< bool >( "doPUReweight" ) ),
+  storeExtraVetos_( pset.getParameter<bool>("storeExtraVetos") ),
+
   puWeightSrc_( pset.getParameter< edm::InputTag >( "puWeights" ) ),
   eventWeightSrc_( pset.getParameter< edm::InputTag >( "eventWeights" ) ),
+
+  electronVetoSrc_( pset.getParameter<edm::InputTag>("electronVetoSource") ),
+  muonVetoSrc_    ( pset.getParameter<edm::InputTag>("muonVetoSource") ),
+  isoTrkVetoSrc_  ( pset.getParameter<edm::InputTag>("isoTrkVetoSource") ),
+  tauVetoSrc_     ( pset.getParameter<edm::InputTag>("tauVetoSource") ),
 
   studyAcc_     ( pset.getParameter< bool >( "studyAcceptance" ) ),
   studyRecoIso_ ( pset.getParameter< bool >( "studyRecoIso" ) ),
@@ -87,6 +94,11 @@ GenStudyTree::~GenStudyTree()
 void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   using namespace edm;
+  // get event-id
+  unsigned int event = (ev.id()).event();
+  unsigned int run   = (ev.id()).run();
+  unsigned int lumi  =  ev.luminosityBlock();
+
   //read in the gen particles
   edm::Handle<reco::GenParticleCollection> gens;
   ev.getByLabel(genSrc_,gens);
@@ -164,6 +176,22 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
   m_EventWt = event_wt;
   m_PUWt    = pu_event_wt;
   m_Vertices = vertices->size();
+
+  edm::Handle<bool> elVeto;
+  edm::Handle<bool> muVeto;
+  edm::Handle<bool> tauVeto;
+  edm::Handle<bool> isoTrkVeto;
+
+  if (storeExtraVetos_) {
+    ev.getByLabel(electronVetoSrc_,elVeto);
+    m_passElVeto = *elVeto;
+    ev.getByLabel(muonVetoSrc_,muVeto);
+    m_passMuVeto = *muVeto;
+    ev.getByLabel(tauVetoSrc_,tauVeto);
+    m_passTauVeto = *tauVeto;
+    ev.getByLabel(isoTrkVetoSrc_,isoTrkVeto);
+    m_passIsoTrkVeto = *isoTrkVeto;
+  }
   
   //do the analysis on the gen bosons
   m_genBoson1Pt  = -10.;  //m_genBoson2Pt  = -10.;
@@ -402,19 +430,42 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
       }
       ++daucounter;
     }
-    if (founddaus == 2) {
+    if (founddaus >= 2) {
       m_daughter1Pt = dau1->pt();    m_daughter1Eta = dau1->eta();    m_daughter1M = dau1->mass();   m_daughter1ID = dau1->pdgId();
       m_daughter2Pt = dau2->pt();    m_daughter2Eta = dau2->eta();    m_daughter2M = dau2->mass();   m_daughter2ID = dau2->pdgId();
       m_combDaughterPt = (dau1->p4()+dau2->p4()).pt(); m_combDaughterEta = (dau1->p4()+dau2->p4()).eta(); m_combDaughterM = (dau1->p4()+dau2->p4()).mass();
-      
-    }
+
+      ////calculate the min DR between the daughters/combined object and the jets
+      jet = genJets->begin();
+      for (; jet != genJets->end(); ++jet) {
+	if (debug_) std::cout<<"looping gen jets"<<std::endl;
+	if (jet->pt() > 30) {
+	  if (debug_) std::cout<<"pt > 30"<<std::endl;
+	  //++nJetsPt30;
+	  if (fabs(jet->eta()) < 5.0) {
+	    if (debug_) std::cout<<"|eta| < 5.0"<<std::endl;
+	    double dR = reco::deltaR(dau1->eta(),dau1->phi(),jet->eta(), jet->phi());
+	    if (debug_) std::cout<<"dR::"<<dR<<std::endl;
+	    if (m_genBoson1MinDR > dR) 
+	      m_daughter1MinDR = dR;
+	    dR = reco::deltaR(dau2->eta(),dau2->phi(),jet->eta(), jet->phi());
+	    if (m_genBoson1MinDR > dR) 
+	      m_daughter2MinDR = dR;
+	    
+	    dR = reco::deltaR((dau1->p4()+dau2->p4()).eta(),(dau1->p4()+dau2->p4()).phi(),jet->eta(), jet->phi());
+	    if (m_combDaughterMinDR > dR) 
+	      m_combDaughterMinDR = dR;
+	  }
+	}
+      }
+    }//End special case for di-lepton samples
     //Match gen boson to reco/isolated photon
     reco::Candidate::LorentzVector metNoBosonV = (*met)[0].p4();
     reco::MET metNoBoson = (*met)[0];
     m_genPassRecoIso = false;
     m_gen1PassRecoIso = false;
     if (!studyRecoIso_) {
-      m_genPassRecoIso = true;
+      m_genPassRecoIso  = true;
       m_gen1PassRecoIso = true;
     }
     else {
@@ -505,7 +556,13 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
     m_nJetsPt30Eta50 = recoJets->size();
     m_nJetsPt50Eta25 = htJets  ->size();
 
-    m_bJetsPt30Eta24 = bJets   ->size();
+    m_nJetsCSVM = bJets ->size();
+    m_nJetsCSVT = 0;
+    edm::View<pat::Jet>::const_iterator bjet = bJets->begin();
+    for (; bjet!= bJets->end(); ++bjet) 
+      if (bjet->bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898) 
+	++m_nJetsCSVT;
+    
     m_nJetsPt30Eta24 = 0;
     m_nJetsPt50Eta25MInv = 0;
 
@@ -581,6 +638,9 @@ void GenStudyTree::beginJob()
   reducedValues = fs->make<TTree>( "RA2Values", "Variables for reduced studies" );
 
   reducedValues->Branch("ra2_Vertices", &m_Vertices, "m_Vertices/I");
+  reducedValues->Branch("ra2_Event",    &m_event,    "m_event/I");
+  reducedValues->Branch("ra2_Run",      &m_run,      "m_run/I");
+  reducedValues->Branch("ra2_Lumi",     &m_lumi,     "m_lumi/I");
   reducedValues->Branch("ra2_PUWt",     &m_PUWt,     "m_PUWt/D");
   reducedValues->Branch("ra2_EventWt",  &m_EventWt,  "m_EventWt/D");
 
@@ -685,12 +745,19 @@ void GenStudyTree::beginJob()
   reducedValues->Branch("ra2_Jet4Pt",  &m_Jet4Pt,  "m_Jet4Pt/D");
   reducedValues->Branch("ra2_Jet4Eta", &m_Jet4Eta, "m_Jet4Eta/D");
   
+  reducedValues->Branch("ra2_nJetsCSVM", &m_nJetsCSVM, "m_nJetsCSVM/I");
+  reducedValues->Branch("ra2_nJetsCSVT", &m_nJetsCSVT, "m_nJetsCSVT/I");
   reducedValues->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "nJetsPt30Eta50/I" );
   reducedValues->Branch("ra2_nJetsPt30Eta24", &m_nJetsPt30Eta24, "nJetsPt30Eta24/I" );
-  reducedValues->Branch("ra2_bJetsPt30Eta24", &m_bJetsPt30Eta24, "bJetsPt30Eta24/I");
   reducedValues->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "nJetsPt50Eta25/I" );
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "nJetsPt50Eta25MInv/I" );
   
+  if (storeExtraVetos_) {
+    reducedValues->Branch("ra2_passElVeto",         &m_passElVeto    , "m_passElVeto/O"    );
+    reducedValues->Branch("ra2_passMuVeto",         &m_passMuVeto    , "m_passMuVeto/O"    );
+    reducedValues->Branch("ra2_passTauVeto",        &m_passTauVeto   , "m_passTauVeto/O"   );
+    reducedValues->Branch("ra2_passIsoTrkVeto",     &m_passIsoTrkVeto, "m_passIsoTrkVeto/O");
+  }
 
   reducedValues->SetAutoSave(1);
 }
