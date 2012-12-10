@@ -22,22 +22,72 @@ addelectronuserdata1 = cms.EDProducer("AddElectronUserData",
         userClasses = cms.PSet(
             src = cms.VInputTag("")
         ),
-        userFunctionLabels = cms.vstring('pfIsoEA', 'pfNeutralEA', 'pfGammaEA',
-
-                                         'dEtaInTightCut', 'dPhiInTightCut', 'd0TightCut', 'dzTightCut',
-                                         'invEminPTightCut', 'vtxFitProbTightCut', 'misHitsTightCut',
-                                         'hadTowOverEmTightCut', 'showerShapeTightCut', 'pfIsoRelTightCut',
-
-                                         'dEtaInMediumCut', 'dPhiInMediumCut', 'd0MediumCut', 'dzMediumCut',
-                                         'invEminPMediumCut', 'vtxFitProbMediumCut', 'misHitsMediumCut',
-                                         'hadTowOverEmMediumCut', 'showerShapeMediumCut', 'pfRelIsoMediumCut',
-
-                                         'dEtaInLooseCut', 'dPhiInLooseCut', 'd0LooseCut', 'dzLooseCut',
-                                         'invEminPLooseCut', 'vtxFitProbLooseCut', 'misHitsLooseCut',
-                                         'hadTowOverEmLooseCut', 'showerShapeLooseCut', 'pfIsoRelLooseCut',
-
-                                         'pfIsoRel', 'pfNeutralRel', 'pfGammaRel'),
+        userFunctionLabels = cms.vstring('maxDz', 'maxRelIso','chargedIso','otherIso',
+                                         'pfIsoEA', 'pfNeutralEA', 'pfGammaEA',
+                                         'dEtaInCut', 'dPhiInCut', 'dzCut',
+                                         'hadTowOverEmCut', 'showerShapeCut', 'pfIsoRelCut',
+                                         'pfIsoRel', 'pfNeutralRel', 'pfGammaRel'
+                                         ),
         userFunctions = cms.vstring(
+            """?((0.0   <= pt < 5.0  ) and (0 <= abs(superCluster.eta) < 1.5)) ? 0.03 :
+               ?((5.0   <= pt < 10.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 0.05 :
+               ?((10.0  <= pt < 15.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 0.05 :
+               ?((15.0  <= pt < 20.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 0.05 :
+               ?((20.0  <= pt < 40.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 0.2 :
+               ?((40.0  <= pt < 80.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 1.0 :
+               ?((80.0  <= pt < 140.0) and (0 <= abs(superCluster.eta) < 1.5)) ? 1.0 :
+               ?((140.0 <= pt < 200.0) and (0 <= abs(superCluster.eta) < 1.5)) ? 1.0 :
+               ?((200.0 <= pt)         and (0 <= abs(superCluster.eta) < 1.5)) ? 1.0 :
+               ?((0.0   <= pt < 5.0  ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 0.09 :
+               ?((5.0   <= pt < 10.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 0.09 :
+               ?((10.0  <= pt < 15.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 0.09 :
+               ?((15.0  <= pt < 20.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 0.11 :
+               ?((20.0  <= pt < 40.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 0.1 :
+               ?((40.0  <= pt < 80.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 1.0 :
+               ?((80.0  <= pt < 140.0) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 1.0 :
+               ?((140.0 <= pt < 200.0) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 1.0 :
+               ?((200.0 <= pt)         and (1.5 <= abs(superCluster.eta) < 2.5)) ? 1.0 :
+                                                                                   1.0""", #maxDz
+            """?((0.0   <= pt < 5.0  ) and (0 <= abs(superCluster.eta) < 1.5)) ? 0.5 :
+               ?((5.0   <= pt < 10.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 1.5 :
+               ?((10.0  <= pt < 15.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 4.5 :
+               ?((15.0  <= pt < 20.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 7.5 :
+               ?((20.0  <= pt < 40.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 10.0:
+               ?((40.0  <= pt < 80.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 18.5:
+               ?((80.0  <= pt < 140.0) and (0 <= abs(superCluster.eta) < 1.5)) ? 44.0:
+               ?((140.0 <= pt < 200.0) and (0 <= abs(superCluster.eta) < 1.5)) ? 81.5:
+               ?((200.0 <= pt)         and (0 <= abs(superCluster.eta) < 1.5)) ? 81.5:
+               ?((0.0   <= pt < 5.0  ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 0.5 :
+               ?((5.0   <= pt < 10.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 2.5 :
+               ?((10.0  <= pt < 15.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 6.5 :
+               ?((15.0  <= pt < 20.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 9.0 :
+               ?((20.0  <= pt < 40.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 10.5:
+               ?((40.0  <= pt < 80.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 18.5:
+               ?((80.0  <= pt < 140.0) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 66.5:
+               ?((140.0 <= pt < 200.0) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 70.0:
+               ?((200.0 <= pt)         and (1.5 <= abs(superCluster.eta) < 2.5)) ? 70.0:
+                                                                                   70.0""", #chargedIso
+            """?((0.0   <= pt < 5.0  ) and (0 <= abs(superCluster.eta) < 1.5)) ? 0.5 :
+               ?((5.0   <= pt < 10.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 1.5 :
+               ?((10.0  <= pt < 15.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 4.5 :
+               ?((15.0  <= pt < 20.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 7.5 :
+               ?((20.0  <= pt < 40.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 10.0:
+               ?((40.0  <= pt < 80.0 ) and (0 <= abs(superCluster.eta) < 1.5)) ? 18.5:
+               ?((80.0  <= pt < 140.0) and (0 <= abs(superCluster.eta) < 1.5)) ? 44.0:
+               ?((140.0 <= pt < 200.0) and (0 <= abs(superCluster.eta) < 1.5)) ? 81.5:
+               ?((200.0 <= pt)         and (0 <= abs(superCluster.eta) < 1.5)) ? 81.5:
+               ?((0.0   <= pt < 5.0  ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 0.5 :
+               ?((5.0   <= pt < 10.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 2.5 :
+               ?((10.0  <= pt < 15.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 6.5 :
+               ?((15.0  <= pt < 20.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 9.0 :
+               ?((20.0  <= pt < 40.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 10.5:
+               ?((40.0  <= pt < 80.0 ) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 18.5:
+               ?((80.0  <= pt < 140.0) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 66.5:
+               ?((140.0 <= pt < 200.0) and (1.5 <= abs(superCluster.eta) < 2.5)) ? 70.0:
+               ?((200.0 <= pt)         and (1.5 <= abs(superCluster.eta) < 2.5)) ? 70.0:
+                                                                                   70.0""", #relIso
+            '(pfIsolationR03().sumChargedHadronPt+max(0.,pfIsolationR03().sumNeutralHadronEt+pfIsolationR03().sumPhotonEt-0.5*pfIsolationR03().sumPUPt))/pt()'
+
             """?0.0   <= abs(superCluster.eta) < 1.0   ? 0.135 :
                ?1.0   <= abs(superCluster.eta) < 1.479 ? 0.168 :
                ?1.479 <= abs(superCluster.eta) < 2.0   ? 0.068 :
@@ -62,38 +112,13 @@ addelectronuserdata1 = cms.EDProducer("AddElectronUserData",
 
             ####Cut values:singleTowerHOverE,showerShape,pfChargedRel,pfNeutralRel,pfGammaRel
             ###Tight
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.004:0.005""",#dEtaIn
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.03 :0.02""", #dPhiIn
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.02 :0.02""", #d0
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.1  :0.1""",  #dZ
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.05 :0.05""", #fabs(1/E-1/p)
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1e-6 :1e-6""", #vtxFitProb
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0    :0""",    #missHits
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.12 :0.10""", #singleTowerHOverE
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.01 :0.03""", #showerShape
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.10 :0.10""", #pfIsoRel
-            ###Medium
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.004:0.007""",#dEtaIn
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.06 :0.03""", #dPhiIn
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.02 :0.02""", #d0
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.1  :0.1""",  #dZ
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.05 :0.05""", #fabs(1/E-1/p)
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1e-6 :1e-6""", #vtxFitProb
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1    :1""",    #missHits
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.12:0.10""",  #singleTowerHOverE
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.01:0.03""",  #showerShape      
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.15:0.15""",  #pfIsoRel     
-            ###Loose
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.007:0.009""",#dEtaIn
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.15 :0.10""", #dPhiIn
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.02 :0.02""", #d0
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.007:0.01""",#dEtaIn
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.8 :0.7""", #dPhiIn
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.4 :0.4""", #d0
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.2  :0.2""",  #dZ
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.05 :0.05""", #fabs(1/E-1/p)
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1e-6 :1e-6""", #vtxFitProb
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1    :1""",    #missHits
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.12:0.20""",  #singleTowerHOverE
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.01:0.03""",  #showerShape      
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.15:0.15""",  #pfIsoRel     
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.15 :1e6""", #singleTowerHOverE
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.01 :0.03""", #showerShape
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.15 :0.15""", #pfIsoRel
 
             '(neutralHadronIso+photonIso)/et',
             'neutralHadronIso/et',

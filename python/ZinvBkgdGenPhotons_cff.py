@@ -2,33 +2,33 @@ import FWCore.ParameterSet.Config as cms
 
 #photon cuts
 #from piet
-directpcut       = 'pt>0.0 && abs(pdgId) == 22 && (abs(mother.pdgId) == 22  && mother.status == 3)'
-secondarypcut    = 'pt>0.0 && abs(pdgId) == 22 && (abs(mother.pdgId) > 100 && mother.status == 2)'
+directpcut       = 'pt>70.0 && abs(pdgId) == 22 && (abs(mother.pdgId) == 22  && mother.status == 3)'
+secondarypcut    = 'pt>70.0 && abs(pdgId) == 22 && (abs(mother.pdgId) > 100 && mother.status == 2)'
 #seema's definitions
-directcut        = 'pt>0.0 && abs(pdgId) == 22 && status == 3 && (abs(mother.pdgId) < 25 || mother.pdgId != 22)'
-secondarycut     = 'pt>0.0 && abs(pdgId) == 22 && status == 1 && abs(mother.pdgId) > 100'
-fragmentationcut = 'pt>0.0 && abs(pdgId) == 22 && status == 1 && (abs(mother.pdgId) < 25 || mother.pdgId != 22)'
-mistagcut        = 'pt>0.0 && abs(pdgId) == 11 && status == 1'
-zbosonst1cut     = 'pt>0.0 && abs(pdgId) == 23 && status == 1'
-zbosonst3cut     = 'pt>0.0 && abs(pdgId) == 23 && status == 3'
+directcut        = 'pt>70.0 && abs(pdgId) == 22 && status == 3 && (abs(mother.pdgId) < 25 || mother.pdgId != 22)'
+secondarycut     = 'pt>70.0 && abs(pdgId) == 22 && status == 1 && abs(mother.pdgId) > 100'
+fragmentationcut = 'pt>70.0 && abs(pdgId) == 22 && status == 1 && (abs(mother.pdgId) < 25 || mother.pdgId != 22)'
+mistagcut        = 'pt>70.0 && abs(pdgId) == 11 && status == 1'
+zbosonst1cut     = 'pt>70.0 && abs(pdgId) == 23 && status == 1'
+zbosonst3cut     = 'pt>70.0 && abs(pdgId) == 23 && status == 3'
 
-##zbosonst1mu    = 'pt>0.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-##zbosonst3mu    = 'pt>0.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
-##zbosonst1el    = 'pt>0.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-##zbosonst3el    = 'pt>0.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
-##zbosonst1tau   = 'pt>0.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-##zbosonst3tau   = 'pt>0.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
-##zbosonst1nu    = 'pt>0.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
-##zbosonst3nu    = 'pt>0.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1mu    = 'pt>70.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3mu    = 'pt>70.0 && abs(pdgId) == 13 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1el    = 'pt>70.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3el    = 'pt>70.0 && abs(pdgId) == 11 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1tau   = 'pt>70.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3tau   = 'pt>70.0 && abs(pdgId) == 15 && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
+##zbosonst1nu    = 'pt>70.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 1'
+##zbosonst3nu    = 'pt>70.0 && (abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16) && status == 3 && abs(mother.pdgId) == 23 && mother.status == 3'
 
-zbosonst1mu    = 'pt>0.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 13'
-zbosonst3mu    = 'pt>0.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 13'
-zbosonst1el    = 'pt>0.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 11'
-zbosonst3el    = 'pt>0.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 11'
-zbosonst1tau   = 'pt>0.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 15'
-zbosonst3tau   = 'pt>0.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 15'
-zbosonst1nu    = 'pt>0.0 && (abs(daughter(0).pdgId) == 12 || abs(daughter(0).pdgId) == 14 || abs(daughter(0).pdgId) == 16) && status == 3 && abs(pdgId) == 23 && status == 1'
-zbosonst3nu    = 'pt>0.0 && (abs(daughter(0).pdgId) == 12 || abs(daughter(0).pdgId) == 14 || abs(daughter(0).pdgId) == 16) && status == 3 && abs(pdgId) == 23 && status == 3'
+zbosonst1mu    = 'pt>70.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 13'
+zbosonst3mu    = 'pt>70.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 13'
+zbosonst1el    = 'pt>70.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 11'
+zbosonst3el    = 'pt>70.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 11'
+zbosonst1tau   = 'pt>70.0 && abs(pdgId) == 23 && status == 1 && abs(daughter(0).pdgId) == 15'
+zbosonst3tau   = 'pt>70.0 && abs(pdgId) == 23 && status == 3 && abs(daughter(0).pdgId) == 15'
+zbosonst1nu    = 'pt>70.0 && (abs(daughter(0).pdgId) == 12 || abs(daughter(0).pdgId) == 14 || abs(daughter(0).pdgId) == 16) && status == 3 && abs(pdgId) == 23 && status == 1'
+zbosonst3nu    = 'pt>70.0 && (abs(daughter(0).pdgId) == 12 || abs(daughter(0).pdgId) == 14 || abs(daughter(0).pdgId) == 16) && status == 3 && abs(pdgId) == 23 && status == 3'
 
 zinvBkgdDirectPhotons = cms.EDFilter("GenParticleSelector",
                                      src = cms.InputTag("genParticles"),
@@ -189,19 +189,28 @@ zinvBkgdGenZBosons = cms.Sequence(
     * zinvBkgdst3ZBosonRefs
     * zinvBkgdst1ZBosons   
     * zinvBkgdst1ZBosonRefs
-    * zinvBkgdst3ZMuMuBosons   
+)
+
+zinvBkgdGenZMuMuBosons = cms.Sequence(
+      zinvBkgdst3ZMuMuBosons   
     * zinvBkgdst3ZMuMuBosonRefs
     * zinvBkgdst1ZMuMuBosons   
     * zinvBkgdst1ZMuMuBosonRefs
-    * zinvBkgdst3ZElElBosons   
+)
+zinvBkgdGenZElElBosons = cms.Sequence(
+      zinvBkgdst3ZElElBosons   
     * zinvBkgdst3ZElElBosonRefs
     * zinvBkgdst1ZElElBosons   
     * zinvBkgdst1ZElElBosonRefs
-    * zinvBkgdst3ZTauTauBosons   
+)
+zinvBkgdGenZTauTauBosons = cms.Sequence(
+      zinvBkgdst3ZTauTauBosons   
     * zinvBkgdst3ZTauTauBosonRefs
     * zinvBkgdst1ZTauTauBosons   
     * zinvBkgdst1ZTauTauBosonRefs
-    * zinvBkgdst3ZNuNuBosons   
+)
+zinvBkgdGenZNuNuBosons = cms.Sequence(
+      zinvBkgdst3ZNuNuBosons   
     * zinvBkgdst3ZNuNuBosonRefs
     * zinvBkgdst1ZNuNuBosons   
     * zinvBkgdst1ZNuNuBosonRefs

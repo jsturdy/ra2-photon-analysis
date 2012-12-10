@@ -26,6 +26,12 @@ genstudytree = cms.EDProducer("GenStudyTree",
     puWeights    = cms.InputTag("puWeight"   ,"weight"),
     eventWeights = cms.InputTag("eventWeight","weight"),
 
+    storeExtraVetos    = cms.bool(False),
+    electronVetoSource = cms.InputTag("electronVeto"),
+    muonVetoSource     = cms.InputTag("muonVeto"),
+    tauVetoSource      = cms.InputTag("tauVeto"),
+    isoTrkVetoSource   = cms.InputTag("isoTrkVeto"),
+
     studyAcceptance = cms.bool(True),
     studyRecoIso    = cms.bool(True),
     bosonMinPt    = cms.double(50.),
