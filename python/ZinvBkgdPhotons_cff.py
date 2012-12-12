@@ -53,6 +53,10 @@ patPhotonsIDPFIso = patPhotonsID.clone(
     src = cms.InputTag('patPhotonsID'),
     cut = photonISOCutLoose,
 )
+patPhotonsIDPFIsoTight = patPhotonsID.clone(
+    src = cms.InputTag('patPhotonsIDPFIso'),
+    cut = photonISOCutTight,
+)
 
 patPhotonsIDIso = patPhotonsID.clone(
    src = cms.InputTag('patPhotonsID'),
@@ -69,6 +73,7 @@ patPhotonRefsID = cms.EDFilter(
 zinvPhotons = cms.Sequence(
     patPhotonsID
   * patPhotonsIDPFIso
+  * patPhotonsIDPFIsoTight
 )
 
 countPhotonsID = countPatPhotons.clone()

@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.6 2012/10/31 17:43:06 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.7 2012/12/09 22:12:04 sturdy Exp $
 //
 //
 
@@ -40,6 +40,7 @@ RA2ZInvPhotonTreeMaker::RA2ZInvPhotonTreeMaker(const edm::ParameterSet& pset) {
   data_           = pset.getParameter<bool>("Data");
   scale_          = pset.getParameter<double>("ScaleFactor");
   photonSrc_      = pset.getParameter<edm::InputTag>("PhotonSrc");
+  tightPhotonSrc_ = pset.getParameter<edm::InputTag>("TightPhotonSrc");
   vertexSrc_      = pset.getParameter<edm::InputTag>("VertexSrc");
   jetSrc_         = pset.getParameter<edm::InputTag>("JetSrc");
   bJetSrc_        = pset.getParameter<edm::InputTag>("bJetSrc");
@@ -86,6 +87,9 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   // get photons 
   edm::Handle< std::vector<pat::Photon> > patPhotons;
   ev.getByLabel(photonSrc_, patPhotons); 
+
+  edm::Handle< std::vector<pat::Photon> > patPhotonsTight;
+  ev.getByLabel(tightPhotonSrc_, patPhotonsTight); 
 
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
@@ -295,6 +299,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     return;
 
   m_nPhotonsIso = patPhotons->size();
+  m_nPhotonsTightIso = patPhotonsTight->size();
   m_Photon1pfCH = (*patPhotons)[0].userFloat("pfChargedPU");
   m_Photon1pfNU = (*patPhotons)[0].userFloat("pfNeutralPU");
   m_Photon1pfGA = (*patPhotons)[0].userFloat("pfGammaPU");
@@ -732,6 +737,7 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_EventWt", &m_EventWt, "m_EventWt/D");
 
   reducedValues->Branch("ra2_nPhotonsIso", &m_nPhotonsIso, "m_nPhotonsIso/I");
+  reducedValues->Branch("ra2_nPhotonsTightIso", &m_nPhotonsTightIso, "m_nPhotonsTightIso/I");
   reducedValues->Branch("ra2_Photon1pfCH", &m_Photon1pfCH, "m_Photon1pfCH/D");
   reducedValues->Branch("ra2_Photon1pfNU", &m_Photon1pfNU, "m_Photon1pfNU/D");
   reducedValues->Branch("ra2_Photon1pfGA", &m_Photon1pfGA, "m_Photon1pfGA/D");

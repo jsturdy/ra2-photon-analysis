@@ -53,7 +53,7 @@ private:
   std::string debugString_;
   bool data_;
   double scale_;
-  edm::InputTag photonSrc_, electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
+  edm::InputTag photonSrc_, tightPhotonSrc_, electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
   edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_;
   std::string looseTopTaggerSrc_, nominalTopTaggerSrc_;
   bool          doPUReWeight_, runTopTagger_, storeExtraVetos_;
@@ -72,7 +72,7 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  int m_nPhotonsIso, m_nJetsPt30Eta50, m_nJetsPt30Eta24,
+  int m_nPhotonsIso, m_nPhotonsTightIso, m_nJetsPt30Eta50, m_nJetsPt30Eta24,
     m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
     m_nJetsCSVM, m_nJetsCSVT,
     m_Vertices,  m_event, m_run, m_lumi;
