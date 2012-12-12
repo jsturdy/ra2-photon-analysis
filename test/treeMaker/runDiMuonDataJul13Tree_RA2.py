@@ -28,7 +28,7 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source.skipEvents = cms.untracked.uint32(0)
-process.GlobalTag.globaltag = "FT_53_V6C_AN2::All"
+process.GlobalTag.globaltag = "FT_53_V6_AN2::All"
 
 #========================= analysis module =====================================
 process.zToMuMu = cms.EDProducer("CandViewShallowCloneCombiner",

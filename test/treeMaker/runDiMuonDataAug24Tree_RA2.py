@@ -89,9 +89,18 @@ process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
 
+process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
+process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+from SandBox.Skims.htFilter_cfi  import *
+process.zmumuHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchsNoMuon"))
+from SandBox.Skims.mhtFilter_cfi import *
+process.zmumuMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoMuon"),MinMHT = cms.double(100))
+
 process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.htPFchs
                                    * process.mhtPFchs
+                                   * process.ecalLaserCorrFilter
+                                   * process.cleaningOnFilterResults
                                    * process.zinvBJetsPF
                                    * process.patMuonsPFIDIso
                                    * process.countPFMuonsIDIsoForZ
@@ -99,6 +108,8 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.zCandFilter
                                    * process.specialMuonCollection
                                    * process.muonObjectsPF
+                                   #* process.zmumuHTFilter
+                                   #* process.zmumuMHTFilter
                                    * process.zmumuMETCollections
                                    * process.zmumuVetos
                                    * process.zmumuTopTaggers

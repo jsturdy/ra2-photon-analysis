@@ -108,6 +108,14 @@ process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
 
+process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
+from SandBox.Skims.htFilter_cfi  import *
+process.photonIDHTFilter      = htFilter.clone(HTSource = htPFchsNoPhotID)
+process.photonIDPFIsoHTFilter = process.photonIDHTFilter.clone(HTSource = htPFchsNoPhotIDPFIso)
+from SandBox.Skims.mhtFilter_cfi import *
+process.photonIDMHTFilter      = mhtFilter.clone(MHTSource = mhtPFchsNoPhotID,MinMHT = cms.double(100))
+process.photonIDPFIsoMHTFilter = process.photonIDMHTFilter.clone(MHTSource = mhtPFchsNoPhotIDPFIso)
+
 ####
 process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.htPFchs
@@ -123,10 +131,16 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
 )
 
 process.phoIDSeq = cms.Sequence(  process.countPhotonsID
+                                * process.cleaningOnFilterResults
+                                #* process.photonIDHTFilter
+                                #* process.photonIDMHTFilter
                                 * process.zinvBJetsPFNoPhotonIDSpecial
                                 * process.analysisID
 )
 process.phoIDPFIsoSeq = cms.Sequence( process.countPhotonsIDPFIso
+                                    * process.cleaningOnFilterResults
+                                    #* process.photonIDPFIsoHTFilter
+                                    #* process.photonIDPFIsoMHTFilter
                                     * process.zinvBJetsPFNoPhotonIDPFIsoSpecial
                                     * process.analysisIDPFIso
 )

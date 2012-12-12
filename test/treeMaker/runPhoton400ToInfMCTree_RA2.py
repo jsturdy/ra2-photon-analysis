@@ -15,6 +15,9 @@ process.options = cms.untracked.PSet(
             wantSummary = cms.untracked.bool(True)
             )
 
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
 #================= configure poolsource module ===================
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -27,6 +30,7 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source.skipEvents = cms.untracked.uint32(0)
+process.GlobalTag.globaltag = "START53_V7F::All"
 ###========================= analysis module =====================================
 
 scaleF = 107.5*10*1000/9534744.
@@ -103,6 +107,15 @@ process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
 
+process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
+process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
+from SandBox.Skims.htFilter_cfi  import *
+process.photonIDHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotID"))
+process.photonIDPFIsoHTFilter = process.photonIDHTFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotIDPFIso"))
+from SandBox.Skims.mhtFilter_cfi import *
+process.photonIDMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotID"),MinMHT = cms.double(100))
+process.photonIDPFIsoMHTFilter = process.photonIDMHTFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotIDPFIso"))
+
 ####
 process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.htPFchs
@@ -118,10 +131,18 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
 )
 
 process.phoIDSeq = cms.Sequence(  process.countPhotonsID
+                                * process.ecalLaserCorrFilter
+                                * process.cleaningOnFilterResults
+                                #* process.photonIDHTFilter
+                                #* process.photonIDMHTFilter
                                 * process.zinvBJetsPFNoPhotonIDSpecial
                                 * process.analysisID
 )
 process.phoIDPFIsoSeq = cms.Sequence( process.countPhotonsIDPFIso
+                                    * process.ecalLaserCorrFilter
+                                    * process.cleaningOnFilterResults
+                                    #* process.photonIDPFIsoHTFilter
+                                    #* process.photonIDPFIsoMHTFilter
                                     * process.zinvBJetsPFNoPhotonIDPFIsoSpecial
                                     * process.analysisIDPFIso
 )

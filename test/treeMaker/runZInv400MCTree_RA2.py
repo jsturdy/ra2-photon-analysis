@@ -15,6 +15,9 @@ process.options = cms.untracked.PSet(
             wantSummary = cms.untracked.bool(True)
             )
 
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
 #================= configure poolsource module ===================
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -29,7 +32,7 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source.skipEvents = cms.untracked.uint32(0)
-
+process.GlobalTag.globaltag = "START53_V7F::All"
 #========================= analysis module =====================================
 
 scaleF = 6.26*10*1000/5105710.
@@ -75,11 +78,21 @@ process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
 
+process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
+process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+from SandBox.Skims.htFilter_cfi  import *
+process.zinvHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchs"))
+from SandBox.Skims.mhtFilter_cfi import *
+process.zinvMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchs"),MinMHT = cms.double(100))
+
+####
 process.analysisSeq = cms.Sequence(process.ra2PFchsJets
                                  * process.htPFchs
                                  * process.mhtPFchs
-#                                 * process.ra2PFMuons
-
+                                 * process.ecalLaserCorrFilter
+                                 * process.cleaningOnFilterResults
+                                 #* process.zinvHTFilter
+                                 #* process.zinvMHTFilter
                                  * process.zinvVetos
                                  * process.zinvTopTaggers
                                  * process.zinvBkgdGenZBosons

@@ -21,12 +21,12 @@ process.GlobalTag.globaltag = "GR_P_V41_AN2::All"
 #================= configure poolsource module ===================
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'file:/tmp/sturdy/SinglePhoton_198934-202504_Run2012C-PromptReco-v2_v0.root'
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_100_1_A6g.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_101_1_BQj.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_102_1_58b.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_103_1_VnZ.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_106_1_J5U.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/PhotonHad/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_777_1_PFV.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/PhotonHad/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_778_1_jUd.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/PhotonHad/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_773_1_lDn.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/PhotonHad/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_774_1_7PV.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/PhotonHad/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_775_1_ZMU.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/PhotonHad/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_781_1_zBt.root',
     )
 )
 
@@ -108,6 +108,15 @@ process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
 
+process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
+process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+from SandBox.Skims.htFilter_cfi  import *
+process.photonIDHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotID"))
+process.photonIDPFIsoHTFilter = process.photonIDHTFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotIDPFIso"))
+from SandBox.Skims.mhtFilter_cfi import *
+process.photonIDMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotID"),MinMHT = cms.double(100))
+process.photonIDPFIsoMHTFilter = process.photonIDMHTFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotIDPFIso"))
+
 ####
 process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.htPFchs
@@ -123,10 +132,18 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
 )
 
 process.phoIDSeq = cms.Sequence(  process.countPhotonsID
+                                * process.ecalLaserCorrFilter
+                                * process.cleaningOnFilterResults
+                                #* process.photonIDHTFilter
+                                #* process.photonIDMHTFilter
                                 * process.zinvBJetsPFNoPhotonIDSpecial
                                 * process.analysisID
 )
 process.phoIDPFIsoSeq = cms.Sequence( process.countPhotonsIDPFIso
+                                    * process.ecalLaserCorrFilter
+                                    * process.cleaningOnFilterResults
+                                    #* process.photonIDPFIsoHTFilter
+                                    #* process.photonIDPFIsoMHTFilter
                                     * process.zinvBJetsPFNoPhotonIDPFIsoSpecial
                                     * process.analysisIDPFIso
 )
