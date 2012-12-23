@@ -14,7 +14,7 @@ pfType1MetNoElectron.inputObjects = cms.InputTag("patElectronsPF")
 
 photonMETCollections = cms.Sequence(
     pfType1MetNoPhotonID
-    *pfType1MetNoPhotonIDPFIso
+#    *pfType1MetNoPhotonIDPFIso
 )
 
 zmumuMETCollections = cms.Sequence(

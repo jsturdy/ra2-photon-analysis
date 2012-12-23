@@ -39,8 +39,8 @@ zInvTopTagger5M.metSrc = cms.InputTag("patMETsPF")
 photonTopTaggers = cms.Sequence(
     photonTopTaggerID5Loose
     *photonTopTaggerID5M
-    *photonTopTaggerIDPFIso5Loose
-    *photonTopTaggerIDPFIso5M
+    #*photonTopTaggerIDPFIso5Loose
+    #*photonTopTaggerIDPFIso5M
 )
 
 zinvTopTaggers = cms.Sequence(

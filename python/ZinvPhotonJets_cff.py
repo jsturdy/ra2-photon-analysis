@@ -56,20 +56,20 @@ patJetsPFNoPhotonIDPFIsoPt50Eta25.src = cms.InputTag('patJetsPFchsPt50Eta25')
 
 #####
 photonCleanedPFJetsAK5PF = cms.Sequence(
-    patJetsAK5PFNoPhotonID               *
-    patJetsAK5PFNoPhotonIDPt30           *
-    patJetsAK5PFNoPhotonIDPt50Eta25      *
-    patJetsAK5PFNoPhotonIDPFIso          *
-    patJetsAK5PFNoPhotonIDPFIsoPt30      *
-    patJetsAK5PFNoPhotonIDPFIsoPt50Eta25
+      patJetsAK5PFNoPhotonID               
+    * patJetsAK5PFNoPhotonIDPt30           
+    * patJetsAK5PFNoPhotonIDPt50Eta25      
+    #* patJetsAK5PFNoPhotonIDPFIso          
+    #* patJetsAK5PFNoPhotonIDPFIsoPt30      
+    #* patJetsAK5PFNoPhotonIDPFIsoPt50Eta25
 )
 photonCleanedPFJetsPF = cms.Sequence(
-    patJetsPFNoPhotonID               *
-    patJetsPFNoPhotonIDPt30           *
-    patJetsPFNoPhotonIDPt50Eta25      *
-    patJetsPFNoPhotonIDPFIso          *
-    patJetsPFNoPhotonIDPFIsoPt30      *
-    patJetsPFNoPhotonIDPFIsoPt50Eta25
+      patJetsPFNoPhotonID               
+    * patJetsPFNoPhotonIDPt30           
+    * patJetsPFNoPhotonIDPt50Eta25      
+    #* patJetsPFNoPhotonIDPFIso          
+    #* patJetsPFNoPhotonIDPFIsoPt30      
+    #* patJetsPFNoPhotonIDPFIsoPt50Eta25
 )
 
 
@@ -380,20 +380,20 @@ patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25          = patJetsPFNoPhotonIDPFIsoSpec
 patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25.jetLabel = cms.InputTag('patJetsPFchsPt50Eta25')
 
 specialPhotonCleanedPFJetsAK5PF = cms.Sequence(
-    patJetsAK5PFNoPhotonIDSpecial           *
-    patJetsAK5PFNoPhotonIDSpecialPt30       *
-    patJetsAK5PFNoPhotonIDSpecialPt50Eta25  *
-    patJetsAK5PFNoPhotonIDPFIsoSpecial      *
-    patJetsAK5PFNoPhotonIDPFIsoSpecialPt30  *
-    patJetsAK5PFNoPhotonIDPFIsoSpecialPt50Eta25
+      patJetsAK5PFNoPhotonIDSpecial           
+    * patJetsAK5PFNoPhotonIDSpecialPt30       
+    * patJetsAK5PFNoPhotonIDSpecialPt50Eta25  
+    #* patJetsAK5PFNoPhotonIDPFIsoSpecial      
+    #* patJetsAK5PFNoPhotonIDPFIsoSpecialPt30  
+    #* patJetsAK5PFNoPhotonIDPFIsoSpecialPt50Eta25
 )
 specialPhotonCleanedPFJetsPF = cms.Sequence(
-    patJetsPFNoPhotonIDSpecial           *
-    patJetsPFNoPhotonIDSpecialPt30       *
-    patJetsPFNoPhotonIDSpecialPt50Eta25  *
-    patJetsPFNoPhotonIDPFIsoSpecial      *
-    patJetsPFNoPhotonIDPFIsoSpecialPt30  *
-    patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25
+      patJetsPFNoPhotonIDSpecial           
+    * patJetsPFNoPhotonIDSpecialPt30       
+    * patJetsPFNoPhotonIDSpecialPt50Eta25  
+    #* patJetsPFNoPhotonIDPFIsoSpecial      
+    #* patJetsPFNoPhotonIDPFIsoSpecialPt30  
+    #* patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25
 )
 
 #############

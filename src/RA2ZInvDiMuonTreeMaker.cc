@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.5 2012/10/31 17:43:05 sturdy Exp $
+// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.6 2012/12/09 22:12:04 sturdy Exp $
 //
 //
 
@@ -81,6 +81,10 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   unsigned int event = (ev.id()).event();
   unsigned int run   = (ev.id()).run();
   unsigned int lumi  =  ev.luminosityBlock();
+
+  m_event = event;
+  m_run   = run;
+  m_lumi  = lumi;
 
   // get muons 
   edm::Handle< std::vector<pat::Muon> > patMuons;
@@ -416,6 +420,8 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_dPhiMHTMin  = 10.;
   m_dPhiMETMin  = 10.;
   m_nJetsPt30Eta24 = 0;
+  m_nJetsPt50Eta24 = 0;
+  m_nJetsPt70Eta24 = 0;
   m_nJetsPt50Eta25MInv = 0;
   m_HTMInv = 0.;
 
@@ -435,8 +441,14 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 
   edm::View<pat::Jet>::const_iterator jet = jets->begin();
   for (; jet!= jets->end(); ++jet) {
-    if (jet->pt() > 30 && fabs(jet->eta() < 2.4))
-      ++m_nJetsPt30Eta24;
+    if (fabs(jet->eta() < 2.4)) {
+      if (jet->pt() > 30)
+	++m_nJetsPt30Eta24;
+      if (jet->pt() > 50)
+	++m_nJetsPt50Eta24;
+      if (jet->pt() > 70)
+	++m_nJetsPt30Eta24;
+    }
     if (jet->pt() > 50 && fabs(jet->eta() < 2.5)) 
       if (patMuons->size()>1)
 	if ((jet->p4()+((*patMuons)[0].p4()+(*patMuons)[1].p4())).mass() > 90.0) {

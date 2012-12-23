@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.7 2012/12/09 22:12:04 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.8 2012/12/12 15:07:01 sturdy Exp $
 //
 //
 
@@ -40,7 +40,9 @@ RA2ZInvPhotonTreeMaker::RA2ZInvPhotonTreeMaker(const edm::ParameterSet& pset) {
   data_           = pset.getParameter<bool>("Data");
   scale_          = pset.getParameter<double>("ScaleFactor");
   photonSrc_      = pset.getParameter<edm::InputTag>("PhotonSrc");
+  loosePhotonSrc_ = pset.getParameter<edm::InputTag>("LoosePhotonSrc");
   tightPhotonSrc_ = pset.getParameter<edm::InputTag>("TightPhotonSrc");
+  combIsoPhotonSrc_ = pset.getParameter<edm::InputTag>("CombIsoPhotonSrc");
   vertexSrc_      = pset.getParameter<edm::InputTag>("VertexSrc");
   jetSrc_         = pset.getParameter<edm::InputTag>("JetSrc");
   bJetSrc_        = pset.getParameter<edm::InputTag>("bJetSrc");
@@ -84,12 +86,22 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   unsigned int run   = (ev.id()).run();
   unsigned int lumi  =  ev.luminosityBlock();
 
+  m_event = event;
+  m_run   = run;
+  m_lumi  = lumi;
+
   // get photons 
   edm::Handle< std::vector<pat::Photon> > patPhotons;
   ev.getByLabel(photonSrc_, patPhotons); 
 
+  edm::Handle< std::vector<pat::Photon> > patPhotonsLoose;
+  ev.getByLabel(loosePhotonSrc_, patPhotonsLoose); 
+
   edm::Handle< std::vector<pat::Photon> > patPhotonsTight;
   ev.getByLabel(tightPhotonSrc_, patPhotonsTight); 
+
+  edm::Handle< std::vector<pat::Photon> > patPhotonsCombIso;
+  ev.getByLabel(combIsoPhotonSrc_, patPhotonsCombIso); 
 
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
@@ -170,10 +182,10 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 
   if (debug_) {
     std::cout<<"vertex collection has size "<<vertices->size()<<std::endl;
-    std::cout<<"Jet collection has size "<<jets->size()<<std::endl;
+    std::cout<<"Jet collection has size "   <<jets->size()<<std::endl;
     std::cout<<"HT Jet collection has size "<<htJets->size()<<std::endl;
-    std::cout<<"b-Jet collection has size "<<bJets->size()<<std::endl;
-    std::cout<<"HT value "<<*ht<<std::endl;
+    std::cout<<"b-Jet collection has size " <<bJets->size()<<std::endl;
+    std::cout<<"HT value " <<*ht<<std::endl;
     std::cout<<"MHT value "<<(*mht)[0].pt()<<std::endl;
     std::cout<<"MET value "<<(*met)[0].pt()<<std::endl;
    
@@ -240,11 +252,15 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   //////
   if(debug_ && patPhotons->size() > 0) {
     std::cout<<debugString_<<std::endl;
-    std::cout << "Isolated photons passID   passISO | pt  eta  phi  conv  hadTowOverEm  (cut)  sigieie  (cut) | PU  cut  isoAlt   puSub EA" << std::endl;
+    std::cout << "Isolated photons passID passLooseISO  passTightISO  passCombISOR03  passCombISOR04 | pt  eta  phi  conv  hadTowOverEm  (cut)  sigieie  (cut) | PU  cut  isoAlt   puSub EA" << std::endl;
     for( unsigned int iphot=0; iphot<patPhotons->size(); iphot++) {
-      bool passID  = false;
-      bool passISO = false;
-      if ((*patPhotons)[iphot].et() > 50 &&
+      bool passID = false;
+      bool passLooseISO = false;
+      bool passTightISO = false;
+      bool passCombISOR03 = false;
+      bool passCombISOR04 = false;
+
+      if ((*patPhotons)[iphot].et() > 1000 &&
 	  (fabs((*patPhotons)[iphot].eta()) < 2.5 &&
 	   (
 	    fabs((*patPhotons)[iphot].eta()) < 1.4442 ||
@@ -255,15 +271,31 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 	  ((*patPhotons)[iphot].userInt("passElectronConvVeto") > 0)
 	  )
 	passID = true;
+
       if (((*patPhotons)[iphot].userFloat("pfChargedPU") < (*patPhotons)[iphot].userFloat("pfChargedLooseCut")) &&
 	  ((*patPhotons)[iphot].userFloat("pfNeutralPU") < (*patPhotons)[iphot].userFloat("pfNeutralLooseCut")) &&
 	  ((*patPhotons)[iphot].userFloat("pfGammaPU")   < (*patPhotons)[iphot].userFloat("pfGammaLooseCut"))
 	  )
-	passISO = true;
+	passLooseISO = true;
+
+      if (((*patPhotons)[iphot].userFloat("pfChargedPU") < (*patPhotons)[iphot].userFloat("pfChargedTightCut")) &&
+	  ((*patPhotons)[iphot].userFloat("pfNeutralPU") < (*patPhotons)[iphot].userFloat("pfNeutralTightCut")) &&
+	  ((*patPhotons)[iphot].userFloat("pfGammaPU")   < (*patPhotons)[iphot].userFloat("pfGammaTightCut"))
+	  )
+	passTightISO = true;
+
+      if ((*patPhotons)[iphot].userFloat("combIsoR03PU") < 5.0)
+	passCombISOR03 = true;
+	
+      if ((*patPhotons)[iphot].userFloat("combIsoR04PU") < 5.0)
+	passCombISOR04 = true;
 	
       std::cout << "ph" << iphot 
 		<< " " << passID
-		<< " " << passISO
+		<< " " << passLooseISO
+		<< " " << passTightISO
+		<< " " << passCombISOR03
+		<< " " << passCombISOR04
 		<< " | " <<(*patPhotons)[iphot].pt() 
 		<< " " << (*patPhotons)[iphot].eta()
 		<< " " << (*patPhotons)[iphot].phi() 
@@ -298,8 +330,11 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   if (patPhotons->size() < 1)
     return;
 
-  m_nPhotonsIso = patPhotons->size();
-  m_nPhotonsTightIso = patPhotonsTight->size();
+  m_nPhotonsID         = patPhotons->size();
+  m_nPhotonsLooseIso   = patPhotonsLoose->size();
+  m_nPhotonsTightIso   = patPhotonsTight->size();
+  m_nPhotonsCombIsoIso = patPhotonsCombIso->size();
+
   m_Photon1pfCH = (*patPhotons)[0].userFloat("pfChargedPU");
   m_Photon1pfNU = (*patPhotons)[0].userFloat("pfNeutralPU");
   m_Photon1pfGA = (*patPhotons)[0].userFloat("pfGammaPU");
@@ -308,20 +343,38 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_Photon1Phi = (*patPhotons)[0].phi();
   m_Photon1SigmaIetaIeta = (*patPhotons)[0].sigmaIetaIeta();
   m_Photon1HadTowOverEm  = (*patPhotons)[0].hadTowOverEm();
+  m_Photon1EConvVeto  = (*patPhotons)[0].userInt("passElectronConvVeto");
+  m_Photon1PixelVeto  = !((*patPhotons)[0].hasPixelSeed());
+
+  m_Photon1IsLoosePFIso  = (((*patPhotons)[0].userFloat("pfChargedPU")<(*patPhotons)[0].userFloat("pfChargedLooseCut"))&&
+			    ((*patPhotons)[0].userFloat("pfNeutralPU")<(*patPhotons)[0].userFloat("pfNeutralLooseCut"))&&
+			    ((*patPhotons)[0].userFloat("pfGammaPU")<(*patPhotons)[0].userFloat("pfGammaLooseCut"))
+			    );
+  m_Photon1IsTightPFIso  = (((*patPhotons)[0].userFloat("pfChargedPU")<(*patPhotons)[0].userFloat("pfChargedTightCut"))&&
+			    ((*patPhotons)[0].userFloat("pfNeutralPU")<(*patPhotons)[0].userFloat("pfNeutralTightCut"))&&
+			    ((*patPhotons)[0].userFloat("pfGammaPU")<(*patPhotons)[0].userFloat("pfGammaTightCut"))
+			    );
+  m_Photon1IsCombIsoR03  = (((*patPhotons)[0].trkSumPtSolidConeDR03() +
+			     (*patPhotons)[0].ecalRecHitSumEtConeDR03() + 
+			     (*patPhotons)[0].userFloat("hcalIsoConeDR03") - 
+			     (3.141593*0.3*0.3*((*patPhotons)[0].userFloat("rho25"))))< 5.
+			    );
+  
   m_Photon1MinDR  = 10.;
   m_Photon1DRJet1 = 10.;
+
   //m_Photon2Pt  = -10.;
   //m_Photon2Eta = -10.;
-  //
-  //if (m_nPhotonsIso > 1) {
-  //  m_Photon2Pt  = (*patPhotons)[1].pt();
-  //  m_Photon2Eta = (*patPhotons)[1].eta();
+  //if (m_nPhotonsID > 1) {
   //  m_Photon2pfCH = (*patPhotons)[1].userFloat("pfChargedPU");
   //  m_Photon2pfNU = (*patPhotons)[1].userFloat("pfNeutralPU");
   //  m_Photon2pfGA = (*patPhotons)[1].userFloat("pfGammaPU");
   //  m_Photon2Pt  = (*patPhotons)[1].pt();
   //  m_Photon2Eta = (*patPhotons)[1].eta();
-  //  m_Photon2MinDR = 10.;
+  //  m_Photon2SigmaIetaIeta = (*patPhotons)[1].sigmaIetaIeta();
+  //  m_Photon2HadTowOverEm  = (*patPhotons)[1].hadTowOverEm();
+  //  m_Photon2MinDR  = 10.;
+  //  m_Photon2DRJet1 = 10.;
   //}
 
   m_nJetsPt30Eta50 = jets  ->size();
@@ -473,6 +526,8 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_dPhiMHTMin  = 10.;
   m_dPhiMETMin  = 10.;
   m_nJetsPt30Eta24 = 0;
+  m_nJetsPt50Eta24 = 0;
+  m_nJetsPt70Eta24 = 0;
   m_nJetsPt50Eta25MInv = 0;
   m_HTMInv = 0.;
 
@@ -484,9 +539,15 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 
   edm::View<pat::Jet>::const_iterator jet = jets->begin();
   for (; jet!= jets->end(); ++jet) {
-    if (jet->pt() > 30 && fabs(jet->eta() < 2.4))
-      ++m_nJetsPt30Eta24;
-    if (jet->pt() > 50 && fabs(jet->eta() < 2.5)) 
+    if (fabs(jet->eta() < 2.4)) {
+      if (jet->pt() > 30)
+	++m_nJetsPt30Eta24;
+      if (jet->pt() > 50)
+	++m_nJetsPt50Eta24;
+      if (jet->pt() > 70)
+	++m_nJetsPt30Eta24;
+    }
+    if (jet->pt() > 70 && fabs(jet->eta() < 2.5)) 
       if (patPhotons->size())
 	if ((jet->p4()+(*patPhotons)[0].p4()).mass() > 90.0) {
 	  ++m_nJetsPt50Eta25MInv;
@@ -736,8 +797,10 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_PUWt",    &m_PUWt,    "m_PUWt/D");
   reducedValues->Branch("ra2_EventWt", &m_EventWt, "m_EventWt/D");
 
-  reducedValues->Branch("ra2_nPhotonsIso", &m_nPhotonsIso, "m_nPhotonsIso/I");
-  reducedValues->Branch("ra2_nPhotonsTightIso", &m_nPhotonsTightIso, "m_nPhotonsTightIso/I");
+  reducedValues->Branch("ra2_nPhotonsID",        &m_nPhotonsID,        "m_nPhotonsID/I");
+  reducedValues->Branch("ra2_nPhotonsLooseIso",  &m_nPhotonsLooseIso,  "m_nPhotonsLooseIso/I");
+  reducedValues->Branch("ra2_nPhotonsTightIso",  &m_nPhotonsTightIso,  "m_nPhotonsTightIso/I");
+  reducedValues->Branch("ra2_nPhotonsCombIsoIso",&m_nPhotonsCombIsoIso,"m_nPhotonsCombIsoIso/I");
   reducedValues->Branch("ra2_Photon1pfCH", &m_Photon1pfCH, "m_Photon1pfCH/D");
   reducedValues->Branch("ra2_Photon1pfNU", &m_Photon1pfNU, "m_Photon1pfNU/D");
   reducedValues->Branch("ra2_Photon1pfGA", &m_Photon1pfGA, "m_Photon1pfGA/D");
@@ -748,6 +811,11 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_Photon1HadTowOverEm",  &m_Photon1HadTowOverEm,  "m_Photon1HadTowOverEm/D");
   reducedValues->Branch("ra2_Photon1MinDR", &m_Photon1MinDR, "m_Photon1MinDR/D");
   reducedValues->Branch("ra2_Photon1DRJet1",&m_Photon1DRJet1,"m_Photon1DRJet1/D");
+  reducedValues->Branch("ra2_Photon1EConvVeto",   &m_Photon1EConvVeto,   "m_Photon1EConvVeto/O" );
+  reducedValues->Branch("ra2_Photon1PixelVeto",   &m_Photon1PixelVeto,   "m_Photon1PixelVeto/O" );
+  reducedValues->Branch("ra2_Photon1IsLoosePFIso",   &m_Photon1IsLoosePFIso,   "m_Photon1IsLoosePFIso/O" );
+  reducedValues->Branch("ra2_Photon1IsTightPFIso",   &m_Photon1IsTightPFIso,   "m_Photon1IsTightPFIso/O" );
+  reducedValues->Branch("ra2_Photon1IsCombIsoR03",   &m_Photon1IsCombIsoR03,   "m_Photon1IsCombIsoR03/O" );
 
   reducedValues->Branch("ra2_Photon70PFMET100",    &m_Photon70PFMET100,    "m_Photon70PFMET100/O" );
   reducedValues->Branch("ra2_Photon70PFHT400",     &m_Photon70PFHT400,     "m_Photon70PFHT400/O" );

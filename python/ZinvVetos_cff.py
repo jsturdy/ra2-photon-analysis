@@ -69,13 +69,13 @@ sTopTauVetoZInv = indirectTauVeto.clone(
 
 photonVetos = cms.Sequence(
     patJetsForIndirectTauVetoPhotonsID
-    *patJetsForIndirectTauVetoPhotonsIDPFIso
+#    *patJetsForIndirectTauVetoPhotonsIDPFIso
     *sTopPFMuonVeto
     *sTopPFElectronVeto
     *sTopTrkIsolationMaker
     *sTopIsoTrkVeto
     *sTopTauVetoPhotonID
-    *sTopTauVetoPhotonIDPFIso
+#    *sTopTauVetoPhotonIDPFIso
 )
 
 zinvVetos = cms.Sequence(

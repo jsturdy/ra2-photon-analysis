@@ -9,6 +9,7 @@
   <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
   <use   name="HLTrigger/HLTcore"/>
   <use   name="DataFormats/PatCandidates"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/METReco"/>
@@ -33,5 +34,5 @@
   <flags CXXFLAGS="-O0 -g3 -fno-inline"/>
   <flags CXX_FLAGS="-O0 -g3 -fno-inline"/>
 </library>
-<export>
-</export>
+#<export>
+#</export>

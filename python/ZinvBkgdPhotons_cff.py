@@ -2,20 +2,20 @@
 from PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi import *
 
-photonIDCutTight  = cms.string('et > 50.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
-                               'userInt("passElectronConvVeto") > 0 && '
+photonIDCutTight  = cms.string('et > 100.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
+#                               'userInt("passElectronConvVeto") > 0 && '
                                'hadTowOverEm < userFloat("hadTowOverEmTightCut") && '
                                'sigmaIetaIeta < userFloat("showerShapeTightCut")'
                               )
 
-photonIDCutMedium = cms.string('et > 50.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
-                               'userInt("passElectronConvVeto") > 0 && '
+photonIDCutMedium = cms.string('et > 100.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
+#                               'userInt("passElectronConvVeto") > 0 && '
                                'hadTowOverEm < userFloat("hadTowOverEmMediumCut") && '
                                'sigmaIetaIeta < userFloat("showerShapeMediumCut")'
                               )
 
-photonIDCutLoose  = cms.string('et > 50.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
-                               'userInt("passElectronConvVeto") > 0 && '
+photonIDCutLoose  = cms.string('et > 100.0 && (abs(eta) < 1.4442 || (abs(eta) > 1.566 && abs(eta) < 2.5)) && '
+#                               'userInt("passElectronConvVeto") > 0 && '
                                'hadTowOverEm < userFloat("hadTowOverEmLooseCut") && '
                                'sigmaIetaIeta < userFloat("showerShapeLooseCut")'
                               )
@@ -49,18 +49,23 @@ patPhotonsID = cms.EDFilter(
    cut = photonIDCutLoose,
    filter = cms.bool(False),
 )
-patPhotonsIDPFIso = patPhotonsID.clone(
+patPhotonsIDPFIsoLoose = patPhotonsID.clone(
     src = cms.InputTag('patPhotonsID'),
     cut = photonISOCutLoose,
 )
 patPhotonsIDPFIsoTight = patPhotonsID.clone(
-    src = cms.InputTag('patPhotonsIDPFIso'),
+    src = cms.InputTag('patPhotonsID'),
     cut = photonISOCutTight,
 )
 
-patPhotonsIDIso = patPhotonsID.clone(
+patPhotonsIDCombIsoR03 = patPhotonsID.clone(
+    src = cms.InputTag('patPhotonsID'),
+    cut = photoncombiso04cut,
+)
+
+patPhotonsIDCombIsoR04 = patPhotonsID.clone(
    src = cms.InputTag('patPhotonsID'),
-   cut = photoncombiso03cut,
+   cut = photoncombiso04cut,
 )
 
 patPhotonRefsID = cms.EDFilter(
@@ -72,8 +77,10 @@ patPhotonRefsID = cms.EDFilter(
 
 zinvPhotons = cms.Sequence(
     patPhotonsID
-  * patPhotonsIDPFIso
+  * patPhotonsIDPFIsoLoose
   * patPhotonsIDPFIsoTight
+  * patPhotonsIDCombIsoR03
+  * patPhotonsIDCombIsoR04
 )
 
 countPhotonsID = countPatPhotons.clone()

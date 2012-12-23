@@ -72,8 +72,9 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  int m_nMuonsIso, m_nJetsPt30Eta50, m_nJetsPt30Eta24,
-    m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
+  int m_nMuonsIso,
+    m_nJetsPt30Eta24, m_nJetsPt50Eta24, m_nJetsPt70Eta24,
+    m_nJetsPt30Eta50, m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
     m_nJetsCSVM, m_nJetsCSVT,
     m_Vertices,  m_event, m_run, m_lumi;
   double m_HT, m_HTMInv, m_MHT, m_MET,

@@ -6,22 +6,22 @@ from ZInvisibleBkgds.Photons.PhotonHT_cff import *
 from ZInvisibleBkgds.Photons.PhotonMHT_cff import *
 
 photonObjectsAK5PF = cms.Sequence(
-    zinvPhotons *
-    photonCleanedPFJetsAK5PF *
-    htPFNoPhotID  *
-    mhtPFNoPhotID *
-    htPFNoPhotIDPFIso  *
-    mhtPFNoPhotIDPFIso
+      zinvPhotons 
+    * photonCleanedPFJetsAK5PF 
+    * htPFNoPhotID  
+    * mhtPFNoPhotID 
+    #* htPFNoPhotIDPFIso  
+    #* mhtPFNoPhotIDPFIso
 )
 
 photonObjectsPF = cms.Sequence(
-    zinvPhotons *
-    photonCleanedPFJetsPF *
-    specialPhotonCleanedPFJetsPF *
-    htPFchsNoPhotID  *
-    mhtPFchsNoPhotID *
-    htPFchsNoPhotIDPFIso  *
-    mhtPFchsNoPhotIDPFIso
+      zinvPhotons 
+    * photonCleanedPFJetsPF 
+    * specialPhotonCleanedPFJetsPF 
+    * htPFchsNoPhotID  
+    * mhtPFchsNoPhotID 
+    #* htPFchsNoPhotIDPFIso  
+    #* mhtPFchsNoPhotIDPFIso
 )
 
 #from ZInvisibleBkgds.Photons.ZinvBkgdMuons_cff import *
