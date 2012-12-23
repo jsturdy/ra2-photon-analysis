@@ -22,12 +22,13 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_784_1_1Ml.root',
-        '/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_785_1_H28.root',
-        '/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_786_1_5oX.root',
-        '/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_787_1_m5s.root',
-        '/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_788_1_8Iw.root',
-        '/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_789_1_rUM.root',
+        'file:/uscms_data/d2/sturdy07/SUSY/RA2/CMSSW_5_3_5/src/ZInvisibleBkgds/Photons/test/genTree/susypat_gjets.root'
+        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_784_1_1Ml.root',
+        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_785_1_H28.root',
+        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_786_1_5oX.root',
+        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_787_1_m5s.root',
+        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_788_1_8Iw.root',
+        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_789_1_rUM.root',
     )
 )
 
@@ -107,7 +108,7 @@ from ZInvisibleBkgds.Photons.photonmap_cfi import *
 process.rhoToPhotonMap = photonmap.clone()
 from ZInvisibleBkgds.Photons.addphotonuserdata_cfi import *
 process.patPhotonsUser1 = addphotonuserdata1.clone()
-process.patPhotonsUser1.photonLabel = cms.InputTag("patPhotonsAlt")
+process.patPhotonsUser1.photonLabel = cms.InputTag("patPhotonsRA2")
 process.patPhotonsUser1.userData.userFloats = cms.PSet(
     src = cms.VInputTag(
         cms.InputTag("rhoToPhotonMap")

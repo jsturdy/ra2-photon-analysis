@@ -3,14 +3,17 @@ import ROOT as r
 from array import array
 import math
 
-def hadStopBaseline(event,nBjets,nJets,invert):
+def hadStopBaseline(event,nBjets,tightCSV,nJets,invert):
     ra2_Vertices        = event.ra2_Vertices      
     ra2_nJetsPt30Eta24  = event.ra2_nJetsPt30Eta24 
-    ra2_bJetsPt30Eta24  = event.ra2_bJetsPt30Eta24 
+    ra2_nJetsCSVM       = event.ra2_nJetsCSVM 
+    ra2_nJetsCSVT       = event.ra2_nJetsCSVT 
+
     ra2_MET             = event.ra2_MET            
     ra2_dPhi1           = event.ra2_dPhiMET1
     ra2_dPhi2           = event.ra2_dPhiMET2
     ra2_dPhi3           = event.ra2_dPhiMET3
+
     ra2_Jet1Pt          = event.ra2_Jet1Pt         
     ra2_Jet1Eta         = event.ra2_Jet1Eta        
     ra2_Jet2Pt          = event.ra2_Jet2Pt         
@@ -27,7 +30,10 @@ def hadStopBaseline(event,nBjets,nJets,invert):
     jetCuts = jet1Cuts and jet2Cuts and jet3Cuts and jet4Cuts and ra2_nJetsPt30Eta24 > (nJets-1)
 
     dPhiCuts = (ra2_dPhi1>0.5 and ra2_dPhi2>0.5 and ra2_dPhi3>0.3)
-    bJetCuts = (ra2_bJetsPt30Eta24>(nBjets-1))
+
+    bJetCuts = (ra2_nJetsCSVM>(nBjets-1))
+    if tightCSV:
+        bJetCuts = (ra2_nJetsCSVT>(nBjets-1))
     invertcuts = (ra2_MET<175 and jetCuts and dPhiCuts and bJetCuts)
     basecuts   = (ra2_MET>175 and jetCuts and dPhiCuts and bJetCuts)
 
@@ -35,6 +41,28 @@ def hadStopBaseline(event,nBjets,nJets,invert):
         return invertcuts
     else:
         return basecuts
+####
+def hadStopControlSample(event,cutMET):
+    ra2_MET             = event.ra2_MET            
+    ra2_dPhi1           = event.ra2_dPhiMET1
+    ra2_dPhi2           = event.ra2_dPhiMET2
+    ra2_dPhi3           = event.ra2_dPhiMET3
+
+    ra2_Jet1Pt          = event.ra2_Jet1Pt         
+    ra2_Jet1Eta         = event.ra2_Jet1Eta        
+    ra2_Jet2Pt          = event.ra2_Jet2Pt         
+    ra2_Jet2Eta         = event.ra2_Jet2Eta        
+    
+    jet1Cuts = (ra2_Jet1Pt>70 and (abs(ra2_Jet1Eta)<2.4))
+    jet2Cuts = (ra2_Jet2Pt>70 and (abs(ra2_Jet2Eta)<2.4))
+    jetCuts = jet1Cuts and jet2Cuts
+
+    dPhiCuts = (ra2_dPhi1>0.5 and ra2_dPhi2>0.5 and ra2_dPhi3>0.3)
+    cscuts   = (jetCuts and dPhiCuts)
+    if cutMET:
+        return cscuts and (ra2_MET > 175)
+    else:
+        return cscuts
 ####
 def topTaggerCuts(event):
     ##top tagger variables 
@@ -62,6 +90,28 @@ def ra2Baseline(event):
     dPhiCuts = (ra2_dPhi1>0.5 and ra2_dPhi2>0.5 and ra2_dPhi3>0.3)
     basecuts = ((ra2_MHT>200 and ra2_HT>500 and ra2_nJetsPt50Eta25>1) and dPhiCuts)
     return basecuts
+####
+def ra2PhotonSelection(event,minpt,cutDR):
+    ra2_nPhotons  = event.ra2_nPhotonsIso
+    ra2_photonPt  = event.ra2_Photon1Pt
+    ra2_photonEta = event.ra2_Photon1Eta
+    ra2_photonDR  = event.ra2_Photon1MinDR
+    
+    return (ra2_photonPt>minpt and ra2_photonDR > cutDR and abs(ra2_photonEta) < 2.5 and ((abs(ra2_photonEta) < 1.4442) or (abs(ra2_photonEta) > 1.566)))
+
+####
+def ra2MuonSelection(event,minpt,cutDR):
+    ra2_nMuons  = event.ra2_nMuonsIso
+    ra2_muon1Pt  = event.ra2_Muon1Pt
+    ra2_muon1Eta = event.ra2_Muon1Eta
+    ra2_muon2Pt  = event.ra2_Muon2Pt
+    ra2_muon2Eta = event.ra2_Muon2Eta
+    ra2_dimuonPt  = event.ra2_DiMuonPt
+    ra2_dimuonEta = event.ra2_DiMuonEta
+    ra2_dimuonDR  = event.ra2_DiMuonMinDR
+
+    return ra2_nMuons > 1
+    #return ( ra2_muon1DR > cutDR and ra2_muon2DR > cutDR and ra2_dimuonDR > cutDR and abs(ra2_muon1Eta) < 2.1 and abs(ra2_muon2Eta) < 2.1)
 ####
 def ra2DPhiCuts(event):
     return (event.ra2_dPhiMHT1>0.5 and event.ra2_dPhiMHT2>0.5 and event.ra2_dPhiMHT3>0.3)

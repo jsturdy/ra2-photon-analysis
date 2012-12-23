@@ -48,18 +48,9 @@ process.zToMuMu = cms.EDProducer("CandViewShallowCloneCombiner",
                                  )
 
 scaleF = 2950*10*1000/30460994.
-from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
-process.eventWeight = weightProducer.clone(
-    weight = cms.double(scaleF),
-)
-from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
-process.puWeight = puWeightProducer.clone(
-    weight = cms.double(1.0),
-)
-from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
 from ZInvisibleBkgds.Photons.treemaker_cfi import dimuonTree
 process.analysisNoMuon = dimuonTree.clone(
-    Debug           = cms.bool(False),
+    Debug           = cms.bool(True),
     Data            = cms.bool(False),
     ScaleFactor     = cms.double(scaleF),
     DoPUReweight    = cms.bool(True),
@@ -129,7 +120,5 @@ process.load('SandBox.Utilities.puWeightProducer_cfi')
 
 #============================== configure paths ===============================
 #process.p1 = cms.Path( process.analysisSeq )
-process.p1 = cms.Path(process.eventWeight
-                    * process.puWeight
-                    * process.analysisSeq )
+process.p1 = cms.Path(process.puWeight * process.analysisSeq )
 #process.outpath = cms.EndPath(process.out)

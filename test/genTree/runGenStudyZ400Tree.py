@@ -22,11 +22,12 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_100_1_yAC.root',
-        '/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_101_1_iUW.root',
-        '/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_102_1_Q7x.root',
-        '/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_107_1_flB.root',
-        '/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_103_1_ErO.root',
+        'file:/uscms_data/d2/sturdy07/SUSY/RA2/CMSSW_5_3_5/src/ZInvisibleBkgds/Photons/test/genTree/susypat_zinv_1.root'
+        ##'/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_100_1_yAC.root',
+        ##'/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_101_1_iUW.root',
+        ##'/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_102_1_Q7x.root',
+        ##'/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_107_1_flB.root',
+        ##'/store/user/lpcsusyhad/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12/samantha/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph/Summer12_PU_S7_START52_V9_RA2_NoCuts_09Aug2012V1/f42b6bbcc7ea08f6809cc21efa861dac/susypat_103_1_ErO.root',
     )
 )
 

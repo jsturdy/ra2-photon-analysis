@@ -34,49 +34,6 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source.skipEvents = cms.untracked.uint32(0)
 #========================= analysis module =====================================
 
-scaleF = 1.
-from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
-process.eventWeight = weightProducer.clone(
-    weight = cms.double(1.0),
-)
-from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
-process.puWeight = puWeightProducer.clone(
-    weight = cms.double(1.0),
-)
-from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
-process.analysisID = photonTree.clone(
-    Debug           = cms.bool(False),
-    Data            = cms.bool(True),
-    ScaleFactor     = cms.double(scaleF),
-    DoPUReweight    = cms.bool(False),
-
-    metSource          = cms.InputTag("pfType1MetNoPhotonID","pfcand"),
-
-    runTopTagger           = cms.bool(True),
-    looseTopTaggerSource   = cms.string("photonTopTaggerID5Loose"),
-    nominalTopTaggerSource = cms.string("photonTopTaggerID5M"),
-
-    storeExtraVetos    = cms.bool(True),
-    muonVetoSource     = cms.InputTag("sTopPFMuonVeto"),
-    electronVetoSource = cms.InputTag("sTopPFElectronVeto"),
-    tauVetoSource      = cms.InputTag("sTopTauVetoPhotonID"),
-    isoTrkVetoSource   = cms.InputTag("sTopIsoTrkVeto"),
-)
-
-process.analysisIDPFIso = process.analysisID.clone(
-    PhotonSrc       = cms.InputTag("patPhotonsIDPFIso"),
-    JetSrc          = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt30"),
-    htJetSrc        = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25"),
-    bJetSrc         = cms.InputTag("patCSVMJetsPFNoPhotonIDPFIsoSpecialPt30Eta24"),
-    htSource        = cms.InputTag("htPFchsNoPhotIDPFIso"),
-    mhtSource       = cms.InputTag("mhtPFchsNoPhotIDPFIso"),
-    metSource       = cms.InputTag("pfType1MetNoPhotonIDPFIso","pfcand"),
-
-    looseTopTaggerSource   = cms.string("photonTopTaggerIDPFIso5Loose"),
-    nominalTopTaggerSource = cms.string("photonTopTaggerIDPFIso5M"),
-
-    tauVetoSource      = cms.InputTag("sTopTauVetoPhotonIDPFIso"),
-)
 #================ configure filters and analysis sequence=======================
 
 process.load('SandBox.Skims.RA2Objects_cff')
@@ -104,45 +61,28 @@ process.patPhotonsUser1.userData.userFloats = cms.PSet(
 process.patPhotonsUserData = addphotonuserdata2.clone()
 process.patPhotonsUserData.photonLabel = cms.InputTag("patPhotonsUser1")
 
-process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
-process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
-process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
-
 process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
 from SandBox.Skims.htFilter_cfi  import *
-process.photonIDHTFilter      = htFilter.clone(HTSource = htPFchsNoPhotID,MinHT = cms.double(250.))
+process.photonIDHTFilter      = htFilter.clone(HTSource = htPFchsNoPhotID,MinHT = cms.double(500.))
 process.photonIDPFIsoHTFilter = process.photonIDHTFilter.clone(HTSource = htPFchsNoPhotIDPFIso,MinHT = cms.double(250.))
 from SandBox.Skims.mhtFilter_cfi import *
-process.photonIDMHTFilter      = mhtFilter.clone(MHTSource = mhtPFchsNoPhotID,MinMHT = cms.double(100))
+process.photonIDMHTFilter      = mhtFilter.clone(MHTSource = mhtPFchsNoPhotID,MinMHT = cms.double(200))
 process.photonIDPFIsoMHTFilter = process.photonIDMHTFilter.clone(MHTSource = mhtPFchsNoPhotIDPFIso)
+process.photonJetCounter = process.countJetsPFchsPt50Eta25.clone()
+process.photonJetCounter.src = cms.InputTag('patJetsPFNoPhotonIDSpecialPt50Eta25')
+process.photonJetCounter.minNumber = cms.uint32(6)
 
 ####
 process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
-                                   * process.htPFchs
-                                   * process.mhtPFchs
-                                   * process.zinvBJetsPF
                                    * process.rhoToPhotonMap
                                    * process.patPhotonsUser1
                                    * process.patPhotonsUserData
                                    * process.photonObjectsPF
-                                   * process.photonMETCollections
-                                   * process.photonVetos
-                                   * process.photonTopTaggers
-)
-
-process.phoIDSeq = cms.Sequence(  process.countPhotonsID
-                                * process.cleaningOnFilterResults
-                                * process.photonIDHTFilter
-                                #* process.photonIDMHTFilter
-                                * process.zinvBJetsPFNoPhotonIDSpecial
-                                * process.analysisID
-)
-process.phoIDPFIsoSeq = cms.Sequence( process.countPhotonsIDPFIso
-                                    * process.cleaningOnFilterResults
-                                    * process.photonIDPFIsoHTFilter
-                                    #* process.photonIDPFIsoMHTFilter
-                                    * process.zinvBJetsPFNoPhotonIDPFIsoSpecial
-                                    * process.analysisIDPFIso
+                                   * process.countPhotonsID
+                                   * process.cleaningOnFilterResults
+                                   * process.photonJetCounter
+                                   * process.photonIDHTFilter
+                                   * process.photonIDMHTFilter
 )
 
 #======================= output module configuration ===========================
@@ -154,5 +94,3 @@ process.TFileService = cms.Service("TFileService",
 #============================== configure paths ===============================
 process.p1 = cms.Path(process.eventWeight
                     * process.analysisSeq )
-process.id    = cms.Path(process.phoIDSeq)
-process.idiso = cms.Path(process.phoIDPFIsoSeq)

@@ -15,29 +15,28 @@ process.options = cms.untracked.PSet(
             wantSummary = cms.untracked.bool(True)
             )
 
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "FT_53_V6_AN2::All"
 
 #================= configure poolsource module ===================
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012B_13Jul2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012B-13Jul2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/99a0a4592ef1c8847e1b2c860def8e8c/susypat_9_1_sWA.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012B_13Jul2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012B-13Jul2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/99a0a4592ef1c8847e1b2c860def8e8c/susypat_99_1_eMs.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012B_13Jul2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012B-13Jul2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/99a0a4592ef1c8847e1b2c860def8e8c/susypat_999_1_nry.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012B_13Jul2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012B-13Jul2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/99a0a4592ef1c8847e1b2c860def8e8c/susypat_998_1_nuM.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012B_13Jul2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012B-13Jul2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/99a0a4592ef1c8847e1b2c860def8e8c/susypat_997_1_g94.root',
-        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012B_13Jul2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012B-13Jul2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/99a0a4592ef1c8847e1b2c860def8e8c/susypat_996_1_Uhb.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_1849_1_cum.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_184_1_VO8.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_1850_1_IK2.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_1851_1_r0Z.root',
     )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source.skipEvents = cms.untracked.uint32(0)
-#========================= analysis module =====================================
+process.GlobalTag.globaltag = "START53_V7F::All"
+###========================= analysis module =====================================
 
-scaleF = 1.
+scaleF = 103.0*10*1000/11081685.
 from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
 process.eventWeight = weightProducer.clone(
-    weight = cms.double(1.0),
+    weight = cms.double(scaleF),
 )
 from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
 process.puWeight = puWeightProducer.clone(
@@ -46,9 +45,9 @@ process.puWeight = puWeightProducer.clone(
 from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
 process.analysisID = photonTree.clone(
     Debug           = cms.bool(False),
-    Data            = cms.bool(True),
+    Data            = cms.bool(False),
     ScaleFactor     = cms.double(scaleF),
-    DoPUReweight    = cms.bool(False),
+    DoPUReweight    = cms.bool(True),
 
     metSource          = cms.InputTag("pfType1MetNoPhotonID","pfcand"),
 
@@ -135,12 +134,11 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.zinvBJetsPFNoPhotonIDSpecial
                                    * process.analysisID
 )
-#======================= output module configuration ===========================
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('photonDataTree.root')
+    fileName = cms.string('ttjetsSemiLepMCTree.root')
 )
 
-#============================== configure paths ===============================
-process.p1 = cms.Path(process.eventWeight
+process.p1 = cms.Path(process.puWeight
+                    * process.eventWeight
                     * process.analysisSeq )
