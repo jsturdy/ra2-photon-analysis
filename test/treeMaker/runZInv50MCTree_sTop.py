@@ -1,0 +1,160 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("TreeMaker")
+
+#===================== Message Logger =============================
+process.load("FWCore.MessageService.MessageLogger_cfi")
+
+process.MessageLogger.categories.append('PATSummaryTables')
+process.MessageLogger.cerr.PATSummaryTables = cms.untracked.PSet(
+            limit = cms.untracked.int32(10),
+            reportEvery = cms.untracked.int32(100)
+            )
+process.MessageLogger.cerr.FwkReport.reportEvery = 250
+process.options = cms.untracked.PSet(
+            wantSummary = cms.untracked.bool(True)
+            )
+
+#================= configure poolsource module ===================
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+        'file:/tmp/sturdy/ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph.root'
+    )
+)
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.source.skipEvents = cms.untracked.uint32(0)
+
+#========================= analysis module =====================================
+
+scaleF = 381.2*10*1000/24063998.
+from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
+process.eventWeight = weightProducer.clone(
+    weight = cms.double(scaleF),
+)
+from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
+process.puWeight = puWeightProducer.clone(
+    weight = cms.double(1.0),
+)
+from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
+from ZInvisibleBkgds.Photons.treemaker_cfi import zvvTree
+process.analysis = zvvTree.clone(
+    Debug           = cms.bool(False),
+    ScaleFactor     = cms.double(scaleF),
+    metSource       = cms.InputTag("pfMetType1"),
+    topTaggerSource = cms.string("myTopTagger"),
+)
+process.analysis4M = process.analysis.clone(
+    topTaggerSource = cms.string("myTopTagger4M"),
+)
+process.analysis5M = process.analysis4M.clone(
+    topTaggerSource = cms.string("myTopTagger5M"),
+)
+process.analysis6M = process.analysis4M.clone(
+    topTaggerSource = cms.string("myTopTagger6M"),
+)
+process.analysis4T = process.analysis.clone(
+    bJetSrc         = cms.InputTag("patCSVTJetsPFPt30Eta24"),
+    topTaggerSource = cms.string("myTopTagger4T"),
+)
+process.analysis5T = process.analysis4T.clone(
+    topTaggerSource = cms.string("myTopTagger5T"),
+)
+process.analysis6T = process.analysis4T.clone(
+    topTaggerSource = cms.string("myTopTagger6T"),
+)
+#================ configure filters and analysis sequence=======================
+
+process.load('SandBox.Skims.RA2Objects_cff')
+process.load('SandBox.Skims.RA2Selection_cff')
+#from SusyAnalysis.MyAnalysis.filterBoolean_cfi import *
+#process.load("SusyAnalysis.MyAnalysis.filterBoolean_cfi")
+
+process.load('ZInvisibleBkgds.Photons.ZinvBkgdGenPhotons_cff')
+from ZInvisibleBkgds.Photons.ZinvBkgdGenPhotons_cff import *
+process.load('ZInvisibleBkgds.Photons.ZinvBkgdJets_cff')
+from ZInvisibleBkgds.Photons.ZinvBkgdJets_cff import *
+
+##top tagger
+from UserCode.TopTagger.topTagger_cfi import *
+process.load("UserCode.TopTagger.topTagger_cfi")
+process.myTopTagger = topTagger.clone(
+    metSrc = cms.InputTag("pfMetType1"),
+    jetSrc = cms.InputTag("patJetsPFchsPt30"),
+)
+process.myTopTagger4M = topTagger4M.clone(
+    metSrc = cms.InputTag("pfMetType1"),
+    jetSrc = cms.InputTag("patJetsPFchsPt30"),
+)
+process.myTopTagger5M = topTagger5M.clone(
+    metSrc = cms.InputTag("pfMetType1"),
+    jetSrc = cms.InputTag("patJetsPFchsPt30"),
+)
+process.myTopTagger6M = topTagger6M.clone(
+    metSrc = cms.InputTag("pfMetType1"),
+    jetSrc = cms.InputTag("patJetsPFchsPt30"),
+)
+process.myTopTagger4T = topTagger4T.clone(
+    metSrc = cms.InputTag("pfMetType1"),
+    jetSrc = cms.InputTag("patJetsPFchsPt30"),
+)
+process.myTopTagger5T = topTagger5T.clone(
+    metSrc = cms.InputTag("pfMetType1"),
+    jetSrc = cms.InputTag("patJetsPFchsPt30"),
+)
+process.myTopTagger6T = topTagger6T.clone(
+    metSrc = cms.InputTag("pfMetType1"),
+    jetSrc = cms.InputTag("patJetsPFchsPt30"),
+)
+      
+process.patJetsPFchsPt30.src       = cms.InputTag("patJetsAK5PFchs")
+process.patMuonsPFID.MuonSource    = cms.InputTag("patMuonsPFchs")
+process.patMuonsPFIDIso.MuonSource = cms.InputTag("patMuonsPFchs")
+#process.patElectronsIDIso.ElectronSource = cms.InputTag("patElectronsPFchs")
+patCSVMJetsPF.src = cms.InputTag('patJetsAK5PFchs')
+patCSVTJetsPF.src = cms.InputTag('patJetsAK5PFchs')
+
+process.analysisSeq = cms.Sequence(process.ra2PFchsJets
+                                 * process.htPFchs
+                                 * process.mhtPFchs
+                                 * process.ra2PFMuons
+                                 #* process.ra2Electrons
+                                 * process.ra2Photons
+#ra2Objects
+                                 #* process.ra2PFMuonVeto
+                                 #* process.ra2ElectronVeto
+#                                 * process.ra2PFchsJets
+                                 * process.zinvBkgdGenZBosons
+                                 * process.zinvBJetsPF
+                                 * process.myTopTagger4M
+                                 * process.myTopTagger5M
+                                 * process.myTopTagger6M
+                                 * process.myTopTagger4T
+                                 * process.myTopTagger5T
+                                 * process.myTopTagger6T
+                                 * process.analysis4M
+                                 * process.analysis5M
+                                 * process.analysis6M
+                                 * process.analysis4T
+                                 * process.analysis5T
+                                 * process.analysis6T
+)
+
+#======================= output module configuration ===========================
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('zinvisible_HT_50to100_sTop.root')
+)
+
+#=================== run range & HLT filters ===============================
+#process.load('SusyAnalysis.PhotonAnalysis.Photon_RunRangeHLTSeq_cfi')
+
+#process.load('SandBox.Utilities.puWeightProducer_cfi')
+##process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/May10_Prompt167151_pudist.root"
+#process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/Cert_160404-177515_JSON.pileup.root"
+
+#============================== configure paths ===============================
+#process.p1 = cms.Path( process.analysisSeq )
+process.p1 = cms.Path(process.eventWeight
+                    * process.puWeight
+                    * process.analysisSeq )

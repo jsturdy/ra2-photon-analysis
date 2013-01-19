@@ -29,13 +29,11 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
-
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source.skipEvents = cms.untracked.uint32(0)
-
 #========================= analysis module =====================================
 
-scaleF = 107.5*10*1000/11146707.
+scaleF = 107.5*10*1000/9534744.
 from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
 process.eventWeight = weightProducer.clone(
     weight = cms.double(scaleF),
@@ -44,16 +42,42 @@ from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
 process.puWeight = puWeightProducer.clone(
     weight = cms.double(1.0),
 )
-from ZInvisibleBkgds.Photons.genstudytree_cfi import genphotontree
-process.directPhotons = genphotontree.clone(
+from ZInvisibleBkgds.Photons.genstudytree_cfi import *
+process.directPhotonsID = genstudytree.clone(
     debug = cms.bool(False),
+    genSrc         = cms.InputTag("zinvBkgdDirectPhotons"),
     debugString = cms.string("direct photons"),
     ScaleFactor     = cms.double(scaleF),
+    recoPhotonSrc = cms.InputTag("patPhotonsID"),
+    recoJetSrc    = cms.InputTag("patJetsPFNoPhotonIDSpecialPt30"),
+    htJetSrc      = cms.InputTag("patJetsPFNoPhotonIDSpecialPt50Eta25"),
+    bJetSrc       = cms.InputTag("patCSVTJetsPFNoPhotonIDSpecialPt30Eta24"),
+    htNoBosonSource  = cms.InputTag("htPFchsNoPhotID"),
+    mhtNoBosonSource = cms.InputTag("mhtPFchsNoPhotID"),
+    storeExtraVetos    = cms.bool(True),
+    muonVetoSource     = cms.InputTag("sTopPFMuonVeto"),
+    electronVetoSource = cms.InputTag("sTopPFElectronVeto"),
+    tauVetoSource      = cms.InputTag("sTopTauVetoZInv"),
+    isoTrkVetoSource   = cms.InputTag("sTopIsoTrkVeto"),
 )
-process.secondaryPhotons = process.directPhotons.clone(
+process.directPhotonsIDPFIso = process.directPhotonsID.clone(
+    recoPhotonSrc = cms.InputTag("patPhotonsIDPFIso"),
+    recoJetSrc    = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt30"),
+    htJetSrc      = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25"),
+    bJetSrc       = cms.InputTag("patCSVTJetsPFNoPhotonIDPFIsoSpecialPt30Eta24"),
+    htNoBosonSource  = cms.InputTag("htPFchsNoPhotIDPFIso"),
+    mhtNoBosonSource = cms.InputTag("mhtPFchsNoPhotIDPFIso"),
+)
+process.secondaryPhotonsID = process.directPhotonsID.clone(
     genSrc           = cms.InputTag("zinvBkgdSecondaryPhotons"),
     debugString      = cms.string("secondary photons"))
-process.fragmentationPhotons = process.directPhotons.clone(
+process.secondaryPhotonsIDPFIso = process.directPhotonsIDPFIso.clone(
+    genSrc           = cms.InputTag("zinvBkgdSecondaryPhotons"),
+    debugString      = cms.string("secondary photons"))
+process.fragmentationPhotonsID = process.directPhotonsID.clone(
+    genSrc           = cms.InputTag("zinvBkgdFragmentationPhotons"),
+    debugString      = cms.string("fragmentation photons"))
+process.fragmentationPhotonsIDPFIso = process.directPhotonsIDPFIso.clone(
     genSrc           = cms.InputTag("zinvBkgdFragmentationPhotons"),
     debugString      = cms.string("fragmentation photons"))
 #================ configure filters and analysis sequence=======================
@@ -73,7 +97,7 @@ process.load('ZInvisibleBkgds.Photons.ZinvBkgdJets_cff')
 process.load('ZInvisibleBkgds.Photons.adduserdata_cfi')
 
 from ZInvisibleBkgds.Photons.photonmap_cfi import *
-process.rhoToPhotonMap = photonmap.clone()
+process.rhoToPhotonMap = photonmap.clone(photonSrc = cms.InputTag("patPhotonsRA2"))
 from ZInvisibleBkgds.Photons.addphotonuserdata_cfi import *
 process.patPhotonsUser1 = addphotonuserdata1.clone()
 process.patPhotonsUser1.photonLabel = cms.InputTag("patPhotonsRA2")
@@ -85,38 +109,37 @@ process.patPhotonsUser1.userData.userFloats = cms.PSet(
 process.patPhotonsUserData = addphotonuserdata2.clone()
 process.patPhotonsUserData.photonLabel = cms.InputTag("patPhotonsUser1")
 
-process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
-process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
-
-from ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff import countPhotonsIDPFIso
 process.countDirectPhotons        = countPhotonsIDPFIso.clone(src = cms.InputTag("zinvBkgdDirectPhotons"))
 process.countSecondaryPhotons     = countPhotonsIDPFIso.clone(src = cms.InputTag("zinvBkgdSecondaryPhotons"))
 process.countFragmentationPhotons = countPhotonsIDPFIso.clone(src = cms.InputTag("zinvBkgdFragmentationPhotons"))
 
+process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
+
 process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
-                                   * process.htPFchs
-                                   * process.mhtPFchs
-                                   * process.zinvBJetsPF
                                    * process.rhoToPhotonMap
                                    * process.patPhotonsUser1
                                    * process.patPhotonsUserData
+                                   * process.zinvBkgdGenPhotons
                                    * process.photonObjectsPF
-                                   * process.photonMETCollections
                                    * process.photonVetos
                                    * process.zinvBJetsPFNoPhotonIDSpecial
-                                   * process.zinvBkgdGenPhotons
+                                   * process.zinvBJetsPFNoPhotonIDPFIsoSpecial
+                                   * process.zinvBJetsPF
 )
 
 process.directAnalysisSeq = cms.Sequence(process.countDirectPhotons
-                                       * process.directPhotons
+                                       * process.directPhotonsID
+                                       * process.directPhotonsIDPFIso
 )
 
 process.secondaryAnalysisSeq = cms.Sequence(process.countSecondaryPhotons
-                                          * process.secondaryPhotons
+                                          * process.secondaryPhotonsID
+                                          * process.secondaryPhotonsIDPFIso
 )
 
 process.fragmentationAnalysisSeq = cms.Sequence(process.countFragmentationPhotons
-                                              * process.fragmentationPhotons
+                                              * process.fragmentationPhotonsID
+                                              * process.fragmentationPhotonsIDPFIso
 )
 
 #======================= output module configuration ===========================
@@ -124,40 +147,11 @@ process.fragmentationAnalysisSeq = cms.Sequence(process.countFragmentationPhoton
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('gjetsht400toinf_gen_tree.root')
 )
-##process.out = cms.OutputModule("PoolOutputModule",
-##    fileName = cms.untracked.string('gjets400content.root'),
-##    SelectEvents = cms.untracked.PSet(
-##        SelectEvents = cms.vstring('p1')
-##    ),
-##    outputCommands = cms.untracked.vstring('keep *')
-##)
-##
-#=================== run range & HLT filters ===============================
-#process.load('SusyAnalysis.PhotonAnalysis.Photon_RunRangeHLTSeq_cfi')
-
-#process.load('SandBox.Utilities.puWeightProducer_cfi')
-##process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/May10_Prompt167151_pudist.root"
-#process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/Cert_160404-177515_JSON.pileup.root"
 
 #============================== configure paths ===============================
-#process.p1 = cms.Path( process.analysisSeq )
-#process.p1 = cms.Path(process.puWeight
-#                    * process.eventWeight
-#                    * process.analysisSeq )
-process.pdirect = cms.Path(process.puWeight
-                         * process.eventWeight
-                         * process.analysisSeq 
-                         * process.directAnalysisSeq)
-process.psecondary = cms.Path(process.puWeight
-                            * process.eventWeight
-                            * process.analysisSeq 
-                            * process.secondaryAnalysisSeq)
-process.pfragmentation = cms.Path(process.puWeight
-                                * process.eventWeight
-                                * process.analysisSeq 
-                                * process.fragmentationAnalysisSeq)
-
-#process.outpath = cms.EndPath(process.out)
-##file = open('wtf_gentree.py','w')
-##file.write(str(process.dumpPython()))
-##file.close()
+process.p1 = cms.Path(process.puWeight
+                    * process.eventWeight
+                    * process.analysisSeq )
+process.pdirect        = cms.Path(process.directAnalysisSeq)
+process.psecondary     = cms.Path(process.secondaryAnalysisSeq)
+process.pfragmentation = cms.Path(process.fragmentationAnalysisSeq)

@@ -15,27 +15,29 @@ process.options = cms.untracked.PSet(
             wantSummary = cms.untracked.bool(True)
             )
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "FT_53_V6C_AN2::All"
 
 #================= configure poolsource module ===================
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/lpcsusyhad/53X_ntuples/QCD_HT_500To1000_MGPythia_v1_lpc1/seema/QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia6/QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia_v1_NOCUTS_12Oct2012V3/c31a0db70b73f0b9a355af58227b92dd/susypat_982_1_okC.root',
-        '/store/user/lpcsusyhad/53X_ntuples/QCD_HT_500To1000_MGPythia_v1_lpc1/seema/QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia6/QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia_v1_NOCUTS_12Oct2012V3/c31a0db70b73f0b9a355af58227b92dd/susypat_984_1_SSH.root',
-        '/store/user/lpcsusyhad/53X_ntuples/QCD_HT_500To1000_MGPythia_v1_lpc1/seema/QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia6/QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia_v1_NOCUTS_12Oct2012V3/c31a0db70b73f0b9a355af58227b92dd/susypat_983_1_TXN.root',
+        #'file:/tmp/sturdy/SinglePhoton_198934-202504_Run2012C-PromptReco-v2_v0.root'
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_100_1_A6g.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_101_1_BQj.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_102_1_58b.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_103_1_VnZ.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_24Aug2012_v1_lpc1/seema/PhotonHad/PhotonHad_Run2012C-24Aug2012-v1_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/1cbbc5536babbd4a8fab46eebdb7337a/susypat_106_1_J5U.root',
     )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source.skipEvents = cms.untracked.uint32(0)
-process.GlobalTag.globaltag = "START53_V7F::All"
-###========================= analysis module =====================================
+#========================= analysis module =====================================
 
-scaleF = 8426.0*10.*1000./30599239.
+scaleF = 1.
 from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
 process.eventWeight = weightProducer.clone(
-    weight = cms.double(scaleF),
+    weight = cms.double(1.0),
 )
 from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
 process.puWeight = puWeightProducer.clone(
@@ -44,9 +46,9 @@ process.puWeight = puWeightProducer.clone(
 from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
 process.analysisID = photonTree.clone(
     Debug           = cms.bool(False),
-    Data            = cms.bool(False),
+    Data            = cms.bool(True),
     ScaleFactor     = cms.double(scaleF),
-    DoPUReweight    = cms.bool(True),
+    DoPUReweight    = cms.bool(False),
 
     metSource          = cms.InputTag("pfType1MetNoPhotonID","pfcand"),
 
@@ -106,13 +108,6 @@ process.load('ZInvisibleBkgds.Photons.ZinvMETProducers_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvVetos_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
 
-process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
-process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
-from SandBox.Skims.htFilter_cfi  import *
-process.photonIDHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotID"),MinHT = cms.double(250))
-from SandBox.Skims.mhtFilter_cfi import *
-process.photonIDMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotID"),MinMHT = cms.double(100))
-
 ####
 process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.htPFchs
@@ -125,21 +120,25 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.photonMETCollections
                                    * process.photonVetos
                                    * process.photonTopTaggers
-                                   * process.countPhotonsID
-                                   * process.ecalLaserCorrFilter
-                                   * process.cleaningOnFilterResults
-                                   * process.photonIDHTFilter
-                                   #* process.photonIDMHTFilter
-                                   * process.zinvBJetsPFNoPhotonIDSpecial
-                                   * process.analysisID
 )
+
+process.phoIDSeq = cms.Sequence(  process.countPhotonsID
+                                * process.zinvBJetsPFNoPhotonIDSpecial
+                                * process.analysisID
+)
+process.phoIDPFIsoSeq = cms.Sequence( process.countPhotonsIDPFIso
+                                    * process.zinvBJetsPFNoPhotonIDPFIsoSpecial
+                                    * process.analysisIDPFIso
+)
+
 #======================= output module configuration ===========================
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('photonQCDMC500To1000Tree.root')
+    fileName = cms.string('photonDataTree.root')
 )
 
 #============================== configure paths ===============================
-process.p1 = cms.Path(process.puWeight
-                    * process.eventWeight
+process.p1 = cms.Path(process.eventWeight
                     * process.analysisSeq )
+process.id    = cms.Path(process.phoIDSeq)
+process.idiso = cms.Path(process.phoIDPFIsoSeq)
