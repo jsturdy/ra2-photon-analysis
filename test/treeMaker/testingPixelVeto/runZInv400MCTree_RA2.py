@@ -30,7 +30,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 process.source.skipEvents = cms.untracked.uint32(0)
 process.GlobalTag.globaltag = "START53_V7F::All"
 #========================= analysis module =====================================
@@ -81,7 +81,7 @@ process.load('ZInvisibleBkgds.Photons.ZinvTopTaggers_cff')
 process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
 process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
 from SandBox.Skims.htFilter_cfi  import *
-process.zinvHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchs"))
+process.zinvHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchs"),MinHT = cms.double(250))
 from SandBox.Skims.mhtFilter_cfi import *
 process.zinvMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchs"),MinMHT = cms.double(100))
 
@@ -91,7 +91,7 @@ process.analysisSeq = cms.Sequence(process.ra2PFchsJets
                                  * process.mhtPFchs
                                  * process.ecalLaserCorrFilter
                                  * process.cleaningOnFilterResults
-                                 #* process.zinvHTFilter
+                                 * process.zinvHTFilter
                                  #* process.zinvMHTFilter
                                  * process.zinvVetos
                                  * process.zinvTopTaggers
@@ -106,15 +106,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('zinvisibleMC400Tree.root')
 )
 
-#=================== run range & HLT filters ===============================
-#process.load('SusyAnalysis.PhotonAnalysis.Photon_RunRangeHLTSeq_cfi')
-
-#process.load('SandBox.Utilities.puWeightProducer_cfi')
-##process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/May10_Prompt167151_pudist.root"
-#process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/Cert_160404-177515_JSON.pileup.root"
-
 #============================== configure paths ===============================
-#process.p1 = cms.Path( process.analysisSeq )
 process.p1 = cms.Path(process.eventWeight
                     * process.puWeight
                     * process.analysisSeq )

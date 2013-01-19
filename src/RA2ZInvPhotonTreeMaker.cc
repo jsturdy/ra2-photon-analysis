@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.9 2012/12/23 18:21:44 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.10 2013/01/19 19:36:51 sturdy Exp $
 //
 //
 
@@ -108,7 +108,8 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   ev.getByLabel(combIsoR04PhotonSrc_, patPhotonsCombIsoR04); 
 
   edm::Handle<reco::GenParticleCollection> gens;
-  ev.getByLabel("genParticles",gens);
+  if (!data_)
+    ev.getByLabel("genParticles",gens);
 
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
@@ -347,21 +348,23 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_Photon1PDGID = 0;
   double photon1MinDRGen = 100;
   int tmpPhoton1PDGID = 0;
-  reco::GenParticleCollection::const_iterator genp = gens->begin();
-  for (; genp!= gens->end(); ++genp) {
-    if (debug_) {
-      std::cout<<"pt("<<genp->pt()<<"), eta("<<genp->eta()<<"), phi("<<genp->phi()<<")"<<std::endl;
-      std::cout<<"status("<<genp->status()<<"), pdgId("<<genp->pdgId()<<"), numberOfDaughters("<<genp->numberOfDaughters()<<")"<<std::endl;
-    }
-    double dR = reco::deltaR(genp->eta(),genp->phi(),(*patPhotons)[0].eta(), (*patPhotons)[0].phi());
-    if (dR < photon1MinDRGen) {
-      photon1MinDRGen = dR;
-      tmpPhoton1PDGID = genp->pdgId();
+  if (!data_) {
+    reco::GenParticleCollection::const_iterator genp = gens->begin();
+    for (; genp!= gens->end(); ++genp) {
+      if (debug_) {
+	std::cout<<"pt("<<genp->pt()<<"), eta("<<genp->eta()<<"), phi("<<genp->phi()<<")"<<std::endl;
+	std::cout<<"status("<<genp->status()<<"), pdgId("<<genp->pdgId()<<"), numberOfDaughters("<<genp->numberOfDaughters()<<")"<<std::endl;
+      }
+      double dR = reco::deltaR(genp->eta(),genp->phi(),(*patPhotons)[0].eta(), (*patPhotons)[0].phi());
+      if (dR < photon1MinDRGen) {
+	photon1MinDRGen = dR;
+	tmpPhoton1PDGID = genp->pdgId();
+      }
     }
   }
   if (photon1MinDRGen < 0.5)
     m_Photon1PDGID = tmpPhoton1PDGID;
-
+  
   m_Photon1pfCH  = (*patPhotons)[0].userFloat("pfChargedPU");
   m_Photon1pfNU  = (*patPhotons)[0].userFloat("pfNeutralPU");
   m_Photon1pfGA  = (*patPhotons)[0].userFloat("pfGammaPU");

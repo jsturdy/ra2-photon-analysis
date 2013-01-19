@@ -27,7 +27,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 process.source.skipEvents = cms.untracked.uint32(0)
 process.GlobalTag.globaltag = "START53_V7F::All"
 scaleF =  2.826*10*1000/2727789.
