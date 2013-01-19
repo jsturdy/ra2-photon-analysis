@@ -124,23 +124,7 @@ process.fragmentationAnalysisSeq = cms.Sequence(process.countFragmentationPhoton
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('gjetsht400toinf_gen_tree.root')
 )
-##process.out = cms.OutputModule("PoolOutputModule",
-##    fileName = cms.untracked.string('gjets400content.root'),
-##    SelectEvents = cms.untracked.PSet(
-##        SelectEvents = cms.vstring('p1')
-##    ),
-##    outputCommands = cms.untracked.vstring('keep *')
-##)
-##
-#=================== run range & HLT filters ===============================
-#process.load('SusyAnalysis.PhotonAnalysis.Photon_RunRangeHLTSeq_cfi')
-
-#process.load('SandBox.Utilities.puWeightProducer_cfi')
-##process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/May10_Prompt167151_pudist.root"
-#process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/Cert_160404-177515_JSON.pileup.root"
-
 #============================== configure paths ===============================
-#process.p1 = cms.Path( process.analysisSeq )
 #process.p1 = cms.Path(process.puWeight
 #                    * process.eventWeight
 #                    * process.analysisSeq )
@@ -157,7 +141,6 @@ process.pfragmentation = cms.Path(process.puWeight
                                 * process.analysisSeq 
                                 * process.fragmentationAnalysisSeq)
 
-#process.outpath = cms.EndPath(process.out)
 ##file = open('wtf_gentree.py','w')
 ##file.write(str(process.dumpPython()))
 ##file.close()

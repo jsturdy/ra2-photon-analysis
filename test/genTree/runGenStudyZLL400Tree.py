@@ -66,8 +66,6 @@ process.st3ZMuBosons = gendimuontree.clone(
 
 process.load('SandBox.Skims.RA2Objects_cff')
 process.load('SandBox.Skims.RA2Selection_cff')
-#from SusyAnalysis.MyAnalysis.filterBoolean_cfi import *
-#process.load("SusyAnalysis.MyAnalysis.filterBoolean_cfi")
 
 process.load('ZInvisibleBkgds.Photons.ZinvMuonJets_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvBkgdJets_cff')
@@ -114,20 +112,11 @@ process.analysisSeq = cms.Sequence(process.ra2PFchsJets
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('zllht400toInf_gen_tree.root')
 )
-
-#=================== run range & HLT filters ===============================
-#process.load('SusyAnalysis.PhotonAnalysis.Photon_RunRangeHLTSeq_cfi')
-
-#process.load('SandBox.Utilities.puWeightProducer_cfi')
-##process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/May10_Prompt167151_pudist.root"
-#process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/Cert_160404-177515_JSON.pileup.root"
-
 #============================== configure paths ===============================
-#process.p1 = cms.Path( process.analysisSeq )
 process.p1 = cms.Path(process.puWeight
                     * process.eventWeight
                     * process.analysisSeq
 )
-file = open('dimuon_gentree.py','w')
-file.write(str(process.dumpPython()))
-file.close()
+##file = open('dimuon_gentree.py','w')
+##file.write(str(process.dumpPython()))
+##file.close()

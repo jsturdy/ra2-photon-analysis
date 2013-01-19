@@ -99,15 +99,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('zinvht400toinf_gen_tree.root')
 )
 
-#=================== run range & HLT filters ===============================
-#process.load('SusyAnalysis.PhotonAnalysis.Photon_RunRangeHLTSeq_cfi')
-
-#process.load('SandBox.Utilities.puWeightProducer_cfi')
-##process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/May10_Prompt167151_pudist.root"
-#process.puWeight.DataPileUpHistFile = "SandBox/Utilities/data/Cert_160404-177515_JSON.pileup.root"
-
 #============================== configure paths ===============================
-#process.p1 = cms.Path( process.analysisSeq )
 process.p1 = cms.Path(process.puWeight
                     * process.eventWeight
                     * process.analysisSeq
