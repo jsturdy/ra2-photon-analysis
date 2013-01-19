@@ -92,22 +92,22 @@ zinvBkgdst1ZBosonRefs = cms.EDFilter("GenParticleRefSelector",
 
 ##dimuon
 zinvBkgdst3ZMuMuBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("zinvBkgdst3ZBosons"),
+                                  src = cms.InputTag("genParticles"),
                                   cut = cms.string(zbosonst3mu)
                                   )
 
 zinvBkgdst3ZMuMuBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("zinvBkgdst3ZBosons"),
+                                     src = cms.InputTag("genParticles"),
                                      cut = cms.string(zbosonst3mu)
                                      )
 
 zinvBkgdst1ZMuMuBosons = cms.EDFilter("GenParticleSelector",
-                                  src = cms.InputTag("zinvBkgdst1ZBosons"),
+                                  src = cms.InputTag("genParticles"),
                                   cut = cms.string(zbosonst1mu)
                                   )
 
 zinvBkgdst1ZMuMuBosonRefs = cms.EDFilter("GenParticleRefSelector",
-                                     src = cms.InputTag("zinvBkgdst1ZBosons"),
+                                     src = cms.InputTag("genParticles"),
                                      cut = cms.string(zbosonst1mu)
                                      )
 

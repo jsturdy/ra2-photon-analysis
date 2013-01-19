@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialObjectCleaner.h,v 1.1 2012/08/30 09:44:42 sturdy Exp $
+// $Id: SpecialObjectCleaner.h,v 1.2 2012/09/03 10:33:29 sturdy Exp $
 //
 //
 
@@ -162,7 +162,26 @@ zinvtools::SpecialObjectCleaner<PATObjType>::produce(edm::Event& ev, const edm::
   }
   if (debug_) {
     std::cout<<"Object collection has size "<<objects->size()<<std::endl;
+    printf("Object      pt      eta      phi        M\n");
+    for (unsigned int i = 0;i < objects->size();++i) 
+      printf("%d  %2.4f    %2.2f    %2.2f    %2.2f\n",
+	     i,(*objects)[i].pt(),(*objects)[i].eta(),(*objects)[i].phi(),(*objects)[i].mass());
     std::cout<<"Jet collection has size "<<jets->size()<<std::endl;
+    printf("jet      pt      eta      phi        chf   nhf   cemf   nemf  phef   elef   muef  hfhf  hfemf\n");
+    for (unsigned int i = 0;i < jets->size();++i) 
+      if (i < 10)
+	printf("%d  %2.4f    %2.2f    %2.2f    %2.2f    %2.2f    %2.2f    %2.2f    %2.2f    %2.2f    %2.2f    %2.2f    %2.2f\n",
+	       i,(*jets)[i].pt(),(*jets)[i].eta(),(*jets)[i].phi(),
+	       (*jets)[i].chargedHadronEnergyFraction(),
+	       (*jets)[i].neutralHadronEnergyFraction(),
+	       (*jets)[i].chargedEmEnergyFraction(),
+	       (*jets)[i].neutralEmEnergyFraction(),
+	       (*jets)[i].photonEnergyFraction(),
+	       (*jets)[i].electronEnergyFraction(),
+	       (*jets)[i].muonEnergyFraction(),
+	       (*jets)[i].HFHadronEnergyFraction(),
+	       (*jets)[i].HFEMEnergyFraction()
+	       );
   }
 
   //remove only closest DR object, or all objects within minDR?
@@ -229,8 +248,11 @@ zinvtools::SpecialObjectCleaner<PATObjType>::produce(edm::Event& ev, const edm::
   std::sort(PATCleanedJets->begin(), PATCleanedJets->end(), eTComparator_);
   std::auto_ptr<std::vector<pat::Jet> > myObjects(PATCleanedJets);
   // put object in Event
-  if (debug_)
+  if (debug_) {
+    std::cout<<"Object collection has size "<<objects->size()<<std::endl;
     std::cout<<"Cleaned jet collection has size "<<myObjects->size()<<std::endl;
+    std::cout<<"removed "<<jets->size()-myObjects->size()<<" objects"<<std::endl;
+  }
   ev.put(myObjects);
 }
 

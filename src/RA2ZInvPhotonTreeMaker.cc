@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.8 2012/12/12 15:07:01 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.9 2012/12/23 18:21:44 sturdy Exp $
 //
 //
 
@@ -42,7 +42,8 @@ RA2ZInvPhotonTreeMaker::RA2ZInvPhotonTreeMaker(const edm::ParameterSet& pset) {
   photonSrc_      = pset.getParameter<edm::InputTag>("PhotonSrc");
   loosePhotonSrc_ = pset.getParameter<edm::InputTag>("LoosePhotonSrc");
   tightPhotonSrc_ = pset.getParameter<edm::InputTag>("TightPhotonSrc");
-  combIsoPhotonSrc_ = pset.getParameter<edm::InputTag>("CombIsoPhotonSrc");
+  combIsoR03PhotonSrc_ = pset.getParameter<edm::InputTag>("CombIsoR03PhotonSrc");
+  combIsoR04PhotonSrc_ = pset.getParameter<edm::InputTag>("CombIsoR04PhotonSrc");
   vertexSrc_      = pset.getParameter<edm::InputTag>("VertexSrc");
   jetSrc_         = pset.getParameter<edm::InputTag>("JetSrc");
   bJetSrc_        = pset.getParameter<edm::InputTag>("bJetSrc");
@@ -100,8 +101,14 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   edm::Handle< std::vector<pat::Photon> > patPhotonsTight;
   ev.getByLabel(tightPhotonSrc_, patPhotonsTight); 
 
-  edm::Handle< std::vector<pat::Photon> > patPhotonsCombIso;
-  ev.getByLabel(combIsoPhotonSrc_, patPhotonsCombIso); 
+  edm::Handle< std::vector<pat::Photon> > patPhotonsCombIsoR03;
+  ev.getByLabel(combIsoR03PhotonSrc_, patPhotonsCombIsoR03); 
+
+  edm::Handle< std::vector<pat::Photon> > patPhotonsCombIsoR04;
+  ev.getByLabel(combIsoR04PhotonSrc_, patPhotonsCombIsoR04); 
+
+  edm::Handle<reco::GenParticleCollection> gens;
+  ev.getByLabel("genParticles",gens);
 
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
@@ -299,6 +306,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 		<< " | " <<(*patPhotons)[iphot].pt() 
 		<< " " << (*patPhotons)[iphot].eta()
 		<< " " << (*patPhotons)[iphot].phi() 
+		<< " " << (*patPhotons)[iphot].genPhoton()->pdgId()
 		<< " " << (*patPhotons)[iphot].userInt("passElectronConvVeto") 
 		<< " " << (*patPhotons)[iphot].hadTowOverEm() 
 		<< " " << (*patPhotons)[iphot].userFloat("hadTowOverEmLooseCut") 
@@ -333,11 +341,30 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_nPhotonsID         = patPhotons->size();
   m_nPhotonsLooseIso   = patPhotonsLoose->size();
   m_nPhotonsTightIso   = patPhotonsTight->size();
-  m_nPhotonsCombIsoIso = patPhotonsCombIso->size();
+  m_nPhotonsCombIsoR03 = patPhotonsCombIsoR03->size();
+  m_nPhotonsCombIsoR04 = patPhotonsCombIsoR04->size();
 
-  m_Photon1pfCH = (*patPhotons)[0].userFloat("pfChargedPU");
-  m_Photon1pfNU = (*patPhotons)[0].userFloat("pfNeutralPU");
-  m_Photon1pfGA = (*patPhotons)[0].userFloat("pfGammaPU");
+  m_Photon1PDGID = 0;
+  double photon1MinDRGen = 100;
+  int tmpPhoton1PDGID = 0;
+  reco::GenParticleCollection::const_iterator genp = gens->begin();
+  for (; genp!= gens->end(); ++genp) {
+    if (debug_) {
+      std::cout<<"pt("<<genp->pt()<<"), eta("<<genp->eta()<<"), phi("<<genp->phi()<<")"<<std::endl;
+      std::cout<<"status("<<genp->status()<<"), pdgId("<<genp->pdgId()<<"), numberOfDaughters("<<genp->numberOfDaughters()<<")"<<std::endl;
+    }
+    double dR = reco::deltaR(genp->eta(),genp->phi(),(*patPhotons)[0].eta(), (*patPhotons)[0].phi());
+    if (dR < photon1MinDRGen) {
+      photon1MinDRGen = dR;
+      tmpPhoton1PDGID = genp->pdgId();
+    }
+  }
+  if (photon1MinDRGen < 0.5)
+    m_Photon1PDGID = tmpPhoton1PDGID;
+
+  m_Photon1pfCH  = (*patPhotons)[0].userFloat("pfChargedPU");
+  m_Photon1pfNU  = (*patPhotons)[0].userFloat("pfNeutralPU");
+  m_Photon1pfGA  = (*patPhotons)[0].userFloat("pfGammaPU");
   m_Photon1Pt  = (*patPhotons)[0].pt();
   m_Photon1Eta = (*patPhotons)[0].eta();
   m_Photon1Phi = (*patPhotons)[0].phi();
@@ -358,6 +385,12 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 			     (*patPhotons)[0].ecalRecHitSumEtConeDR03() + 
 			     (*patPhotons)[0].userFloat("hcalIsoConeDR03") - 
 			     (3.141593*0.3*0.3*((*patPhotons)[0].userFloat("rho25"))))< 5.
+			    );
+  
+  m_Photon1IsCombIsoR04  = (((*patPhotons)[0].trkSumPtSolidConeDR04() +
+			     (*patPhotons)[0].ecalRecHitSumEtConeDR04() + 
+			     (*patPhotons)[0].userFloat("hcalIsoConeDR04") - 
+			     (3.141593*0.4*0.4*((*patPhotons)[0].userFloat("rho25"))))< 5.
 			    );
   
   m_Photon1MinDR  = 10.;
@@ -800,7 +833,11 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_nPhotonsID",        &m_nPhotonsID,        "m_nPhotonsID/I");
   reducedValues->Branch("ra2_nPhotonsLooseIso",  &m_nPhotonsLooseIso,  "m_nPhotonsLooseIso/I");
   reducedValues->Branch("ra2_nPhotonsTightIso",  &m_nPhotonsTightIso,  "m_nPhotonsTightIso/I");
-  reducedValues->Branch("ra2_nPhotonsCombIsoIso",&m_nPhotonsCombIsoIso,"m_nPhotonsCombIsoIso/I");
+  reducedValues->Branch("ra2_nPhotonsCombIsoR03",&m_nPhotonsCombIsoR03,"m_nPhotonsCombIsoR03/I");
+  reducedValues->Branch("ra2_nPhotonsCombIsoR04",&m_nPhotonsCombIsoR04,"m_nPhotonsCombIsoR04/I");
+
+  reducedValues->Branch("ra2_Photon1PDGID",&m_Photon1PDGID,"m_Photon1PDGID/I");
+
   reducedValues->Branch("ra2_Photon1pfCH", &m_Photon1pfCH, "m_Photon1pfCH/D");
   reducedValues->Branch("ra2_Photon1pfNU", &m_Photon1pfNU, "m_Photon1pfNU/D");
   reducedValues->Branch("ra2_Photon1pfGA", &m_Photon1pfGA, "m_Photon1pfGA/D");
@@ -816,6 +853,7 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_Photon1IsLoosePFIso",   &m_Photon1IsLoosePFIso,   "m_Photon1IsLoosePFIso/O" );
   reducedValues->Branch("ra2_Photon1IsTightPFIso",   &m_Photon1IsTightPFIso,   "m_Photon1IsTightPFIso/O" );
   reducedValues->Branch("ra2_Photon1IsCombIsoR03",   &m_Photon1IsCombIsoR03,   "m_Photon1IsCombIsoR03/O" );
+  reducedValues->Branch("ra2_Photon1IsCombIsoR04",   &m_Photon1IsCombIsoR04,   "m_Photon1IsCombIsoR04/O" );
 
   reducedValues->Branch("ra2_Photon70PFMET100",    &m_Photon70PFMET100,    "m_Photon70PFMET100/O" );
   reducedValues->Branch("ra2_Photon70PFHT400",     &m_Photon70PFHT400,     "m_Photon70PFHT400/O" );
@@ -827,6 +865,8 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_nJetsCSVT", &m_nJetsCSVT, "m_nJetsCSVT/I");
   reducedValues->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "m_nJetsPt30Eta50/I" );
   reducedValues->Branch("ra2_nJetsPt30Eta24", &m_nJetsPt30Eta24, "m_nJetsPt30Eta24/I");
+  reducedValues->Branch("ra2_nJetsPt50Eta24", &m_nJetsPt50Eta24, "m_nJetsPt50Eta24/I");
+  reducedValues->Branch("ra2_nJetsPt70Eta24", &m_nJetsPt70Eta24, "m_nJetsPt70Eta24/I");
   reducedValues->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "m_nJetsPt50Eta25/I" );
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "m_nJetsPt50Eta25MInv/I" );
 

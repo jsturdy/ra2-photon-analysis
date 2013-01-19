@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.6 2012/12/09 22:12:04 sturdy Exp $
+// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.7 2012/12/23 18:21:44 sturdy Exp $
 //
 //
 
@@ -723,6 +723,8 @@ void RA2ZInvDiMuonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_nJetsCSVT", &m_nJetsCSVT, "m_nJetsCSVT/I");
   reducedValues->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "m_nJetsPt30Eta50/I" );
   reducedValues->Branch("ra2_nJetsPt30Eta24", &m_nJetsPt30Eta24, "m_nJetsPt30Eta24/I");
+  reducedValues->Branch("ra2_nJetsPt50Eta24", &m_nJetsPt50Eta24, "m_nJetsPt50Eta24/I");
+  reducedValues->Branch("ra2_nJetsPt70Eta24", &m_nJetsPt70Eta24, "m_nJetsPt70Eta24/I");
   reducedValues->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "m_nJetsPt50Eta25/I" );
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "m_nJetsPt50Eta25MInv/I" );
 

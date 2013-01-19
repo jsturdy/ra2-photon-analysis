@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.h,v 1.3 2012/11/12 17:07:04 sturdy Exp $
+// $Id: GenStudyTree.h,v 1.4 2012/12/09 22:12:09 sturdy Exp $
 //
 //
 
@@ -68,6 +68,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
+  //void studyRecoPhotons(photons,jets,gen,genjets,ht,genht,mht,genmht,met,genmet);
+  //void studyRecoMuons();
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -80,10 +82,10 @@ public:
   
   edm::InputTag genSrc_;
   edm::InputTag genJetSrc_, genMETSrc_;
-  edm::InputTag vertexSrc_, recoPhotonSrc_;
+  edm::InputTag vertexSrc_, recoPhotonSrc_, recoMuonSrc_;
   edm::InputTag recoJetSrc_,htJetSrc_, bJetSrc_,
-    htSrc_, mhtSrc_, metSrc_, htNoBosonSrc_, mhtNoBosonSrc_;
-  edm::InputTag photonSrc_, electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
+    htSrc_, mhtSrc_, metSrc_, htNoBosonSrc_, mhtNoBosonSrc_, metNoBosonSrc_;
+  edm::InputTag electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
 
   bool doPUReweight_, storeExtraVetos_;
   edm::InputTag puWeightSrc_;
@@ -92,7 +94,10 @@ public:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  bool   studyAcc_, studyRecoIso_, removePhot_;
+  bool studyAcc_, studyRecoIso_, removePhot_;
+  bool studyPhotons_, studyMuons_;
+  int nParticles_;
+
   double bosonMinPt_   ;
   double bosonEBMaxEta_;
   double bosonEEMinEta_;
@@ -102,18 +107,18 @@ public:
     m_bJetsGenPt30Eta24,   m_nJetsGenPt50Eta25,
     m_nJetsGenPt50Eta25MInv,
     m_Vertices,            m_genBosons;
-  int m_nJetsPt30Eta50,    m_nJetsPt30Eta24,
+  int m_nJetsPt30Eta24,m_nJetsPt50Eta24,m_nJetsPt70Eta24,
     m_nJetsCSVM, m_nJetsCSVT,
-    m_nJetsPt50Eta25,
+    m_nJetsPt30Eta50, m_nJetsPt50Eta25,
     m_nJetsPt50Eta25MInv,  m_nBosons;
 
   int m_event, m_run, m_lumi;
-  bool m_genPassAcc, m_genPassRecoIso, m_gen1PassRecoIso;
+  bool m_genPassAcc, m_genPassRecoID, m_gen1PassRecoID, m_genPassRecoIDIso, m_gen1PassRecoIDIso;
 
   double m_genHT,  m_genMHT,       m_genHTMInv,  m_genMET,  m_genMETNoBoson,
     m_genBoson1Pt, m_genBoson1Eta, m_genBoson1M, m_genBoson1MinDR,
-    m_genDPhiMHT1,    m_genDPhiMHT2,     m_genDPhiMHT3,   m_genDPhiMHT4,
-    m_genDPhiMET1,    m_genDPhiMET2,     m_genDPhiMET3,   m_genDPhiMET4,
+    m_genDPhiMHT1, m_genDPhiMHT2,  m_genDPhiMHT3,m_genDPhiMHT4,
+    m_genDPhiMET1, m_genDPhiMET2,  m_genDPhiMET3,m_genDPhiMET4,
     m_genDPhiMETNoBoson1,    m_genDPhiMETNoBoson2,     m_genDPhiMETNoBoson3,     m_genDPhiMETNoBoson4,
     m_EventWt,     m_PUWt;
   double m_genJet1Pt, m_genJet1Eta, 
@@ -128,9 +133,10 @@ public:
     m_dPhiMET1,    m_dPhiMET2,     m_dPhiMET3,     m_dPhiMET4,
     m_dPhiMETNoBoson1,    m_dPhiMETNoBoson2,     m_dPhiMETNoBoson3,     m_dPhiMETNoBoson4;
 
-  double m_daughter1Pt, m_daughter1Eta,    m_daughter1M,    m_daughter1MinDR,   m_daughter1ID,   
-    m_daughter2Pt,      m_daughter2Eta,    m_daughter2M,    m_daughter2MinDR,   m_daughter2ID,   
-    m_combDaughterPt,   m_combDaughterEta, m_combDaughterM, m_combDaughterMinDR;
+  bool m_boson1PassPixV, m_boson1PassCSEV, m_boson1PassIso;
+  double m_daughter1Pt,   m_daughter1Eta,    m_daughter1M,    m_daughter1MinDR,   m_daughter1ID,   
+         m_daughter2Pt,   m_daughter2Eta,    m_daughter2M,    m_daughter2MinDR,   m_daughter2ID,   
+         m_combDaughterPt,m_combDaughterEta, m_combDaughterM, m_combDaughterMinDR;
   double m_Jet1Pt, m_Jet1Eta, 
     m_Jet2Pt,      m_Jet2Eta,
     m_Jet3Pt,      m_Jet3Eta,

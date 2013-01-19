@@ -5,7 +5,7 @@ specialMuonCleanedJets = cms.EDProducer("SpecialPATMuonCleanedJetCollection",
     debugString    = cms.string("specialMuonCleanedJets"),
     objectLabel    = cms.InputTag("patMuons"),
     jetLabel       = cms.InputTag("patJetsPF"),
-    maxDR          = cms.double(0.1),
+    maxDR          = cms.double(0.2),
     arbitration    = cms.bool(False)
 )
 
@@ -14,7 +14,7 @@ specialElectronCleanedJets = cms.EDProducer("SpecialPATElectronCleanedJetCollect
     debugString    = cms.string("specialElectronCleanedJets"),
     objectLabel    = cms.InputTag("patElectrons"),
     jetLabel       = cms.InputTag("patJetsPF"),
-    maxDR          = cms.double(0.1),
+    maxDR          = cms.double(0.2),
     arbitration    = cms.bool(False)
 )
 
@@ -23,7 +23,7 @@ specialPhotonCleanedJets = cms.EDProducer("SpecialPATPhotonCleanedJetCollection"
     debugString    = cms.string("specialPhotonCleanedJets"),
     objectLabel    = cms.InputTag("patPhotonsAlt"),
     jetLabel       = cms.InputTag("patJetsPF"),
-    maxDR          = cms.double(0.1),
+    maxDR          = cms.double(0.2),
     arbitration    = cms.bool(False)
 )
 

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialMuonCollection.cc,v 1.1 2012/08/19 23:45:25 sturdy Exp $
+// $Id: SpecialMuonCollection.cc,v 1.2 2012/08/30 09:45:14 sturdy Exp $
 //
 //
 
@@ -65,8 +65,15 @@ void SpecialMuonCollection::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<std::vector<reco::CompositeCandidate> > cands;
   ev.getByLabel(candidateLabel_,cands);
 
+  std::vector<pat::Muon> * PATMuons = new std::vector<pat::Muon>(); 
   if (!(cands->size()>0)) {
-    std::cout<<"Candidate collecition empty"<<std::endl;
+    if (debug_)
+      std::cout<<"Candidate collecition empty"<<std::endl;
+    // put genEvt object in Event
+    std::auto_ptr<std::vector<pat::Muon> > myMuons(PATMuons);
+    if (debug_)
+      std::cout<<"Special muon collection has size "<<myMuons->size()<<std::endl;
+    ev.put(myMuons);
     return;
   }
   if (debug_)
@@ -92,7 +99,6 @@ void SpecialMuonCollection::produce(edm::Event& ev, const edm::EventSetup& es)
   pat::MuonRef master2(((*cands)[candIndex].daughter("muon2"))->masterClone().castTo<pat::MuonRef>());
   //
 
-  std::vector<pat::Muon> * PATMuons = new std::vector<pat::Muon>(); 
   pat::Muon aMuon1(*master1);
   pat::Muon aMuon2(*master2);
   PATMuons->push_back(aMuon1);

@@ -19,12 +19,13 @@ class ZCandFilter : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     edm::InputTag candSrc_;
-
+    double minPt_;
 };
 
 
 ZCandFilter::ZCandFilter(const edm::ParameterSet & iConfig) {
   candSrc_ = iConfig.getParameter<edm::InputTag>("ZCandSource");
+  minPt_   = iConfig.getParameter<double>("minPt");
 }
 
 
@@ -32,7 +33,11 @@ bool ZCandFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   edm::Handle<std::vector<reco::CompositeCandidate> > cands;
   //edm::Handle<edm::View<reco::CompositeCandidate> > cands;
   iEvent.getByLabel(candSrc_, cands);
-  return (cands->size() > 0);
+  bool result = false;
+  if (cands->size() > 0)
+    if ((*cands)[0].pt() > minPt_)
+      result = true;
+  return result;
 }
 
 

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.cc,v 1.4 2012/11/12 17:07:05 sturdy Exp $
+// $Id: GenStudyTree.cc,v 1.5 2012/12/09 22:12:09 sturdy Exp $
 //
 //
 // system include files
@@ -35,17 +35,17 @@ Implementation:
 // constructors and destructor
 //
 GenStudyTree::GenStudyTree(const edm::ParameterSet& pset) :
-  debug_        ( pset.getParameter< bool >( "debug" ) ),
-  scale_        ( pset.getParameter<double>("ScaleFactor") ),
-  debugString_  ( pset.getParameter< std::string >( "debugString" ) ),
+  debug_      ( pset.getParameter< bool >( "debug" ) ),
+  scale_      ( pset.getParameter<double>("ScaleFactor") ),
+  debugString_( pset.getParameter< std::string >( "debugString" ) ),
   genSrc_     ( pset.getParameter< edm::InputTag >( "genSrc" ) ),
   genJetSrc_  ( pset.getParameter< edm::InputTag >( "genJetSrc" ) ),
   genMETSrc_  ( pset.getParameter< edm::InputTag >( "genMETSrc" ) ),
 
-  doPUReweight_ ( pset.getParameter< bool >( "doPUReweight" ) ),
+  doPUReweight_   ( pset.getParameter< bool >( "doPUReweight" ) ),
   storeExtraVetos_( pset.getParameter<bool>("storeExtraVetos") ),
 
-  puWeightSrc_( pset.getParameter< edm::InputTag >( "puWeights" ) ),
+  puWeightSrc_   ( pset.getParameter< edm::InputTag >( "puWeights" ) ),
   eventWeightSrc_( pset.getParameter< edm::InputTag >( "eventWeights" ) ),
 
   electronVetoSrc_( pset.getParameter<edm::InputTag>("electronVetoSource") ),
@@ -53,8 +53,9 @@ GenStudyTree::GenStudyTree(const edm::ParameterSet& pset) :
   isoTrkVetoSrc_  ( pset.getParameter<edm::InputTag>("isoTrkVetoSource") ),
   tauVetoSrc_     ( pset.getParameter<edm::InputTag>("tauVetoSource") ),
 
-  studyAcc_     ( pset.getParameter< bool >( "studyAcceptance" ) ),
-  studyRecoIso_ ( pset.getParameter< bool >( "studyRecoIso" ) ),
+  studyAcc_    ( pset.getParameter< bool >( "studyAcceptance" ) ),
+  studyRecoIso_( pset.getParameter< bool >( "studyRecoIso" ) ),
+  nParticles_  ( pset.getParameter< int >( "nParticles" ) ),
 
   bosonMinPt_   ( pset.getParameter< double >( "bosonMinPt" ) ),
   bosonEBMaxEta_( pset.getParameter< double >( "bosonEBMaxEta" ) ),
@@ -65,14 +66,17 @@ GenStudyTree::GenStudyTree(const edm::ParameterSet& pset) :
 
   if (studyRecoIso_) 
     recoPhotonSrc_ = pset.getParameter< edm::InputTag >( "recoPhotonSrc");
+  //if (studyRecoIso_) 
+  //  recoMuonSrc_ = pset.getParameter< edm::InputTag >( "recoMuonSrc");
   recoJetSrc_    = pset.getParameter< edm::InputTag >( "recoJetSrc" );
   htJetSrc_      = pset.getParameter< edm::InputTag >( "htJetSrc" );
   bJetSrc_       = pset.getParameter< edm::InputTag >( "bJetSrc" );
   htSrc_         = pset.getParameter<edm::InputTag>("htSource");
   mhtSrc_        = pset.getParameter<edm::InputTag>("mhtSource");
   metSrc_        = pset.getParameter<edm::InputTag>("metSource");
-  htNoBosonSrc_  = pset.getParameter<edm::InputTag>("htNoBosonSource");
-  mhtNoBosonSrc_ = pset.getParameter<edm::InputTag>("mhtNoBosonSource");
+  //htNoBosonSrc_  = pset.getParameter<edm::InputTag>("htNoBosonSource");
+  //mhtNoBosonSrc_ = pset.getParameter<edm::InputTag>("mhtNoBosonSource");
+  //metNoBosonSrc_ = pset.getParameter<edm::InputTag>("metNoBosonSource");
   
 }
 
@@ -125,9 +129,10 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<edm::View<pat::Jet> > bJets;
   edm::Handle<double > ht;
   edm::Handle<edm::View<reco::MET> > mht;
+  edm::Handle<edm::View<reco::MET> > met;
   edm::Handle<double > htNoBoson;
   edm::Handle<edm::View<reco::MET> > mhtNoBoson;
-  edm::Handle<edm::View<reco::MET> > met;
+  edm::Handle<edm::View<reco::MET> > metNoBoson;
 
   if (studyRecoIso_) {
     ev.getByLabel(recoPhotonSrc_,recoPhotons);
@@ -150,15 +155,18 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
   ev.getByLabel(mhtSrc_, mht);
   //if (debug_)
   //    std::cout<<"MHT value "<<(*mht)[0].pt()<<std::endl;
-  ev.getByLabel(htNoBosonSrc_, htNoBoson);
-  //if (debug_)
-  //  std::cout<<"HT no boson value "<<*htNoBoson<<std::endl;
-  ev.getByLabel(mhtNoBosonSrc_, mhtNoBoson);
-  //if (debug_)
-  //  std::cout<<"MHT no boson value "<<(*mhtNoBoson)[0].pt()<<std::endl;
   ev.getByLabel(metSrc_, met);
   //if (debug_)
   //    std::cout<<"MET value "<<(*met)[0].pt()<<std::endl;
+  //ev.getByLabel(htNoBosonSrc_, htNoBoson);
+  ////if (debug_)
+  ////  std::cout<<"HT no boson value "<<*htNoBoson<<std::endl;
+  //ev.getByLabel(mhtNoBosonSrc_, mhtNoBoson);
+  ////if (debug_)
+  ////  std::cout<<"MHT no boson value "<<(*mhtNoBoson)[0].pt()<<std::endl;
+  //ev.getByLabel(metNoBosonSrc_, metNoBoson);
+  ////if (debug_)
+  ////  std::cout<<"MET no boson value "<<(*metNoBoson)[0].pt()<<std::endl;
   
   double pu_event_wt = 1.;
   edm::Handle<double> puWeight;
@@ -460,13 +468,17 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
       }
     }//End special case for di-lepton samples
     //Match gen boson to reco/isolated photon
-    reco::Candidate::LorentzVector metNoBosonV = (*met)[0].p4();
-    reco::MET metNoBoson = (*met)[0];
-    m_genPassRecoIso = false;
-    m_gen1PassRecoIso = false;
+    //reco::Candidate::LorentzVector metNoBosonV = (*met)[0].p4();
+    //reco::MET metNoBoson = (*met)[0];
+    m_genPassRecoID = false;
+    m_gen1PassRecoID = false;
+    m_genPassRecoIDIso = false;
+    m_gen1PassRecoIDIso = false;
     if (!studyRecoIso_) {
-      m_genPassRecoIso  = true;
-      m_gen1PassRecoIso = true;
+      m_genPassRecoID = true;
+      m_gen1PassRecoID = true;
+      m_genPassRecoIDIso = true;
+      m_gen1PassRecoIDIso = true;
     }
     else {
 
@@ -474,13 +486,16 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
       m_boson1Eta = -10.;  //m_boson2Eta = -10.;
       m_boson1M   = -10.;  //m_boson2M   = -10.;
       m_boson1MinDR = 10.;
+      m_boson1PassPixV = false;
+      m_boson1PassCSEV = false;
+      m_boson1PassIso  = false;
       m_nBosons   = recoPhotons->size();
       if (debug_)
 	std::cout<<"found "<<m_nBosons<<" reconstructed photons"<<std::endl;
 
       if (recoPhotons->size()>0) {
-	metNoBosonV += (*recoPhotons)[0].p4();
-	metNoBoson.setP4(metNoBoson.p4() + (*recoPhotons)[0].p4());
+	//metNoBosonV += (*recoPhotons)[0].p4();
+	//metNoBoson.setP4(metNoBoson.p4() + (*recoPhotons)[0].p4());
 
 	edm::View<pat::Jet>::const_iterator jet = recoJets->begin();
 	for (; jet != recoJets->end(); ++jet) {
@@ -501,6 +516,13 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 	m_boson1Pt  = (*recoPhotons)[0].pt();
 	m_boson1Eta = (*recoPhotons)[0].eta();
 	m_boson1M   = (*recoPhotons)[0].mass();
+	m_boson1PassPixV  = !((*recoPhotons)[0].hasPixelSeed());
+	m_boson1PassCSEV  = (*recoPhotons)[0].userInt("passElectronConvVeto");
+	m_boson1PassIso  = (((*recoPhotons)[0].userFloat("pfChargedPU")<(*recoPhotons)[0].userFloat("pfChargedTightCut"))&&
+			    ((*recoPhotons)[0].userFloat("pfNeutralPU")<(*recoPhotons)[0].userFloat("pfNeutralTightCut"))&&
+			    ((*recoPhotons)[0].userFloat("pfGammaPU")<(*recoPhotons)[0].userFloat("pfGammaTightCut"))
+			    );
+	
 	if (debug_) {
 	  std::cout<<"pt1::"<<m_boson1Pt
 		   <<"eta1::"<<m_boson1Eta
@@ -526,6 +548,7 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 	double bestDRMin = 999.0;
 	int phot = 0;
 	//here or outside the genp loop?
+	bool tmpPassIso = false;
 	edm::View<pat::Photon>::const_iterator recop = recoPhotons->begin();
 	for (; recop != recoPhotons->end(); ++recop){
 	  double dR = reco::deltaR(genp->eta(),genp->phi(),recop->eta(), recop->phi());
@@ -533,15 +556,23 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 	  if (dR < bestDRMin) {
 	    //bestDRPhot = phot;
 	    bestDRMin = dR;
+	    tmpPassIso  = ((recop->userFloat("pfChargedPU")<recop->userFloat("pfChargedTightCut"))&&
+			   (recop->userFloat("pfNeutralPU")<recop->userFloat("pfNeutralTightCut"))&&
+			   (recop->userFloat("pfGammaPU")<recop->userFloat("pfGammaTightCut")));
 	  }
 	  ++phot;
 	}
 	if (bestDRMin < 0.2) {
 	  //recoMatched = &((*recoPhotons)[bestDRPhot]);
-	  m_genPassRecoIso = true;
+	  m_genPassRecoID = true;
+	  if (tmpPassIso)
+	    m_genPassRecoIDIso = true;
 	}
-	if (m_genPassRecoIso && gphot==0)
-	  m_gen1PassRecoIso = true;
+	if (m_genPassRecoID && gphot==0) {
+	  m_gen1PassRecoID = true;
+	  if (tmpPassIso)
+	    m_genPassRecoIDIso = true;
+	}
 	++gphot;
       }//end loop over gen particles
     }
@@ -569,7 +600,7 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
     m_HT  = *ht;
     m_MHT = (*mht)[0].pt();
     m_MET = (*met)[0].pt();
-    m_METNoBoson = metNoBosonV.pt();
+    //m_METNoBoson = metNoBosonV.pt();
     //m_METNoBoson = metNoBoson.pt();
     
     m_HTMInv  = 0;
@@ -580,10 +611,10 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 	++m_nJetsPt30Eta24;
     }
     const pat::Jet  *r1, *r2, *r3, *r4;
-    m_dPhiMHT1 = 10.0;    m_dPhiMET1 = 10.0;    m_dPhiMETNoBoson1 = 10.0;
-    m_dPhiMHT2 = 10.0;    m_dPhiMET2 = 10.0;    m_dPhiMETNoBoson2 = 10.0;
-    m_dPhiMHT3 = 10.0;    m_dPhiMET3 = 10.0;    m_dPhiMETNoBoson3 = 10.0;
-    m_dPhiMHT4 = 10.0;    m_dPhiMET4 = 10.0;    m_dPhiMETNoBoson4 = 10.0;
+    m_dPhiMHT1 = 10.0;    m_dPhiMET1 = 10.0;    //m_dPhiMETNoBoson1 = 10.0;
+    m_dPhiMHT2 = 10.0;    m_dPhiMET2 = 10.0;    //m_dPhiMETNoBoson2 = 10.0;
+    m_dPhiMHT3 = 10.0;    m_dPhiMET3 = 10.0;    //m_dPhiMETNoBoson3 = 10.0;
+    m_dPhiMHT4 = 10.0;    m_dPhiMET4 = 10.0;    //m_dPhiMETNoBoson4 = 10.0;
     m_Jet1Pt  = -10.;    m_Jet3Pt  = -10.;
     m_Jet1Eta = -10.;    m_Jet3Eta = -10.;
     m_Jet2Pt  = -10.;    m_Jet4Pt  = -10.;
@@ -593,14 +624,14 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
       r1 = &((*recoJets)[0]);
       m_dPhiMHT1 = fabs(reco::deltaPhi(r1->phi(),(*mht)[0].phi()));
       m_dPhiMET1 = fabs(reco::deltaPhi(r1->phi(),(*met)[0].phi()));
-      m_dPhiMETNoBoson1 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
+      //m_dPhiMETNoBoson1 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
       m_Jet1Pt = r1->pt();
       m_Jet1Eta = r1->eta();
       if(m_nJetsPt30Eta50 >= 2) {
 	r2 = &((*recoJets)[1]);
 	m_dPhiMHT2 = fabs(reco::deltaPhi(r2->phi(),(*mht)[0].phi())); 
 	m_dPhiMET2 = fabs(reco::deltaPhi(r2->phi(),(*met)[0].phi())); 
-	m_dPhiMETNoBoson2 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
+	//m_dPhiMETNoBoson2 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
 	m_Jet2Pt = r2->pt();
 	m_Jet2Eta = r2->eta();
 	
@@ -608,7 +639,7 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 	  r3 = &((*recoJets)[2]);
 	  m_dPhiMHT3 = fabs(reco::deltaPhi(r3->phi(),(*mht)[0].phi()));
 	  m_dPhiMET3 = fabs(reco::deltaPhi(r3->phi(),(*met)[0].phi()));
-	  m_dPhiMETNoBoson3 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
+	  //m_dPhiMETNoBoson3 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
 	  m_Jet3Pt = r3->pt();
 	  m_Jet3Eta = r3->eta();
 
@@ -616,7 +647,7 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 	    r4 = &((*recoJets)[3]);
 	    m_dPhiMHT4 = fabs(reco::deltaPhi(r4->phi(),(*mht)[0].phi()));
 	    m_dPhiMET4 = fabs(reco::deltaPhi(r4->phi(),(*met)[0].phi()));
-	    m_dPhiMETNoBoson4 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
+	    //m_dPhiMETNoBoson4 = fabs(reco::deltaPhi(r1->phi(),metNoBoson.phi()));
 	    m_Jet4Pt = r4->pt();
 	    m_Jet4Eta = r4->eta();
 	  }
@@ -637,126 +668,131 @@ void GenStudyTree::beginJob()
   
   reducedValues = fs->make<TTree>( "RA2Values", "Variables for reduced studies" );
 
-  reducedValues->Branch("ra2_Vertices", &m_Vertices, "m_Vertices/I");
-  reducedValues->Branch("ra2_Event",    &m_event,    "m_event/I");
-  reducedValues->Branch("ra2_Run",      &m_run,      "m_run/I");
-  reducedValues->Branch("ra2_Lumi",     &m_lumi,     "m_lumi/I");
-  reducedValues->Branch("ra2_PUWt",     &m_PUWt,     "m_PUWt/D");
-  reducedValues->Branch("ra2_EventWt",  &m_EventWt,  "m_EventWt/D");
+  reducedValues->Branch("ra2_Vertices", &m_Vertices, "ra2_Vertices/I");
+  reducedValues->Branch("ra2_Event",    &m_event,    "ra2_event/I");
+  reducedValues->Branch("ra2_Run",      &m_run,      "ra2_run/I");
+  reducedValues->Branch("ra2_Lumi",     &m_lumi,     "ra2_lumi/I");
+  reducedValues->Branch("ra2_PUWt",     &m_PUWt,     "ra2_PUWt/D");
+  reducedValues->Branch("ra2_EventWt",  &m_EventWt,  "ra2_EventWt/D");
 
   ///Generator level quantities
-  reducedValues->Branch("ra2_genHT",    &m_genHT,    "m_genHT/D" );
-  reducedValues->Branch("ra2_genMHT",   &m_genMHT,   "m_genMHT/D");
-  reducedValues->Branch("ra2_genMET",   &m_genMET,   "m_genMET/D");
-  reducedValues->Branch("ra2_genMETNoBoson",   &m_genMETNoBoson,   "m_genMETNoBoson/D");
-  reducedValues->Branch("ra2_genHTMInv",    &m_genHTMInv,    "m_genHTMInv/D" );
+  reducedValues->Branch("ra2_genHT",    &m_genHT,    "ra2_genHT/D" );
+  reducedValues->Branch("ra2_genMHT",   &m_genMHT,   "ra2_genMHT/D");
+  reducedValues->Branch("ra2_genMET",   &m_genMET,   "ra2_genMET/D");
+  reducedValues->Branch("ra2_genMETNoBoson",   &m_genMETNoBoson,   "ra2_genMETNoBoson/D");
+  reducedValues->Branch("ra2_genHTMInv",    &m_genHTMInv,    "ra2_genHTMInv/D" );
 
-  reducedValues->Branch("ra2_genBosons",   &m_genBosons,   "m_genBosons/I" );
-  reducedValues->Branch("ra2_genBoson1Pt", &m_genBoson1Pt, "m_genBoson1Pt/D" );
-  reducedValues->Branch("ra2_genBoson1Eta",&m_genBoson1Eta,"m_genBoson1Eta/D" );
-  reducedValues->Branch("ra2_genBoson1M",  &m_genBoson1M,  "m_genBoson1M/D" );
-  reducedValues->Branch("ra2_genBoson1MinDR",  &m_genBoson1MinDR,  "m_genBoson1MinDR/D" );
-  reducedValues->Branch("ra2_genBoson2Pt", &m_genBoson2Pt, "m_genBoson2Pt/D" );
-  reducedValues->Branch("ra2_genBoson2Eta",&m_genBoson2Eta,"m_genBoson2Eta/D" );
-  reducedValues->Branch("ra2_genBoson2M",  &m_genBoson2M,  "m_genBoson2M/D" );
+  reducedValues->Branch("ra2_genBosons",   &m_genBosons,   "ra2_genBosons/I" );
+  reducedValues->Branch("ra2_genBoson1Pt", &m_genBoson1Pt, "ra2_genBoson1Pt/D" );
+  reducedValues->Branch("ra2_genBoson1Eta",&m_genBoson1Eta,"ra2_genBoson1Eta/D" );
+  reducedValues->Branch("ra2_genBoson1M",  &m_genBoson1M,  "ra2_genBoson1M/D" );
+  reducedValues->Branch("ra2_genBoson1MinDR",  &m_genBoson1MinDR,  "ra2_genBoson1MinDR/D" );
+  //reducedValues->Branch("ra2_genBoson2Pt", &m_genBoson2Pt, "ra2_genBoson2Pt/D" );
+  //reducedValues->Branch("ra2_genBoson2Eta",&m_genBoson2Eta,"ra2_genBoson2Eta/D" );
+  //reducedValues->Branch("ra2_genBoson2M",  &m_genBoson2M,  "ra2_genBoson2M/D" );
 
-  reducedValues->Branch("ra2_daughter1Pt", &m_daughter1Pt, "m_daughter1Pt/D" );
-  reducedValues->Branch("ra2_daughter1Eta",&m_daughter1Eta,"m_daughter1Eta/D" );
-  reducedValues->Branch("ra2_daughter1M",  &m_daughter1M,  "m_daughter1M/D" );
-  reducedValues->Branch("ra2_daughter1ID",  &m_daughter1ID,  "m_daughter1ID/D" );
-  reducedValues->Branch("ra2_daughter2Pt", &m_daughter2Pt, "m_daughter2Pt/D" );
-  reducedValues->Branch("ra2_daughter2Eta",&m_daughter2Eta,"m_daughter2Eta/D" );
-  reducedValues->Branch("ra2_daughter2M",  &m_daughter2M,  "m_daughter2M/D" );
-  reducedValues->Branch("ra2_daughter2ID",  &m_daughter2ID,  "m_daughter2ID/D" );
-  reducedValues->Branch("ra2_combDaughterPt", &m_combDaughterPt, "m_combDaughterPt/D" );
-  reducedValues->Branch("ra2_combDaughterEta",&m_combDaughterEta,"m_combDaughterEta/D" );
-  reducedValues->Branch("ra2_combDaughterM",  &m_combDaughterM,  "m_combDaughterM/D" );
+  reducedValues->Branch("ra2_daughter1Pt", &m_daughter1Pt, "ra2_daughter1Pt/D" );
+  reducedValues->Branch("ra2_daughter1Eta",&m_daughter1Eta,"ra2_daughter1Eta/D" );
+  reducedValues->Branch("ra2_daughter1M",  &m_daughter1M,  "ra2_daughter1M/D" );
+  reducedValues->Branch("ra2_daughter1ID",  &m_daughter1ID,  "ra2_daughter1ID/D" );
+  reducedValues->Branch("ra2_daughter2Pt", &m_daughter2Pt, "ra2_daughter2Pt/D" );
+  reducedValues->Branch("ra2_daughter2Eta",&m_daughter2Eta,"ra2_daughter2Eta/D" );
+  reducedValues->Branch("ra2_daughter2M",  &m_daughter2M,  "ra2_daughter2M/D" );
+  reducedValues->Branch("ra2_daughter2ID",  &m_daughter2ID,  "ra2_daughter2ID/D" );
+  reducedValues->Branch("ra2_combDaughterPt", &m_combDaughterPt, "ra2_combDaughterPt/D" );
+  reducedValues->Branch("ra2_combDaughterEta",&m_combDaughterEta,"ra2_combDaughterEta/D" );
+  reducedValues->Branch("ra2_combDaughterM",  &m_combDaughterM,  "ra2_combDaughterM/D" );
 
-  reducedValues->Branch("ra2_genDPhiMHT1", &m_genDPhiMHT1, "m_genDPhiMHT1/D");
-  reducedValues->Branch("ra2_genDPhiMHT2", &m_genDPhiMHT2, "m_genDPhiMHT2/D");
-  reducedValues->Branch("ra2_genDPhiMHT3", &m_genDPhiMHT3, "m_genDPhiMHT3/D");
-  reducedValues->Branch("ra2_genDPhiMHT4", &m_genDPhiMHT4, "m_genDPhiMHT4/D");
+  reducedValues->Branch("ra2_genDPhiMHT1", &m_genDPhiMHT1, "ra2_genDPhiMHT1/D");
+  reducedValues->Branch("ra2_genDPhiMHT2", &m_genDPhiMHT2, "ra2_genDPhiMHT2/D");
+  reducedValues->Branch("ra2_genDPhiMHT3", &m_genDPhiMHT3, "ra2_genDPhiMHT3/D");
+  reducedValues->Branch("ra2_genDPhiMHT4", &m_genDPhiMHT4, "ra2_genDPhiMHT4/D");
 
-  reducedValues->Branch("ra2_genDPhiMET1", &m_genDPhiMET1, "m_genDPhiMET1/D");
-  reducedValues->Branch("ra2_genDPhiMET2", &m_genDPhiMET2, "m_genDPhiMET2/D");
-  reducedValues->Branch("ra2_genDPhiMET3", &m_genDPhiMET3, "m_genDPhiMET3/D");
-  reducedValues->Branch("ra2_genDPhiMET4", &m_genDPhiMET4, "m_genDPhiMET4/D");
+  reducedValues->Branch("ra2_genDPhiMET1", &m_genDPhiMET1, "ra2_genDPhiMET1/D");
+  reducedValues->Branch("ra2_genDPhiMET2", &m_genDPhiMET2, "ra2_genDPhiMET2/D");
+  reducedValues->Branch("ra2_genDPhiMET3", &m_genDPhiMET3, "ra2_genDPhiMET3/D");
+  reducedValues->Branch("ra2_genDPhiMET4", &m_genDPhiMET4, "ra2_genDPhiMET4/D");
 
-  reducedValues->Branch("ra2_genDPhiMETNoBoson1", &m_genDPhiMETNoBoson1, "m_genDPhiMETNoBoson1/D");
-  reducedValues->Branch("ra2_genDPhiMETNoBoson2", &m_genDPhiMETNoBoson2, "m_genDPhiMETNoBoson2/D");
-  reducedValues->Branch("ra2_genDPhiMETNoBoson3", &m_genDPhiMETNoBoson3, "m_genDPhiMETNoBoson3/D");
-  reducedValues->Branch("ra2_genDPhiMETNoBoson4", &m_genDPhiMETNoBoson4, "m_genDPhiMETNoBoson4/D");
+  reducedValues->Branch("ra2_genDPhiMETNoBoson1", &m_genDPhiMETNoBoson1, "ra2_genDPhiMETNoBoson1/D");
+  reducedValues->Branch("ra2_genDPhiMETNoBoson2", &m_genDPhiMETNoBoson2, "ra2_genDPhiMETNoBoson2/D");
+  reducedValues->Branch("ra2_genDPhiMETNoBoson3", &m_genDPhiMETNoBoson3, "ra2_genDPhiMETNoBoson3/D");
+  reducedValues->Branch("ra2_genDPhiMETNoBoson4", &m_genDPhiMETNoBoson4, "ra2_genDPhiMETNoBoson4/D");
 
-  reducedValues->Branch("ra2_genJet1Pt",  &m_genJet1Pt,  "m_genJet1Pt/D");
-  reducedValues->Branch("ra2_genJet1Eta", &m_genJet1Eta, "m_genJet1Eta/D");
-  reducedValues->Branch("ra2_genJet2Pt",  &m_genJet2Pt,  "m_genJet2Pt/D");
-  reducedValues->Branch("ra2_genJet2Eta", &m_genJet2Eta, "m_genJet2Eta/D");
-  reducedValues->Branch("ra2_genJet3Pt",  &m_genJet3Pt,  "m_genJet3Pt/D");
-  reducedValues->Branch("ra2_genJet3Eta", &m_genJet3Eta, "m_genJet3Eta/D");
-  reducedValues->Branch("ra2_genJet4Pt",  &m_genJet4Pt,  "m_genJet4Pt/D");
-  reducedValues->Branch("ra2_genJet4Eta", &m_genJet4Eta, "m_genJet4Eta/D");
+  reducedValues->Branch("ra2_genJet1Pt",  &m_genJet1Pt,  "ra2_genJet1Pt/D");
+  reducedValues->Branch("ra2_genJet1Eta", &m_genJet1Eta, "ra2_genJet1Eta/D");
+  reducedValues->Branch("ra2_genJet2Pt",  &m_genJet2Pt,  "ra2_genJet2Pt/D");
+  reducedValues->Branch("ra2_genJet2Eta", &m_genJet2Eta, "ra2_genJet2Eta/D");
+  reducedValues->Branch("ra2_genJet3Pt",  &m_genJet3Pt,  "ra2_genJet3Pt/D");
+  reducedValues->Branch("ra2_genJet3Eta", &m_genJet3Eta, "ra2_genJet3Eta/D");
+  reducedValues->Branch("ra2_genJet4Pt",  &m_genJet4Pt,  "ra2_genJet4Pt/D");
+  reducedValues->Branch("ra2_genJet4Eta", &m_genJet4Eta, "ra2_genJet4Eta/D");
 
-  reducedValues->Branch("ra2_nJetsGenPt30Eta50", &m_nJetsGenPt30Eta50, "nJetsGenPt30Eta50/I" );
-  reducedValues->Branch("ra2_nJetsGenPt30Eta24", &m_nJetsGenPt30Eta24, "nJetsGenPt30Eta24/I" );
-  reducedValues->Branch("ra2_bJetsGenPt30Eta24", &m_bJetsGenPt30Eta24, "bJetsGenPt30Eta24/I");
-  reducedValues->Branch("ra2_nJetsGenPt50Eta25", &m_nJetsGenPt50Eta25, "nJetsGenPt50Eta25/I" );
-  reducedValues->Branch("ra2_nJetsGenPt50Eta25MInv", &m_nJetsGenPt50Eta25MInv, "nJetsGenPt50Eta25MInv/I" );
+  reducedValues->Branch("ra2_nJetsGenPt30Eta50", &m_nJetsGenPt30Eta50, "ra2_nJetsGenPt30Eta50/I" );
+  reducedValues->Branch("ra2_nJetsGenPt30Eta24", &m_nJetsGenPt30Eta24, "ra2_nJetsGenPt30Eta24/I" );
+  reducedValues->Branch("ra2_bJetsGenPt30Eta24", &m_bJetsGenPt30Eta24, "ra2_bJetsGenPt30Eta24/I");
+  reducedValues->Branch("ra2_nJetsGenPt50Eta25", &m_nJetsGenPt50Eta25, "ra2_nJetsGenPt50Eta25/I" );
+  reducedValues->Branch("ra2_nJetsGenPt50Eta25MInv", &m_nJetsGenPt50Eta25MInv, "ra2_nJetsGenPt50Eta25MInv/I" );
 
   ///Reco quantities
-  reducedValues->Branch("ra2_HT",    &m_HT,    "m_HT/D" );
-  reducedValues->Branch("ra2_MHT",   &m_MHT,   "m_MHT/D");
-  reducedValues->Branch("ra2_MET",   &m_MET,   "m_MET/D");
-  reducedValues->Branch("ra2_HTMInv",    &m_HTMInv,    "m_HTMInv/D" );
+  reducedValues->Branch("ra2_HT",    &m_HT,    "ra2_HT/D" );
+  reducedValues->Branch("ra2_MHT",   &m_MHT,   "ra2_MHT/D");
+  reducedValues->Branch("ra2_MET",   &m_MET,   "ra2_MET/D");
+  reducedValues->Branch("ra2_HTMInv",    &m_HTMInv,    "ra2_HTMInv/D" );
   
-  reducedValues->Branch("ra2_genPassRecoIso",  &m_genPassRecoIso,  "m_genPassRecoIso/O");
-  reducedValues->Branch("ra2_gen1PassRecoIso",  &m_gen1PassRecoIso,  "m_gen1PassRecoIso/O");
+  reducedValues->Branch("ra2_genPassRecoID",     &m_genPassRecoID,     "ra2_genPassRecoID/O");
+  reducedValues->Branch("ra2_gen1PassRecoID",    &m_gen1PassRecoID,    "ra2_gen1PassRecoID/O");
+  reducedValues->Branch("ra2_genPassRecoIDIso",  &m_genPassRecoIDIso,  "ra2_genPassRecoIDIso/O");
+  reducedValues->Branch("ra2_gen1PassRecoIDIso", &m_gen1PassRecoIDIso, "ra2_gen1PassRecoIDIso/O");
   if (studyRecoIso_) {
-    reducedValues->Branch("ra2_nBosons",  &m_nBosons,  "m_nBosons/I" );
-    reducedValues->Branch("ra2_boson1Pt", &m_boson1Pt, "m_boson1Pt/D" );
-    reducedValues->Branch("ra2_boson1Eta",&m_boson1Eta,"m_boson1Eta/D" );
-    reducedValues->Branch("ra2_boson1M",  &m_boson1M,  "m_boson1M/D" );
-    reducedValues->Branch("ra2_boson1MinDR",  &m_boson1MinDR,  "m_boson1MinDR/D" );
-    //reducedValues->Branch("ra2_boson2Pt", &m_boson2Pt, "m_boson2Pt/D" );
-    //reducedValues->Branch("ra2_boson2Eta",&m_boson2Eta,"m_boson2Eta/D" );
-    //reducedValues->Branch("ra2_boson2M",  &m_boson2M,  "m_boson2M/D" );
+    reducedValues->Branch("ra2_nBosons",  &m_nBosons,  "ra2_nBosons/I" );
+    reducedValues->Branch("ra2_boson1Pt", &m_boson1Pt, "ra2_boson1Pt/D" );
+    reducedValues->Branch("ra2_boson1Eta",&m_boson1Eta,"ra2_boson1Eta/D" );
+    reducedValues->Branch("ra2_boson1M",  &m_boson1M,  "ra2_boson1M/D" );
+    reducedValues->Branch("ra2_boson1MinDR",  &m_boson1MinDR,  "ra2_boson1MinDR/D" );
+    reducedValues->Branch("ra2_boson1PassCSEV", &m_boson1PassCSEV, "ra2_boson1PassCSEV/O" );
+    reducedValues->Branch("ra2_boson1PassPixV", &m_boson1PassPixV, "ra2_boson1PassPixV/O" );
+    reducedValues->Branch("ra2_boson1PassIso",  &m_boson1PassIso,  "ra2_boson1PassIso/O" );
+    //reducedValues->Branch("ra2_boson2Pt", &m_boson2Pt, "ra2_boson2Pt/D" );
+    //reducedValues->Branch("ra2_boson2Eta",&m_boson2Eta,"ra2_boson2Eta/D" );
+    //reducedValues->Branch("ra2_boson2M",  &m_boson2M,  "ra2_boson2M/D" );
 
-    reducedValues->Branch("ra2_METNoBoson",   &m_METNoBoson,   "m_METNoBoson/D");
-    reducedValues->Branch("ra2_dPhiMETNoBoson1", &m_dPhiMETNoBoson1, "m_dPhiMETNoBoson1/D");
-    reducedValues->Branch("ra2_dPhiMETNoBoson2", &m_dPhiMETNoBoson2, "m_dPhiMETNoBoson2/D");
-    reducedValues->Branch("ra2_dPhiMETNoBoson3", &m_dPhiMETNoBoson3, "m_dPhiMETNoBoson3/D");
-    reducedValues->Branch("ra2_dPhiMETNoBoson4", &m_dPhiMETNoBoson4, "m_dPhiMETNoBoson4/D");
+    //reducedValues->Branch("ra2_METNoBoson",   &m_METNoBoson,   "ra2_METNoBoson/D");
+    //reducedValues->Branch("ra2_dPhiMETNoBoson1", &m_dPhiMETNoBoson1, "ra2_dPhiMETNoBoson1/D");
+    //reducedValues->Branch("ra2_dPhiMETNoBoson2", &m_dPhiMETNoBoson2, "ra2_dPhiMETNoBoson2/D");
+    //reducedValues->Branch("ra2_dPhiMETNoBoson3", &m_dPhiMETNoBoson3, "ra2_dPhiMETNoBoson3/D");
+    //reducedValues->Branch("ra2_dPhiMETNoBoson4", &m_dPhiMETNoBoson4, "ra2_dPhiMETNoBoson4/D");
   }
-  reducedValues->Branch("ra2_dPhiMHT1", &m_dPhiMHT1, "m_dPhiMHT1/D");
-  reducedValues->Branch("ra2_dPhiMHT2", &m_dPhiMHT2, "m_dPhiMHT2/D");
-  reducedValues->Branch("ra2_dPhiMHT3", &m_dPhiMHT3, "m_dPhiMHT3/D");
-  reducedValues->Branch("ra2_dPhiMHT4", &m_dPhiMHT4, "m_dPhiMHT4/D");
+  reducedValues->Branch("ra2_dPhiMHT1", &m_dPhiMHT1, "ra2_dPhiMHT1/D");
+  reducedValues->Branch("ra2_dPhiMHT2", &m_dPhiMHT2, "ra2_dPhiMHT2/D");
+  reducedValues->Branch("ra2_dPhiMHT3", &m_dPhiMHT3, "ra2_dPhiMHT3/D");
+  reducedValues->Branch("ra2_dPhiMHT4", &m_dPhiMHT4, "ra2_dPhiMHT4/D");
   
-  reducedValues->Branch("ra2_dPhiMET1", &m_dPhiMET1, "m_dPhiMET1/D");
-  reducedValues->Branch("ra2_dPhiMET2", &m_dPhiMET2, "m_dPhiMET2/D");
-  reducedValues->Branch("ra2_dPhiMET3", &m_dPhiMET3, "m_dPhiMET3/D");
-  reducedValues->Branch("ra2_dPhiMET4", &m_dPhiMET4, "m_dPhiMET4/D");
+  reducedValues->Branch("ra2_dPhiMET1", &m_dPhiMET1, "ra2_dPhiMET1/D");
+  reducedValues->Branch("ra2_dPhiMET2", &m_dPhiMET2, "ra2_dPhiMET2/D");
+  reducedValues->Branch("ra2_dPhiMET3", &m_dPhiMET3, "ra2_dPhiMET3/D");
+  reducedValues->Branch("ra2_dPhiMET4", &m_dPhiMET4, "ra2_dPhiMET4/D");
   
-  reducedValues->Branch("ra2_Jet1Pt",  &m_Jet1Pt,  "m_Jet1Pt/D");
-  reducedValues->Branch("ra2_Jet1Eta", &m_Jet1Eta, "m_Jet1Eta/D");
-  reducedValues->Branch("ra2_Jet2Pt",  &m_Jet2Pt,  "m_Jet2Pt/D");
-  reducedValues->Branch("ra2_Jet2Eta", &m_Jet2Eta, "m_Jet2Eta/D");
-  reducedValues->Branch("ra2_Jet3Pt",  &m_Jet3Pt,  "m_Jet3Pt/D");
-  reducedValues->Branch("ra2_Jet3Eta", &m_Jet3Eta, "m_Jet3Eta/D");
-  reducedValues->Branch("ra2_Jet4Pt",  &m_Jet4Pt,  "m_Jet4Pt/D");
-  reducedValues->Branch("ra2_Jet4Eta", &m_Jet4Eta, "m_Jet4Eta/D");
+  reducedValues->Branch("ra2_Jet1Pt",  &m_Jet1Pt,  "ra2_Jet1Pt/D");
+  reducedValues->Branch("ra2_Jet1Eta", &m_Jet1Eta, "ra2_Jet1Eta/D");
+  reducedValues->Branch("ra2_Jet2Pt",  &m_Jet2Pt,  "ra2_Jet2Pt/D");
+  reducedValues->Branch("ra2_Jet2Eta", &m_Jet2Eta, "ra2_Jet2Eta/D");
+  reducedValues->Branch("ra2_Jet3Pt",  &m_Jet3Pt,  "ra2_Jet3Pt/D");
+  reducedValues->Branch("ra2_Jet3Eta", &m_Jet3Eta, "ra2_Jet3Eta/D");
+  reducedValues->Branch("ra2_Jet4Pt",  &m_Jet4Pt,  "ra2_Jet4Pt/D");
+  reducedValues->Branch("ra2_Jet4Eta", &m_Jet4Eta, "ra2_Jet4Eta/D");
   
-  reducedValues->Branch("ra2_nJetsCSVM", &m_nJetsCSVM, "m_nJetsCSVM/I");
-  reducedValues->Branch("ra2_nJetsCSVT", &m_nJetsCSVT, "m_nJetsCSVT/I");
+  reducedValues->Branch("ra2_nJetsCSVM", &m_nJetsCSVM, "ra2_nJetsCSVM/I");
+  reducedValues->Branch("ra2_nJetsCSVT", &m_nJetsCSVT, "ra2_nJetsCSVT/I");
   reducedValues->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "nJetsPt30Eta50/I" );
   reducedValues->Branch("ra2_nJetsPt30Eta24", &m_nJetsPt30Eta24, "nJetsPt30Eta24/I" );
   reducedValues->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "nJetsPt50Eta25/I" );
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "nJetsPt50Eta25MInv/I" );
   
   if (storeExtraVetos_) {
-    reducedValues->Branch("ra2_passElVeto",         &m_passElVeto    , "m_passElVeto/O"    );
-    reducedValues->Branch("ra2_passMuVeto",         &m_passMuVeto    , "m_passMuVeto/O"    );
-    reducedValues->Branch("ra2_passTauVeto",        &m_passTauVeto   , "m_passTauVeto/O"   );
-    reducedValues->Branch("ra2_passIsoTrkVeto",     &m_passIsoTrkVeto, "m_passIsoTrkVeto/O");
+    reducedValues->Branch("ra2_passElVeto",         &m_passElVeto    , "ra2_passElVeto/O"    );
+    reducedValues->Branch("ra2_passMuVeto",         &m_passMuVeto    , "ra2_passMuVeto/O"    );
+    reducedValues->Branch("ra2_passTauVeto",        &m_passTauVeto   , "ra2_passTauVeto/O"   );
+    reducedValues->Branch("ra2_passIsoTrkVeto",     &m_passIsoTrkVeto, "ra2_passIsoTrkVeto/O");
   }
 
   reducedValues->SetAutoSave(1);

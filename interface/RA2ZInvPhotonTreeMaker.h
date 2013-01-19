@@ -53,7 +53,7 @@ private:
   std::string debugString_;
   bool data_;
   double scale_;
-  edm::InputTag photonSrc_, loosePhotonSrc_, tightPhotonSrc_, combIsoPhotonSrc_;
+  edm::InputTag photonSrc_, loosePhotonSrc_, tightPhotonSrc_, combIsoR03PhotonSrc_, combIsoR04PhotonSrc_;
   edm::InputTag electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
   edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_;
   std::string looseTopTaggerSrc_, nominalTopTaggerSrc_;
@@ -73,7 +73,8 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  int m_nPhotonsID, m_nPhotonsLooseIso, m_nPhotonsTightIso, m_nPhotonsCombIsoIso,
+  int m_nPhotonsID, m_nPhotonsLooseIso, m_nPhotonsTightIso, m_nPhotonsCombIsoR03, m_nPhotonsCombIsoR04,
+    m_Photon1PDGID,
     m_nJetsPt30Eta24, m_nJetsPt50Eta24, m_nJetsPt70Eta24,
     m_nJetsPt30Eta50, m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
     m_nJetsCSVM, m_nJetsCSVT,
@@ -87,7 +88,7 @@ private:
     m_Photon1SigmaIetaIeta, m_Photon1HadTowOverEm, 
     m_Photon1pfCH, m_Photon1pfNU, m_Photon1pfGA;
   bool  m_Photon1EConvVeto, m_Photon1PixelVeto,
-    m_Photon1IsLoosePFIso, m_Photon1IsTightPFIso, m_Photon1IsCombIsoR03;
+    m_Photon1IsLoosePFIso, m_Photon1IsTightPFIso, m_Photon1IsCombIsoR03, m_Photon1IsCombIsoR04;
 
   double m_Jet1Pt, m_Jet1Eta,
     m_Jet2Pt, m_Jet2Eta,

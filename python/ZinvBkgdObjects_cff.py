@@ -16,12 +16,13 @@ photonObjectsAK5PF = cms.Sequence(
 
 photonObjectsPF = cms.Sequence(
       zinvPhotons 
+    * countPhotonsID
     * photonCleanedPFJetsPF 
     * specialPhotonCleanedPFJetsPF 
     * htPFchsNoPhotID  
     * mhtPFchsNoPhotID 
-    #* htPFchsNoPhotIDPFIso  
-    #* mhtPFchsNoPhotIDPFIso
+    * htPFchsNoPhotIDPFIso  
+    * mhtPFchsNoPhotIDPFIso
 )
 
 #from ZInvisibleBkgds.Photons.ZinvBkgdMuons_cff import *
