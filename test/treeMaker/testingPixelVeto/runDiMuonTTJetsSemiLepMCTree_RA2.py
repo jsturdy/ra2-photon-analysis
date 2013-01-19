@@ -18,29 +18,31 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-###================= configure poolsource module ===================
+#================= configure poolsource module ===================
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'dcache:/pnfs/cms/WAX/11/store/user/lpcsusyhad/53X_ntuples/DoubleMu_Run2012B-13Jul2012-v4_lpc1/vchetlur/DoubleMu/DoubleMu_Run2012B-13Jul2012-v4_NOCUTS_HLTPFHTInc_12Oct2012V3_lpc1/062a2f358645c26cb65ce944f0ba30c4/susypat_100_1_9LL.root',
-        '/store/user/lpcsusyhad/53X_ntuples/DoubleMu_Run2012B-13Jul2012-v4_lpc1/vchetlur/DoubleMu/DoubleMu_Run2012B-13Jul2012-v4_NOCUTS_HLTPFHTInc_12Oct2012V3_lpc1/062a2f358645c26cb65ce944f0ba30c4/susypat_100_1_9LL.root',
+        '/store/user/lpcsusyhad/53X_ntuples/DYJetsToLL_HT_400ToInf_8TeV_madgraph_Summer12_v1_ext/seema/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph_ext/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph_v1_ext_NOCUTS_12Oct2012V3/c31a0db70b73f0b9a355af58227b92dd/susypat_99_1_Tvr.root',
+        '/store/user/lpcsusyhad/53X_ntuples/DYJetsToLL_HT_400ToInf_8TeV_madgraph_Summer12_v1_ext/seema/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph_ext/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph_v1_ext_NOCUTS_12Oct2012V3/c31a0db70b73f0b9a355af58227b92dd/susypat_98_1_VPV.root',
+        '/store/user/lpcsusyhad/53X_ntuples/DYJetsToLL_HT_400ToInf_8TeV_madgraph_Summer12_v1_ext/seema/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph_ext/DYJetsToLL_HT-400ToInf_TuneZ2Star_8TeV-madgraph_v1_ext_NOCUTS_12Oct2012V3/c31a0db70b73f0b9a355af58227b92dd/susypat_9_1_5Kn.root',
     )
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 process.source.skipEvents = cms.untracked.uint32(0)
-process.GlobalTag.globaltag = "FT_53_V6C_AN2::All"
+process.GlobalTag.globaltag = "START53_V7F::All"
 
 #========================= analysis module =====================================
+scaleF = 103.0*10*1000/11081685.
 process.zToMuMu = cms.EDProducer("CandViewShallowCloneCombiner",
-                                 decay = cms.string('patMuonsPFIDIso@+ patMuonsPFIDIso@-'),
-                                 cut = cms.string('50.0 < mass < 120.0'),
-                                 name = cms.string('zToMuMu'),
-                                 roles = cms.vstring('muon1', 'muon2')
-                                 )
+    decay = cms.string('patMuonsPFIDIso@+ patMuonsPFIDIso@-'),
+    cut   = cms.string('50.0 < mass < 120.0'),
+    name  = cms.string('zToMuMu'),
+    roles = cms.vstring('muon1', 'muon2')
+)
 
 from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
 process.eventWeight = weightProducer.clone(
-    weight = cms.double(1.0),
+    weight = cms.double(scaleF),
 )
 from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
 process.puWeight = puWeightProducer.clone(
@@ -49,9 +51,9 @@ process.puWeight = puWeightProducer.clone(
 from ZInvisibleBkgds.Photons.treemaker_cfi import dimuonTree
 process.analysis = dimuonTree.clone(
     Debug           = cms.bool(False),
-    Data            = cms.bool(True),
-    ScaleFactor     = cms.double(1.0),
-    DoPUReweight    = cms.bool(False),
+    Data            = cms.bool(False),
+    ScaleFactor     = cms.double(scaleF),
+    DoPUReweight    = cms.bool(True),
 
     metSource       = cms.InputTag("pfType1MetNoMuon","pfcand"),
 
@@ -117,13 +119,14 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.analysis
 )
 
+
 #======================= output module configuration ===========================
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('doublemuDataTree.root')
+    fileName = cms.string('ttjetsSemiLepMCTree.root')
 )
 
 #============================== configure paths ===============================
 process.p1 = cms.Path(process.eventWeight
-#                    * process.puWeight
+                    * process.puWeight
                     * process.analysisSeq )
