@@ -44,10 +44,9 @@ from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
 process.puWeight = puWeightProducer.clone(
     weight = cms.double(1.0),
 )
-from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
 from ZInvisibleBkgds.Photons.treemaker_cfi import zvvTree
 process.analysis = zvvTree.clone(
-    Debug           = cms.bool(False),
+#    Debug           = cms.bool(False),
     ScaleFactor     = cms.double(scaleF),
 
     metSource       = cms.InputTag("patMETsPF"),

@@ -1,20 +1,20 @@
-#done#cmsRun runDiMuonDataAug06Tree_RA2.py         >& aug06.dimuon.out&
-#done#cmsRun runDiMuonDataAug24Tree_RA2.py	     >& aug24.dimoun.out&
-#done#cmsRun runDiMuonDataJul13Tree_RA2.py	     >& jul13.dimuon.out&
-#done#cmsRun runDiMuonDataPromptTree_RA2.py	     >& promp.dimuon.out&
-#done#cmsRun runDiMuonMC200Tree_RA2.py	     >& dimuon.200.out&
-#done#cmsRun runDiMuonMC400Tree_RA2.py	     >& dimuon.400.out&
-#done#cmsRun runDiMuonTTJetsSemiLepMCTree_RA2.py   >& dimuon.ttjets.out&
-#done#cmsRun runPhoton200MCTree_RA2.py	     >& gjets.200.out&
-#done#cmsRun runPhoton400MCTree_RA2.py	     >& gjets.400.out&
-#done#cmsRun runPhotonDataAug06Tree_RA2.py	     >& aug06.photon.out&
-#done#cmsRun runPhotonDataAug24Tree_RA2.py	     >& aug24.photon.out&
-#done#cmsRun runPhotonDataJul13Tree_RA2.py	     >& jul13.photon.out&
-#done#cmsRun runPhotonDataPromptTree_RA2.py	     >& promp.photon.out&
-#done#cmsRun runPhotonTTJetsSemiLepMCTree_RA2.py   >& photon.ttjets.out&
-#done#cmsRun runPhotonWJets400MCTree_RA2.py	     >& photon.wjets.out&
-#done#cmsRun runQCDPhoton1000ToInfMCTree_RA2.py    >& qcd.1000.out&
-#done#cmsRun runQCDPhoton250To500MCTree_RA2.py     >& qcd.250.out&
-#done#cmsRun runQCDPhoton500To1000MCTree_RA2.py    >& qcd.500.out&
-#done#cmsRun runZInv200MCTree_RA2.py		     >& zinv.200.out&
-#done#cmsRun runZInv400MCTree_RA2.py               >& zinv.400.out&
+#di-muon tests#cmsRun runDiMuonDataAug06Tree_RA2.py         >& aug06.dimuon.out&
+#di-muon tests#cmsRun runDiMuonDataAug24Tree_RA2.py	     >& aug24.dimoun.out&
+#di-muon tests#cmsRun runDiMuonDataJul13Tree_RA2.py	     >& jul13.dimuon.out&
+#di-muon tests#cmsRun runDiMuonDataPromptTree_RA2.py	     >& promp.dimuon.out&
+#di-muon tests#cmsRun runDiMuonMC200Tree_RA2.py	     >& dimuon.200.out&
+#di-muon tests#cmsRun runDiMuonMC400Tree_RA2.py	     >& dimuon.400.out&
+#di-muon tests#cmsRun runDiMuonTTJetsSemiLepMCTree_RA2.py   >& dimuon.ttjets.out&
+#photon tests#cmsRun runPhoton200MCTree_RA2.py	     >& gjets.200.out&
+#photon tests#cmsRun runPhoton400MCTree_RA2.py	     >& gjets.400.out&
+#photon tests#cmsRun runPhotonDataAug06Tree_RA2.py	     >& aug06.photon.out&
+#photon tests#cmsRun runPhotonDataAug24Tree_RA2.py	     >& aug24.photon.out&
+#photon tests#cmsRun runPhotonDataJul13Tree_RA2.py	     >& jul13.photon.out&
+#photon tests#cmsRun runPhotonDataPromptTree_RA2.py	     >& promp.photon.out&
+#photon tests#cmsRun runPhotonTTJetsSemiLepMCTree_RA2.py   >& photon.ttjets.out&
+#photon tests#cmsRun runPhotonWJets400MCTree_RA2.py	     >& photon.wjets.out&
+#photon tests#cmsRun runQCDPhoton1000ToInfMCTree_RA2.py    >& qcd.1000.out&
+#photon tests#cmsRun runQCDPhoton250To500MCTree_RA2.py     >& qcd.250.out&
+#photon tests#cmsRun runQCDPhoton500To1000MCTree_RA2.py    >& qcd.500.out&
+#zinv tests#cmsRun runZInv200MCTree_RA2.py		     >& zinv.200.out&
+#zinv tests#cmsRun runZInv400MCTree_RA2.py               >& zinv.400.out&
