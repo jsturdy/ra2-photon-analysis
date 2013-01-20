@@ -22,16 +22,14 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/uscms_data/d2/sturdy07/SUSY/RA2/CMSSW_5_3_5/src/ZInvisibleBkgds/Photons/test/genTree/susypat_zinv.root'
-        ##'/store/user/lpcsusyhad/kasmi/kasmi/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12-PU_S7_START52_V9-v1_NOCUTS_SkimsCode_09Aug2012V1/30d962f2384a73745773eb8ebda4b94d/SUSYPAT_1000_1_SQV.root',
-        ##'/store/user/lpcsusyhad/kasmi/kasmi/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12-PU_S7_START52_V9-v1_NOCUTS_SkimsCode_09Aug2012V1/30d962f2384a73745773eb8ebda4b94d/SUSYPAT_1001_1_InC.root',
-        ##'/store/user/lpcsusyhad/kasmi/kasmi/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12-PU_S7_START52_V9-v1_NOCUTS_SkimsCode_09Aug2012V1/30d962f2384a73745773eb8ebda4b94d/SUSYPAT_1002_1_RRw.root',
-        ##'/store/user/lpcsusyhad/kasmi/kasmi/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12-PU_S7_START52_V9-v1_NOCUTS_SkimsCode_09Aug2012V1/30d962f2384a73745773eb8ebda4b94d/SUSYPAT_1003_1_rat.root',
-        ##'/store/user/lpcsusyhad/kasmi/kasmi/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12-PU_S7_START52_V9-v1_NOCUTS_SkimsCode_09Aug2012V1/30d962f2384a73745773eb8ebda4b94d/SUSYPAT_1004_1_wfF.root',
+        '/store/user/lpcsusyhad/53X_ntuples/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph_Summer12/dhare/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_1001_1_aWU.root',
+        '/store/user/lpcsusyhad/53X_ntuples/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph_Summer12/dhare/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_100_1_lty.root',
+        '/store/user/lpcsusyhad/53X_ntuples/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph_Summer12/dhare/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_101_1_itH.root',
+        '/store/user/lpcsusyhad/53X_ntuples/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph_Summer12/dhare/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_102_1_X4k.root',
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 process.source.skipEvents = cms.untracked.uint32(0)
 
@@ -80,14 +78,14 @@ process.countGenBosons = countPhotonsIDPFIso.clone(
 process.countGenNuNu   = countPhotonsIDPFIso.clone(
     src = cms.InputTag("zinvBkgdst3ZNuNuBosons"))
 
-process.analysisSeq = cms.Sequence(process.ra2PFchsJets
-                                 * process.htPFchs
-                                 * process.mhtPFchs
-                                 * process.zinvBkgdGenZBosons
+process.analysisSeq = cms.Sequence(process.zinvBkgdGenZBosons
 #                                 * process.zinvBkgdGenZNuNuBosons
-                                 * process.zinvBJetsPF
                                  * process.countGenBosons
 #                                 * process.countGenNuNu
+                                 * process.ra2PFchsJets
+                                 * process.htPFchs
+                                 * process.mhtPFchs
+                                 * process.zinvBJetsPF
                                  * process.zinvVetos
                                  * process.zinvBJetsPF
                                  * process.st3ZBosons

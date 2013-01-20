@@ -78,14 +78,14 @@ process.countGenBosons = countPhotonsIDPFIso.clone(
 process.countGenNuNu   = countPhotonsIDPFIso.clone(
     src = cms.InputTag("zinvBkgdst3ZNuNuBosons"))
 
-process.analysisSeq = cms.Sequence(process.ra2PFchsJets
-                                 * process.htPFchs
-                                 * process.mhtPFchs
-                                 * process.zinvBkgdGenZBosons
+process.analysisSeq = cms.Sequence(process.zinvBkgdGenZBosons
 #                                 * process.zinvBkgdGenZNuNuBosons
-                                 * process.zinvBJetsPF
                                  * process.countGenBosons
 #                                 * process.countGenNuNu
+                                 * process.ra2PFchsJets
+                                 * process.htPFchs
+                                 * process.mhtPFchs
+                                 * process.zinvBJetsPF
                                  * process.zinvVetos
                                  * process.zinvBJetsPF
                                  * process.st3ZBosons

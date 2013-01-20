@@ -125,21 +125,35 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('gjetsht400toinf_gen_tree.root')
 )
 #============================== configure paths ===============================
-#process.p1 = cms.Path(process.puWeight
-#                    * process.eventWeight
-#                    * process.analysisSeq )
-process.pdirect = cms.Path(process.puWeight
-                         * process.eventWeight
+process.p1 = cms.Path(process.puWeight
+                    * process.eventWeight
+                    * process.zinvBkgdGenPhotons
+#                    * process.analysisSeq
+                      )
+process.pdirect = cms.Path(#process.puWeight
+#                         * process.eventWeight
+#                         * process.zinvBkgdGenPhotons
+                           process.countDirectPhotons
                          * process.analysisSeq 
-                         * process.directAnalysisSeq)
-process.psecondary = cms.Path(process.puWeight
-                            * process.eventWeight
+                         * process.directPhotons
+                         #* process.directAnalysisSeq
+                         )
+process.psecondary = cms.Path(#process.puWeight
+   #                        * process.eventWeight
+#                            * process.zinvBkgdGenPhotons
+                              process.countSecondaryPhotons
                             * process.analysisSeq 
-                            * process.secondaryAnalysisSeq)
-process.pfragmentation = cms.Path(process.puWeight
-                                * process.eventWeight
-                                * process.analysisSeq 
-                                * process.fragmentationAnalysisSeq)
+                            * process.secondaryPhotons
+                            #* process.secondaryAnalysisSeq
+                         )
+process.pfragmentation = cms.Path(#process.puWeight
+    #                            * process.eventWeight
+#                                 * process.zinvBkgdGenPhotons
+                                   process.countFragmentationPhotons
+                                 * process.analysisSeq 
+                                 * process.fragmentationPhotons
+                                 #* process.fragmentationAnalysisSeq
+                         )
 
 ##file = open('wtf_gentree.py','w')
 ##file.write(str(process.dumpPython()))

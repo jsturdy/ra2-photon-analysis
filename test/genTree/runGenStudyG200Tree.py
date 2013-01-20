@@ -22,17 +22,14 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/uscms_data/d2/sturdy07/SUSY/RA2/CMSSW_5_3_5/src/ZInvisibleBkgds/Photons/test/genTree/susypat_gjets.root'
-        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_784_1_1Ml.root',
-        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_785_1_H28.root',
-        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_786_1_5oX.root',
-        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_787_1_m5s.root',
-        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_788_1_8Iw.root',
-        ##'/store/user/lpcsusyhad/sturdy/GJets_HT-200To400_8TeV-madgraph/RA2_525_Skims/b5ca2c28b0caa65e44d094fff6785510/susypat_789_1_rUM.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_1849_1_cum.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_184_1_VO8.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_1850_1_IK2.root',
+        '/store/user/lpcsusyhad/53X_ntuples/GJets_HT-400ToInf_8TeV_madgraph_v2_Summer12/dhare/GJets_HT-400ToInf_8TeV-madgraph_v2/Summer12_DR53X-PU_S10_V7A-v1_NOCUTS_12Oct2012V3/b9d339f81100b66394e7e5c0a998fe80/susypat_1851_1_r0Z.root',
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 process.source.skipEvents = cms.untracked.uint32(0)
 
@@ -107,7 +104,7 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.photonMETCollections
                                    * process.photonVetos
                                    * process.zinvBJetsPFNoPhotonIDSpecial
-                                   * process.zinvBkgdGenPhotons
+#                                   * process.zinvBkgdGenPhotons
 )
 
 process.directAnalysisSeq = cms.Sequence(process.countDirectPhotons
@@ -129,21 +126,43 @@ process.TFileService = cms.Service("TFileService",
 )
 
 #============================== configure paths ===============================
-#process.p1 = cms.Path(process.puWeight
-#                    * process.eventWeight
-#                    * process.analysisSeq )
-process.pdirect = cms.Path(process.puWeight
-                         * process.eventWeight
+process.p1 = cms.Path(process.puWeight
+                    * process.eventWeight
+                    * process.zinvBkgdGenPhotons
+#                    * process.analysisSeq
+                      )
+process.pdirect = cms.Path(#process.puWeight
+#                         * process.eventWeight
+#                         * process.zinvBkgdGenPhotons
+                           process.countDirectPhotons
                          * process.analysisSeq 
-                         * process.directAnalysisSeq)
-process.psecondary = cms.Path(process.puWeight
-                            * process.eventWeight
+                         * process.directPhotons
+                         #* process.directAnalysisSeq
+                         )
+process.psecondary = cms.Path(#process.puWeight
+   #                        * process.eventWeight
+#                            * process.zinvBkgdGenPhotons
+                              process.countSecondaryPhotons
                             * process.analysisSeq 
-                            * process.secondaryAnalysisSeq)
-process.pfragmentation = cms.Path(process.puWeight
-                                * process.eventWeight
-                                * process.analysisSeq 
-                                * process.fragmentationAnalysisSeq)
+                            * process.secondaryPhotons
+                            #* process.secondaryAnalysisSeq
+                         )
+process.pfragmentation = cms.Path(#process.puWeight
+    #                            * process.eventWeight
+#                                 * process.zinvBkgdGenPhotons
+                                   process.countFragmentationPhotons
+                                 * process.analysisSeq 
+                                 * process.fragmentationPhotons
+                                 #* process.fragmentationAnalysisSeq
+                         )
+#process.psecondary = cms.Path(process.puWeight
+#                            * process.eventWeight
+#                            * process.analysisSeq 
+#                            * process.secondaryAnalysisSeq)
+#process.pfragmentation = cms.Path(process.puWeight
+#                                * process.eventWeight
+#                                * process.analysisSeq 
+#                                * process.fragmentationAnalysisSeq)
 
 
 ##file = open('wtf_gentree.py','w')
