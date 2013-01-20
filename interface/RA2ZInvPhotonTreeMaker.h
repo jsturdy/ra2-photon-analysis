@@ -87,7 +87,7 @@ private:
     m_Photon1Phi, 
     m_Photon1SigmaIetaIeta, m_Photon1HadTowOverEm, 
     m_Photon1pfCH, m_Photon1pfNU, m_Photon1pfGA;
-  bool  m_Photon1EConvVeto, m_Photon1PixelVeto,
+  bool  m_Photon1EConvVeto, m_Photon1PixelVeto, m_Photon1IsTightID,
     m_Photon1IsLoosePFIso, m_Photon1IsTightPFIso, m_Photon1IsCombIsoR03, m_Photon1IsCombIsoR04;
 
   double m_Jet1Pt, m_Jet1Eta,

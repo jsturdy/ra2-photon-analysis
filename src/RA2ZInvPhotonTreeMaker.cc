@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.12 2013/01/20 02:41:21 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.13 2013/01/20 09:10:29 sturdy Exp $
 //
 //
 
@@ -260,9 +260,10 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   //////
   if(debug_ && patPhotons->size() > 0) {
     std::cout<<debugString_<<std::endl;
-    std::cout << "Isolated photons passID passLooseISO  passTightISO  passCombISOR03  passCombISOR04 | pt  eta  phi  conv  !pixel  hadTowOverEm  (cut)  sigieie  (cut) | PU  cut  isoAlt   puSub EA" << std::endl;
+    std::cout << "Isolated photons passID passTightID passLooseISO  passTightISO  passCombISOR03  passCombISOR04 | pt  eta  phi  conv  !pixel  hadTowOverEm  (cut)  sigieie  (cut) | PU  cut  isoAlt   puSub EA" << std::endl;
     for( unsigned int iphot=0; iphot<patPhotons->size(); iphot++) {
       bool passID = false;
+      bool passTightID = false;
       bool passLooseISO = false;
       bool passTightISO = false;
       bool passCombISOR03 = false;
@@ -274,11 +275,16 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 	    fabs((*patPhotons)[iphot].eta()) < 1.4442 ||
 	    fabs((*patPhotons)[iphot].eta()) > 1.566 
 	    ))&&
-	  ((*patPhotons)[iphot].hadTowOverEm() < (*patPhotons)[iphot].userFloat("hadTowOverEmTightCut")) &&
-	  ((*patPhotons)[iphot].sigmaIetaIeta() < (*patPhotons)[iphot].userFloat("showerShapeTightCut"))// &&
+	  ((*patPhotons)[iphot].hadTowOverEm() < (*patPhotons)[iphot].userFloat("hadTowOverEmLooseCut")) &&
+	  ((*patPhotons)[iphot].sigmaIetaIeta() < (*patPhotons)[iphot].userFloat("showerShapeLooseCut"))// &&
 	  //((*patPhotons)[iphot].userFloat("passElectronConvVeto") > 0)
-	  )
+	  ) {
 	passID = true;
+	if (((*patPhotons)[iphot].hadTowOverEm() < (*patPhotons)[iphot].userFloat("hadTowOverEmTightCut")) &&
+	    ((*patPhotons)[iphot].sigmaIetaIeta() < (*patPhotons)[iphot].userFloat("showerShapeTightCut"))
+	    )
+	  passTightID = true;
+      }
 
       if (((*patPhotons)[iphot].userFloat("pfChargedPU") < (*patPhotons)[iphot].userFloat("pfChargedLooseCut")) &&
 	  ((*patPhotons)[iphot].userFloat("pfNeutralPU") < (*patPhotons)[iphot].userFloat("pfNeutralLooseCut")) &&
@@ -300,6 +306,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 	
       std::cout << "ph" << iphot 
 		<< " " << passID
+		<< " " << passTightID
 		<< " " << passLooseISO
 		<< " " << passTightISO
 		<< " " << passCombISOR03
@@ -377,6 +384,10 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_Photon1HadTowOverEm  = (*patPhotons)[0].hadTowOverEm();
   m_Photon1EConvVeto  = (*patPhotons)[0].userFloat("passElectronConvVeto");
   m_Photon1PixelVeto  = !((*patPhotons)[0].hasPixelSeed());
+
+  m_Photon1IsTightID  = (((*patPhotons)[0].hadTowOverEm() < (*patPhotons)[0].userFloat("hadTowOverEmTightCut")) &&
+			 ((*patPhotons)[0].sigmaIetaIeta() < (*patPhotons)[0].userFloat("showerShapeTightCut"))
+			 );
 
   m_Photon1IsLoosePFIso  = (((*patPhotons)[0].userFloat("pfChargedPU")<(*patPhotons)[0].userFloat("pfChargedLooseCut"))&&
 			    ((*patPhotons)[0].userFloat("pfNeutralPU")<(*patPhotons)[0].userFloat("pfNeutralLooseCut"))&&
@@ -855,6 +866,7 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_Photon1DRJet1",&m_Photon1DRJet1,"m_Photon1DRJet1/D");
   reducedValues->Branch("ra2_Photon1EConvVeto",   &m_Photon1EConvVeto,   "m_Photon1EConvVeto/O" );
   reducedValues->Branch("ra2_Photon1PixelVeto",   &m_Photon1PixelVeto,   "m_Photon1PixelVeto/O" );
+  reducedValues->Branch("ra2_Photon1IsTightID",   &m_Photon1IsTightID,   "m_Photon1IsTightID/O" );
   reducedValues->Branch("ra2_Photon1IsLoosePFIso",   &m_Photon1IsLoosePFIso,   "m_Photon1IsLoosePFIso/O" );
   reducedValues->Branch("ra2_Photon1IsTightPFIso",   &m_Photon1IsTightPFIso,   "m_Photon1IsTightPFIso/O" );
   reducedValues->Branch("ra2_Photon1IsCombIsoR03",   &m_Photon1IsCombIsoR03,   "m_Photon1IsCombIsoR03/O" );
