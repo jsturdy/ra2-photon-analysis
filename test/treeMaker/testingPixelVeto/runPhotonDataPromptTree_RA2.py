@@ -30,7 +30,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 process.source.skipEvents = cms.untracked.uint32(0)
 #========================= analysis module =====================================
 
@@ -124,21 +124,21 @@ process.analysisSeq = cms.Sequence(  process.ra2PFchsJets
                                    * process.patPhotonsUser1
                                    * process.patPhotonsUserData
                                    * process.photonObjectsPF
+                                   * process.countPhotonsID
+                                   * process.photonIDHTFilter
+                                   #* process.photonIDMHTFilter
                                    * process.photonMETCollections
                                    * process.photonVetos
                                    * process.photonTopTaggers
-                                   * process.countPhotonsID
                                    * process.ecalLaserCorrFilter
                                    * process.cleaningOnFilterResults
-                                   * process.photonIDHTFilter
-                                   #* process.photonIDMHTFilter
                                    * process.zinvBJetsPFNoPhotonIDSpecial
                                    * process.analysisID
 )
 #======================= output module configuration ===========================
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('photonDataTree.root')
+    fileName = cms.string('photonDataTreePrompt.root')
 )
 
 #============================== configure paths ===============================
