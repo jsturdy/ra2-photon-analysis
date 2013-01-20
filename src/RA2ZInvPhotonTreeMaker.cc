@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.10 2013/01/19 19:36:51 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.11 2013/01/19 20:55:48 sturdy Exp $
 //
 //
 
@@ -581,7 +581,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
       if (jet->pt() > 50)
 	++m_nJetsPt50Eta24;
       if (jet->pt() > 70)
-	++m_nJetsPt30Eta24;
+	++m_nJetsPt70Eta24;
     }
     if (jet->pt() > 70 && fabs(jet->eta() < 2.5)) 
       if (patPhotons->size())

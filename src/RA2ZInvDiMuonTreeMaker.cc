@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.7 2012/12/23 18:21:44 sturdy Exp $
+// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.8 2013/01/19 19:36:51 sturdy Exp $
 //
 //
 
@@ -447,7 +447,7 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
       if (jet->pt() > 50)
 	++m_nJetsPt50Eta24;
       if (jet->pt() > 70)
-	++m_nJetsPt30Eta24;
+	++m_nJetsPt70Eta24;
     }
     if (jet->pt() > 50 && fabs(jet->eta() < 2.5)) 
       if (patMuons->size()>1)
