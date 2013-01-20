@@ -83,10 +83,10 @@ patPhotonRefsID = cms.EDFilter(
 zinvPhotons = cms.Sequence(
     patPhotonsID
   * patPhotonsIDPFIso
-  #* patPhotonsIDPFIsoLoose
+  * patPhotonsIDPFIsoLoose
   * patPhotonsIDPFIsoTight
-  #* patPhotonsIDCombIsoR03
-  #* patPhotonsIDCombIsoR04
+  * patPhotonsIDCombIsoR03
+  * patPhotonsIDCombIsoR04
 )
 
 countPhotonsID = countPatPhotons.clone()

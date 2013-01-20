@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.11 2013/01/19 20:55:48 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.12 2013/01/20 02:41:21 sturdy Exp $
 //
 //
 
@@ -260,7 +260,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   //////
   if(debug_ && patPhotons->size() > 0) {
     std::cout<<debugString_<<std::endl;
-    std::cout << "Isolated photons passID passLooseISO  passTightISO  passCombISOR03  passCombISOR04 | pt  eta  phi  conv  hadTowOverEm  (cut)  sigieie  (cut) | PU  cut  isoAlt   puSub EA" << std::endl;
+    std::cout << "Isolated photons passID passLooseISO  passTightISO  passCombISOR03  passCombISOR04 | pt  eta  phi  conv  !pixel  hadTowOverEm  (cut)  sigieie  (cut) | PU  cut  isoAlt   puSub EA" << std::endl;
     for( unsigned int iphot=0; iphot<patPhotons->size(); iphot++) {
       bool passID = false;
       bool passLooseISO = false;
@@ -268,15 +268,15 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
       bool passCombISOR03 = false;
       bool passCombISOR04 = false;
 
-      if ((*patPhotons)[iphot].et() > 1000 &&
+      if ((*patPhotons)[iphot].et() > 100 &&
 	  (fabs((*patPhotons)[iphot].eta()) < 2.5 &&
 	   (
 	    fabs((*patPhotons)[iphot].eta()) < 1.4442 ||
 	    fabs((*patPhotons)[iphot].eta()) > 1.566 
 	    ))&&
-	  ((*patPhotons)[iphot].hadTowOverEm() < (*patPhotons)[iphot].userFloat("hadTowOverEmLooseCut")) &&
-	  ((*patPhotons)[iphot].sigmaIetaIeta() < (*patPhotons)[iphot].userFloat("showerShapeLooseCut")) &&
-	  ((*patPhotons)[iphot].userInt("passElectronConvVeto") > 0)
+	  ((*patPhotons)[iphot].hadTowOverEm() < (*patPhotons)[iphot].userFloat("hadTowOverEmTightCut")) &&
+	  ((*patPhotons)[iphot].sigmaIetaIeta() < (*patPhotons)[iphot].userFloat("showerShapeTightCut"))// &&
+	  //((*patPhotons)[iphot].userFloat("passElectronConvVeto") > 0)
 	  )
 	passID = true;
 
@@ -303,31 +303,33 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 		<< " " << passLooseISO
 		<< " " << passTightISO
 		<< " " << passCombISOR03
-		<< " " << passCombISOR04
+		<< " " << passCombISOR04<<std::endl
 		<< " | " <<(*patPhotons)[iphot].pt() 
 		<< " " << (*patPhotons)[iphot].eta()
-		<< " " << (*patPhotons)[iphot].phi() 
-		<< " " << (*patPhotons)[iphot].genPhoton()->pdgId()
-		<< " " << (*patPhotons)[iphot].userInt("passElectronConvVeto") 
+		<< " " << (*patPhotons)[iphot].phi();
+      if (!data_ && (*patPhotons)[iphot].genPhoton())
+	std::cout<< " " << (*patPhotons)[iphot].genPhoton()->pdgId();
+      std::cout<< " " << (*patPhotons)[iphot].userFloat("passElectronConvVeto") 
+		<< " " << !((*patPhotons)[iphot].hasPixelSeed() )
 		<< " " << (*patPhotons)[iphot].hadTowOverEm() 
-		<< " " << (*patPhotons)[iphot].userFloat("hadTowOverEmLooseCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("hadTowOverEmTightCut") 
 		<< " " << (*patPhotons)[iphot].sigmaIetaIeta() 
-		<< " " << (*patPhotons)[iphot].userFloat("showerShapeLooseCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("showerShapeTightCut") 
 		<< std::endl
 		<< " | pfCharged - " << (*patPhotons)[iphot].userFloat("pfChargedPU") 
-		<< " " << (*patPhotons)[iphot].userFloat("pfChargedLooseCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfChargedTightCut") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfChargedIsoAlt") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfChargedPUSub") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfChargedEA") 
 		<< std::endl
 		<< " | pfNeutral - " << (*patPhotons)[iphot].userFloat("pfNeutralPU") 
-		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralLooseCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralTightCut") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralIsoAlt") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralPUSub") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralEA")
 		<< std::endl
 		<< " | pfGamma - " << (*patPhotons)[iphot].userFloat("pfGammaPU") 
-		<< " " << (*patPhotons)[iphot].userFloat("pfGammaLooseCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfGammaTightCut") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfGammaIsoAlt") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfGammaPUSub") 
 		<< " " << (*patPhotons)[iphot].userFloat("pfGammaEA") 
@@ -351,7 +353,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   if (!data_) {
     reco::GenParticleCollection::const_iterator genp = gens->begin();
     for (; genp!= gens->end(); ++genp) {
-      if (debug_) {
+      if (debug_&&data_) {
 	std::cout<<"pt("<<genp->pt()<<"), eta("<<genp->eta()<<"), phi("<<genp->phi()<<")"<<std::endl;
 	std::cout<<"status("<<genp->status()<<"), pdgId("<<genp->pdgId()<<"), numberOfDaughters("<<genp->numberOfDaughters()<<")"<<std::endl;
       }
@@ -373,7 +375,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_Photon1Phi = (*patPhotons)[0].phi();
   m_Photon1SigmaIetaIeta = (*patPhotons)[0].sigmaIetaIeta();
   m_Photon1HadTowOverEm  = (*patPhotons)[0].hadTowOverEm();
-  m_Photon1EConvVeto  = (*patPhotons)[0].userInt("passElectronConvVeto");
+  m_Photon1EConvVeto  = (*patPhotons)[0].userFloat("passElectronConvVeto");
   m_Photon1PixelVeto  = !((*patPhotons)[0].hasPixelSeed());
 
   m_Photon1IsLoosePFIso  = (((*patPhotons)[0].userFloat("pfChargedPU")<(*patPhotons)[0].userFloat("pfChargedLooseCut"))&&
