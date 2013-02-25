@@ -2,14 +2,10 @@
 from SandBox.Skims.jetMHTDPhiFilter_cfi import *
 
 ##### Photons
-jetMHTPFNoPhotDPhiFilter = jetMHTDPhiFilter.clone()
-jetMHTPFNoPhotDPhiFilter.JetSource = cms.InputTag("patJetsAK5PFPt30NoPhoton")
-jetMHTPFNoPhotDPhiFilter.MHTSource = cms.InputTag("mhtPFNoPhot")
-
 jetMHTPFNoPhotIDDPhiFilter = jetMHTDPhiFilter.clone()
-jetMHTPFNoPhotIDDPhiFilter.JetSource = cms.InputTag("patJetsAK5PFPt30NoPhotonID")
-jetMHTPFNoPhotIDDPhiFilter.MHTSource = cms.InputTag("mhtPFNoPhotID")
+jetMHTPFNoPhotIDDPhiFilter.JetSource = cms.InputTag("patJetsPFNoPhotonIDSpecialPt30")
+jetMHTPFNoPhotIDDPhiFilter.MHTSource = cms.InputTag("mhtPFchsNoPhotID")
 
-jetMHTPFNoPhotIDIsoDPhiFilter = jetMHTDPhiFilter.clone()
-jetMHTPFNoPhotIDIsoDPhiFilter.JetSource = cms.InputTag("patJetsAK5PFPt30NoPhotonIDIso")
-jetMHTPFNoPhotIDIsoDPhiFilter.MHTSource = cms.InputTag("mhtPFNoPhotIDIso")
+jetMHTPFNoPhotIDPFIsoDPhiFilter = jetMHTDPhiFilter.clone()
+jetMHTPFNoPhotIDPFIsoDPhiFilter.JetSource = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt30")
+jetMHTPFNoPhotIDPFIsoDPhiFilter.MHTSource = cms.InputTag("mhtPFchsNoPhotIDPFIso")

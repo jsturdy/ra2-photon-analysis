@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 specialMuonCleanedMET = cms.EDProducer("SpecialPATMuonCleanedMETProducer",
-    inputObjects    = cms.InputTag("patMuonsPF"),
-    inputMET        = cms.InputTag("patMETsPF"),
-    inputJets       = cms.InputTag("patJetsPF"),
+    inputObjects    = cms.InputTag("patMuonsPFIDIso"),
+    inputMET        = cms.InputTag("newMETwPhiCorr"),
+    inputJets       = cms.InputTag("newJetsMET"),
     inputPFCands    = cms.InputTag("particleFlow"),
     objectsToRemove = cms.int32(2),
     particleId      = cms.int32(3),
@@ -13,9 +13,9 @@ specialMuonCleanedMET = cms.EDProducer("SpecialPATMuonCleanedMETProducer",
 )
 
 specialElectronCleanedMET = cms.EDProducer("SpecialPATElectronCleanedMETProducer",
-    inputObjects    = cms.InputTag("patElectronsPF"),
-    inputMET        = cms.InputTag("patMETsPF"),
-    inputJets       = cms.InputTag("patJetsPF"),
+    inputObjects    = cms.InputTag("patElectronsIDIso"),
+    inputMET        = cms.InputTag("newMETwPhiCorr"),
+    inputJets       = cms.InputTag("newJetsMET"),
     inputPFCands    = cms.InputTag("particleFlow"),
     objectsToRemove = cms.int32(2),
     particleId      = cms.int32(2),
@@ -25,9 +25,9 @@ specialElectronCleanedMET = cms.EDProducer("SpecialPATElectronCleanedMETProducer
 )
 
 specialPhotonCleanedMET = cms.EDProducer("SpecialPATPhotonCleanedMETProducer",
-    inputObjects    = cms.InputTag("patPhotonsAlt"),
-    inputMET        = cms.InputTag("patMETsPF"),
-    inputJets       = cms.InputTag("patJetsPF"),
+    inputObjects    = cms.InputTag("patPhotonsRA2"),
+    inputMET        = cms.InputTag("newMETwPhiCorr"),
+    inputJets       = cms.InputTag("newJetsMET"),
     inputPFCands    = cms.InputTag("particleFlow"),
     objectsToRemove = cms.int32(1),
     particleId      = cms.int32(4),

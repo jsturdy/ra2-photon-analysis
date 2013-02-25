@@ -10,7 +10,7 @@ genstudytree = cms.EDProducer("GenStudyTree",
     ScaleFactor   = cms.double(1.),
     VertexSrc     = cms.InputTag("goodVertices"),
 
-    recoPhotonSrc = cms.InputTag("patPhotonsIDPFIso"),
+    recoPhotonSrc = cms.InputTag("patPhotonsID"),
 
     recoJetSrc    = cms.InputTag("patJetsPFchsPt30"),
     htJetSrc      = cms.InputTag("patJetsPFchsPt50Eta25"),

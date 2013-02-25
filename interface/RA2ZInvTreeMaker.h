@@ -11,6 +11,9 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include <DataFormats/PatCandidates/interface/Jet.h>
 
 // TFile Service
@@ -42,8 +45,28 @@ private:
   bool debug_;
   bool data_;
   double scale_;
-  edm::InputTag genLabel_, electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
-  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_;
+
+  edm::InputTag genSrc_;
+  edm::InputTag genJetSrc_, genMETSrc_;
+  int m_nJetsGenPt30Eta50, m_nJetsGenPt30Eta24, 
+    m_bJetsGenPt30Eta24,   m_nJetsGenPt50Eta25,
+    m_genBosons;
+
+  double m_genHT,  m_genMHT,       m_genMET,
+    m_genBoson1Pt, m_genBoson1Eta, m_genBoson1M, m_genBoson1MinDR, m_genBoson1DRJet1,
+    //m_genBoson2Pt, m_genBoson2Eta, m_genBoson2M, m_genBoson2MinDR, m_genBoson2DRJet1,
+    m_genDPhiMHT1, m_genDPhiMHT2,  m_genDPhiMHT3,m_genDPhiMHT4,
+    m_genDPhiMET1, m_genDPhiMET2,  m_genDPhiMET3,m_genDPhiMET4;
+  double m_genJet1Pt, m_genJet1Eta, 
+    m_genJet2Pt,      m_genJet2Eta,
+    m_genJet3Pt,      m_genJet3Eta,
+    m_genJet4Pt,      m_genJet4Eta,
+    m_genBoson2Pt,    m_genBoson2Eta, m_genBoson2M;
+
+  edm::InputTag genLabel_, electronVetoSrc_, muonVetoSrc_, isoTrkVetoSrc_,
+    ra2ElectronSrc_, ra2MuonSrc_;
+  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_,
+    ra2HTSrc_, ra2MHTSrc_, ra2METSrc_;
   std::string looseTopTaggerSrc_, nominalTopTaggerSrc_;
   bool          doPUReWeight_, runTopTagger_, storeExtraVetos_;
   edm::InputTag puWeightSrc_, eventWeightSrc_;
@@ -52,21 +75,18 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
-  int m_nBosons,
-    m_nJetsPt30Eta24, m_nJetsPt50Eta24, m_nJetsPt70Eta24,
+  int m_nJetsPt30Eta24, m_nJetsPt50Eta24, m_nJetsPt70Eta24,
     m_nJetsPt30Eta50, m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
     m_nJetsCSVM, m_nJetsCSVT, 
     m_Vertices,  m_event, m_run, m_lumi;
   double m_HT, m_HTMInv, m_MHT, m_MET,
     m_dPhiMHT1, m_dPhiMHT2, m_dPhiMHT3, m_dPhiMHT4, m_dPhiMHTMin, m_dPhiMHTMinBCSVM, m_dPhiMHTMinBCSVT,
     m_dPhiMET1, m_dPhiMET2, m_dPhiMET3, m_dPhiMET4, m_dPhiMETMin, m_dPhiMETMinBCSVM, m_dPhiMETMinBCSVT,
-    m_EventWt, m_PUWt,
-    m_boson1Pt, m_boson1Eta, m_boson1M, m_boson1MinDR, m_boson1DRJet1;
+    m_EventWt, m_PUWt;
   double m_Jet1Pt, m_Jet1Eta,
     m_Jet2Pt, m_Jet2Eta,
     m_Jet3Pt, m_Jet3Eta,
     m_Jet4Pt, m_Jet4Eta;
-  //m_boson2Pt, m_boson2Eta, m_boson2M;
   double m_JetCSVM1Pt, m_JetCSVM1Eta,
     m_JetCSVM2Pt, m_JetCSVM2Eta,
     m_JetCSVT1Pt, m_JetCSVT1Eta,
@@ -88,5 +108,6 @@ private:
     m_nominal_MTbestWJet, m_nominal_MTbestbJet, m_nominal_MTremainingTopJet, m_nominal_linearCombMTbJetPlusMTbestTopJet;
 
   //Lepton vetos
-  bool m_passElVeto, m_passMuVeto, m_passTauVeto, m_passIsoTrkVeto;
+  bool m_passDirIsoElVeto, m_passDirIsoMuVeto, m_passIsoTrkVeto,
+    m_passRA2ElVeto, m_passRA2MuVeto;
 };

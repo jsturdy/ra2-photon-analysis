@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvTreeMaker.cc,v 1.7 2012/12/23 18:21:44 sturdy Exp $
+// $Id: RA2ZInvTreeMaker.cc,v 1.8 2013/01/19 19:36:51 sturdy Exp $
 //
 //
 
@@ -38,6 +38,9 @@ RA2ZInvTreeMaker::RA2ZInvTreeMaker(const edm::ParameterSet& pset) {
   debug_          = pset.getParameter<bool>("Debug");
   scale_          = pset.getParameter<double>("ScaleFactor");
 
+  genSrc_         = pset.getParameter< edm::InputTag >( "genSrc" );
+  genJetSrc_      = pset.getParameter< edm::InputTag >( "genJetSrc" );
+  genMETSrc_      = pset.getParameter< edm::InputTag >( "genMETSrc" );
   genLabel_       = pset.getParameter<edm::InputTag>("genLabel");  
   vertexSrc_      = pset.getParameter<edm::InputTag>("VertexSrc");
   jetSrc_         = pset.getParameter<edm::InputTag>("JetSrc");
@@ -54,10 +57,11 @@ RA2ZInvTreeMaker::RA2ZInvTreeMaker(const edm::ParameterSet& pset) {
   doPUReWeight_    = pset.getParameter<bool>("DoPUReweight");
   storeExtraVetos_ = pset.getParameter<bool>("storeExtraVetos");
 
+  ra2ElectronSrc_  = pset.getParameter<edm::InputTag>("ra2ElectronForVeto");
+  ra2MuonSrc_      = pset.getParameter<edm::InputTag>("ra2MuonForVeto");
   electronVetoSrc_ = pset.getParameter<edm::InputTag>("electronVetoSource");
   muonVetoSrc_     = pset.getParameter<edm::InputTag>("muonVetoSource");
   isoTrkVetoSrc_   = pset.getParameter<edm::InputTag>("isoTrkVetoSource");
-  tauVetoSrc_      = pset.getParameter<edm::InputTag>("tauVetoSource");
   puWeightSrc_     = pset.getParameter<edm::InputTag>("PUWeightSource");
   eventWeightSrc_  = pset.getParameter<edm::InputTag >( "EventWeightSource" );
 
@@ -85,9 +89,27 @@ void RA2ZInvTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   m_run   = run;
   m_lumi  = lumi;
 
+  edm::Handle< edm::View<pat::Electron> > ra2PATElectrons;
+  ev.getByLabel(ra2ElectronSrc_, ra2PATElectrons); 
+  m_passRA2ElVeto = true;
+  if (ra2PATElectrons.isValid() && ra2PATElectrons->size()>0)
+    m_passRA2ElVeto = false;
+
+  edm::Handle< edm::View<pat::Muon> > ra2PATMuons;
+  ev.getByLabel(ra2MuonSrc_, ra2PATMuons); 
+  m_passRA2MuVeto = true;
+  if (ra2PATMuons.isValid() && ra2PATMuons->size()>0)
+    m_passRA2MuVeto = false;
+
+  //gen level information
   edm::Handle<reco::GenParticleCollection> gens;
   ev.getByLabel(genLabel_,gens);
+  edm::Handle<reco::GenJetCollection> genJets;
+  ev.getByLabel(genJetSrc_,genJets);
+  edm::Handle<edm::View<reco::GenMET> > genMET;
+  ev.getByLabel(genMETSrc_,genMET);
 
+  //Reco information
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
 
@@ -220,16 +242,13 @@ void RA2ZInvTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) 
 
   edm::Handle<bool> elVeto;
   edm::Handle<bool> muVeto;
-  edm::Handle<bool> tauVeto;
   edm::Handle<bool> isoTrkVeto;
 
   if (storeExtraVetos_) {
     ev.getByLabel(electronVetoSrc_,elVeto);
-    m_passElVeto = *elVeto;
+    m_passDirIsoElVeto = *elVeto;
     ev.getByLabel(muonVetoSrc_,muVeto);
-    m_passMuVeto = *muVeto;
-    ev.getByLabel(tauVetoSrc_,tauVeto);
-    m_passTauVeto = *tauVeto;
+    m_passDirIsoMuVeto = *muVeto;
     ev.getByLabel(isoTrkVetoSrc_,isoTrkVeto);
     m_passIsoTrkVeto = *isoTrkVeto;
   }
@@ -245,37 +264,37 @@ void RA2ZInvTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     }
   }
   //////
-  m_boson1Pt  = -10.;
-  m_boson1Eta = -10.;
-  m_boson1M   = -10.;
-  m_boson1MinDR  = 10.;
-  m_boson1DRJet1 = 10.;
-  //m_boson2Pt  = -10.;
-  //m_boson2Eta = -10.;
-  //m_boson2M   = -10.;
-  m_nBosons  = gens->size();
+  m_genBoson1Pt  = -10.;
+  m_genBoson1Eta = -10.;
+  m_genBoson1M   = -10.;
+  m_genBoson1MinDR  = 10.;
+  m_genBoson1DRJet1 = 10.;
+  //m_genBoson2Pt  = -10.;
+  //m_genBoson2Eta = -10.;
+  //m_genBoson2M   = -10.;
+  m_genBosons  = gens->size();
   if (gens->size() > 0) {
-    m_boson1Pt  = (*gens)[0].pt();
-    m_boson1Eta = (*gens)[0].eta();
-    m_boson1M   = (*gens)[0].mass();
+    m_genBoson1Pt  = (*gens)[0].pt();
+    m_genBoson1Eta = (*gens)[0].eta();
+    m_genBoson1M   = (*gens)[0].mass();
     
     if (jets->size() > 0) {
       double dR = reco::deltaR((*gens)[0].eta(),(*gens)[0].phi(),(*jets)[0].eta(), (*jets)[0].phi());
-      if (m_boson1DRJet1 > dR)
-	m_boson1DRJet1 = dR;
+      if (m_genBoson1DRJet1 > dR)
+	m_genBoson1DRJet1 = dR;
     }
 
     edm::View<pat::Jet>::const_iterator jet = jets->begin();
     for (; jet != jets->end(); ++jet) {
       double dR = reco::deltaR((*gens)[0].eta(),(*gens)[0].phi(),jet->eta(), jet->phi());
-      if (m_boson1MinDR > dR)
-	m_boson1MinDR = dR;
+      if (m_genBoson1MinDR > dR)
+	m_genBoson1MinDR = dR;
     }
     
     //if (gens->size() > 1) {
-    //  m_boson2Pt  = (*gens)[1].pt();
-    //  m_boson2Eta = (*gens)[1].eta();
-    //  m_boson2M   = (*gens)[1].mass();
+    //  m_genBoson2Pt  = (*gens)[1].pt();
+    //  m_genBoson2Eta = (*gens)[1].eta();
+    //  m_genBoson2M   = (*gens)[1].mass();
     //}
   }
 
@@ -578,15 +597,15 @@ void RA2ZInvTreeMaker::BookTree() {
     reducedValues->Branch("ra2_nominal_linearCombMTbJetPlusMTbestTopJet",&m_nominal_linearCombMTbJetPlusMTbestTopJet,"m_nominal_linearCombMTbJetPlusMTbestTopJet/D");
   }
 
-  reducedValues->Branch("ra2_nBosons",  &m_nBosons,  "m_nBosons/I" );
-  reducedValues->Branch("ra2_boson1Pt", &m_boson1Pt, "m_boson1Pt/D" );
-  reducedValues->Branch("ra2_boson1Eta",&m_boson1Eta,"m_boson1Eta/D" );
-  reducedValues->Branch("ra2_boson1M",  &m_boson1M,  "m_boson1M/D" );
-  reducedValues->Branch("ra2_boson1MinDR",  &m_boson1MinDR,  "m_boson1MinDR/D" );
-  reducedValues->Branch("ra2_boson1DRJet1", &m_boson1DRJet1, "m_boson1DRJet1/D" );
-  //reducedValues->Branch("ra2_boson2Pt", &m_boson2Pt, "m_boson2Pt/D" );
-  //reducedValues->Branch("ra2_boson2Eta",&m_boson2Eta,"m_boson2Eta/D" );
-  //reducedValues->Branch("ra2_boson2M",  &m_boson2M,  "m_boson2M/D" );
+  reducedValues->Branch("ra2_genBosons"      ,&m_genBosons        ,"m_genBosons/I" );
+  reducedValues->Branch("ra2_genBoson1Pt"    ,&m_genBoson1Pt    ,"m_genBoson1Pt/D" );
+  reducedValues->Branch("ra2_genBoson1Eta"   ,&m_genBoson1Eta   ,"m_genBoson1Eta/D" );
+  reducedValues->Branch("ra2_genBoson1M"     ,&m_genBoson1M     ,"m_genBoson1M/D" );
+  reducedValues->Branch("ra2_genBoson1MinDR" ,&m_genBoson1MinDR ,"m_genBoson1MinDR/D" );
+  reducedValues->Branch("ra2_genBoson1DRJet1",&m_genBoson1DRJet1,"m_genBoson1DRJet1/D" );
+  //reducedValues->Branch("ra2_boson2Pt", &m_genBoson2Pt, "m_genBoson2Pt/D" );
+  //reducedValues->Branch("ra2_boson2Eta",&m_genBoson2Eta,"m_genBoson2Eta/D" );
+  //reducedValues->Branch("ra2_boson2M",  &m_genBoson2M,  "m_genBoson2M/D" );
 
   reducedValues->Branch("ra2_dPhiMHT1", &m_dPhiMHT1, "m_dPhiMHT1/D");
   reducedValues->Branch("ra2_dPhiMHT2", &m_dPhiMHT2, "m_dPhiMHT2/D");
@@ -635,10 +654,11 @@ void RA2ZInvTreeMaker::BookTree() {
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "nJetsPt50Eta25MInv/I" );
 
   if (storeExtraVetos_) {
-    reducedValues->Branch("ra2_passElVeto",         &m_passElVeto    , "m_passElVeto/O"    );
-    reducedValues->Branch("ra2_passMuVeto",         &m_passMuVeto    , "m_passMuVeto/O"    );
-    reducedValues->Branch("ra2_passTauVeto",        &m_passTauVeto   , "m_passTauVeto/O"   );
-    reducedValues->Branch("ra2_passIsoTrkVeto",     &m_passIsoTrkVeto, "m_passIsoTrkVeto/O");
+    reducedValues->Branch("ra2_passRA2ElVeto",    &m_passRA2ElVeto   , "m_passRA2ElVeto/O"    );
+    reducedValues->Branch("ra2_passRA2MuVeto",    &m_passRA2MuVeto   , "m_passRA2MuVeto/O"    );
+    reducedValues->Branch("ra2_passDirIsoElVeto", &m_passDirIsoElVeto, "m_passDirIsoElVeto/O"    );
+    reducedValues->Branch("ra2_passDirIsoMuVeto", &m_passDirIsoMuVeto, "m_passDirIsoMuVeto/O"    );
+    reducedValues->Branch("ra2_passIsoTrkVeto",   &m_passIsoTrkVeto  , "m_passIsoTrkVeto/O");
   }
 
   reducedValues->SetAutoSave(1);

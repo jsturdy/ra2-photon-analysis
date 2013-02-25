@@ -30,10 +30,10 @@ diElectronTopTagger5M.metSrc = cms.InputTag("pfType1MetNoElectron","pfcand")
 
 zInvTopTagger5Loose = topTagger5Loose.clone()
 zInvTopTagger5Loose.jetSrc = cms.InputTag("patJetsPFchsPt30")
-zInvTopTagger5Loose.metSrc = cms.InputTag("patMETsPF")
+zInvTopTagger5Loose.metSrc = cms.InputTag("newMETwPhiCorr")
 zInvTopTagger5M = topTagger5M.clone()
 zInvTopTagger5M.jetSrc = cms.InputTag("patJetsPFchsPt30")
-zInvTopTagger5M.metSrc = cms.InputTag("patMETsPF")
+zInvTopTagger5M.metSrc = cms.InputTag("newMETwPhiCorr")
 
 
 photonTopTaggers = cms.Sequence(

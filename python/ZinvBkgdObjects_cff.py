@@ -5,18 +5,9 @@ from ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff import *
 from ZInvisibleBkgds.Photons.PhotonHT_cff import *
 from ZInvisibleBkgds.Photons.PhotonMHT_cff import *
 
-photonObjectsAK5PF = cms.Sequence(
-      zinvPhotons 
-    * photonCleanedPFJetsAK5PF 
-    * htPFNoPhotID  
-    * mhtPFNoPhotID 
-    #* htPFNoPhotIDPFIso  
-    #* mhtPFNoPhotIDPFIso
-)
 
 photonObjectsPF = cms.Sequence(
       zinvPhotons 
-    * countPhotonsID
     * photonCleanedPFJetsPF 
     * specialPhotonCleanedPFJetsPF 
     * htPFchsNoPhotID  
@@ -24,18 +15,23 @@ photonObjectsPF = cms.Sequence(
     * htPFchsNoPhotIDPFIso  
     * mhtPFchsNoPhotIDPFIso
 )
+photonTemplateObjectsPF = cms.Sequence(
+      photonTemplateCleanedPFJetsPF 
+    * specialFitTemplatePhotonCleanedPFJetsPF 
+    * htPFchsNoPhotFitTemplate  
+    * mhtPFchsNoPhotFitTemplate
+)
+photonJetFakeObjectsPF = cms.Sequence(
+      photonJetFakeCleanedPFJetsPF 
+    * specialJetFakePhotonCleanedPFJetsPF 
+    * htPFchsNoPhotJetFake  
+    * mhtPFchsNoPhotJetFake
+)
 
 #from ZInvisibleBkgds.Photons.ZinvBkgdMuons_cff import *
 from ZInvisibleBkgds.Photons.ZinvMuonJets_cff import *
 from ZInvisibleBkgds.Photons.MuonHT_cff import *
 from ZInvisibleBkgds.Photons.MuonMHT_cff import *
-
-muonObjectsAK5PF = cms.Sequence(
-#    zinvMuons *
-    muonCleanedPFJetsAK5PF *
-    htPFNoMuon  *
-    mhtPFNoMuon
-)
 
 muonObjectsPF = cms.Sequence(
 #    zinvMuons *

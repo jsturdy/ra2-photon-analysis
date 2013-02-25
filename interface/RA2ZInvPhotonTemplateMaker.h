@@ -50,32 +50,32 @@ private:
   void BookTree();
 
   bool debug_;
+  std::string debugString_;
   bool data_;
   double scale_;
-  edm::InputTag photonSrc_;
-  edm::InputTag jetSrc_, bJetSrc_, jetHTSrc_;
-  bool          doPUReWeight_;
-  edm::InputTag puWeightSrc_;
-
-  //Trigger information
-  bool getHLTfromConfig_; 
-  bool checkedProcess_; 
-  bool getL1Info_;
-  edm::InputTag hlTriggerResults_; 
-  std::string processName_;
-  edm::TriggerNames triggerNames_;     // TriggerNames class
-  HLTConfigProvider hltConfig;
+  edm::InputTag photonSrc_, tightPhotonSrc_;
+  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, htSrc_, mhtSrc_, metSrc_;
+  bool          doPUReWeight_, runTopTagger_;
+  edm::InputTag puWeightSrc_, eventWeightSrc_;
 
   //Output stuff
   edm::Service<TFileService> fs;
-  TTree *purityTemplates;
+  TTree *reducedValues;
 
-  int m_nPhotonsIso, m_nJetsPt30Eta50, m_bJetsPt30Eta24, m_nJetsPt50Eta25, m_nVertices;
-  double m_HT, m_MHT, m_dPhi1, m_dPhi2, m_dPhi3, m_EventWt, m_PUWt;
-  bool p_passElectronVeto, p_kinematicAccept;
-  double p_HoverE, p_sigEtaEta, p_HoverECut, p_sigEtaEtaCut,
-    p_pfChargedIsoPU, p_pfNeutralIsoPU, p_pfGammaIsoPU,
-    p_pfChargedIsoPUCut, p_pfNeutralIsoPUCut, p_pfGammaIsoPUCut,
-    p_Pt, p_Eta, p_Phi;
+  int m_nPhotonsID, m_nPhotonsTightIso,
+    m_Photon1PDGID,
+    m_nJetsPt30Eta50, m_nJetsPt50Eta25,
+    m_Vertices,  m_event, m_run, m_lumi;
+  double m_HT, m_HTMInv, m_MHT, m_MET,
+    m_dPhiMHT1, m_dPhiMHT2, m_dPhiMHT3, m_dPhiMHT4, m_dPhiMHTMin,
+    m_dPhiMET1, m_dPhiMET2, m_dPhiMET3, m_dPhiMET4, m_dPhiMETMin,
+    m_EventWt, m_PUWt,
+    m_Photon1Pt, m_Photon1Eta, m_Photon1MinDR, m_Photon1DRJet1,
+    m_Photon1Phi, 
+    m_Photon1SigmaIetaIeta, m_Photon1HadTowOverEm, 
+    m_Photon1pfCH, m_Photon1pfNU, m_Photon1pfGA;
+  bool  m_Photon1EConvVeto, m_Photon1PixelVeto, m_Photon1IsTightID, m_Photon1IsTightPFIso,
+    m_Photon1PassPFCh, m_Photon1PassPFNu, m_Photon1PassPFGa;
+
   bool m_Photon70PFMET100, m_Photon70PFHT400, m_Photon70PFNoPUHT400, m_Photon135, m_Photon150;
 };

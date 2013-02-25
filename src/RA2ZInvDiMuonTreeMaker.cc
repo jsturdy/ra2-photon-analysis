@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.8 2013/01/19 19:36:51 sturdy Exp $
+// $Id: RA2ZInvDiMuonTreeMaker.cc,v 1.9 2013/01/20 02:41:21 sturdy Exp $
 //
 //
 
@@ -46,6 +46,9 @@ RA2ZInvDiMuonTreeMaker::RA2ZInvDiMuonTreeMaker(const edm::ParameterSet& pset) {
   htSrc_          = pset.getParameter<edm::InputTag>("htSource");
   mhtSrc_         = pset.getParameter<edm::InputTag>("mhtSource");
   metSrc_         = pset.getParameter<edm::InputTag>("metSource");
+  ra2HTSrc_       = pset.getParameter<edm::InputTag>("ra2HTSource");
+  ra2MHTSrc_      = pset.getParameter<edm::InputTag>("ra2MHTSource");
+  ra2METSrc_      = pset.getParameter<edm::InputTag>("ra2METSource");
   triggerResults_ = pset.getParameter<edm::InputTag>("TriggerResults");
   runTopTagger_   = pset.getParameter<bool>("runTopTagger");
   looseTopTaggerSrc_   = pset.getParameter<std::string>("looseTopTaggerSource");
@@ -55,10 +58,11 @@ RA2ZInvDiMuonTreeMaker::RA2ZInvDiMuonTreeMaker(const edm::ParameterSet& pset) {
   eventWeightSrc_ = pset.getParameter<edm::InputTag >( "EventWeightSource" );
 
   storeExtraVetos_ = pset.getParameter<bool>("storeExtraVetos");
+  ra2ElectronSrc_  = pset.getParameter<edm::InputTag>("ra2ElectronForVeto");
+  ra2MuonSrc_      = pset.getParameter<edm::InputTag>("ra2MuonForVeto");
   muonVetoSrc_     = pset.getParameter<edm::InputTag>("muonVetoSource");
   electronVetoSrc_ = pset.getParameter<edm::InputTag>("electronVetoSource");
   isoTrkVetoSrc_   = pset.getParameter<edm::InputTag>("isoTrkVetoSource");
-  tauVetoSrc_      = pset.getParameter<edm::InputTag>("tauVetoSource");
   
   //key to help getting the hlt process from event provenance
   getHLTfromConfig_ = false;
@@ -92,6 +96,22 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   if (debug_)
     std::cout<<"Muon collection has size "<<patMuons->size()<<std::endl;
 
+  edm::Handle< std::vector<pat::Electron> > ra2PATElectrons;
+  ev.getByLabel(ra2ElectronSrc_, ra2PATElectrons); 
+  m_passRA2ElVeto = true;
+  if (ra2PATElectrons->size()>0)
+    m_passRA2ElVeto = false;
+
+  edm::Handle< std::vector<pat::Muon> > ra2PATMuons;
+  ev.getByLabel(ra2MuonSrc_, ra2PATMuons); 
+  m_passRA2MuVeto = true;
+  if (ra2PATMuons->size()>2)
+    m_passRA2MuVeto = false;
+
+  edm::Handle<reco::GenParticleCollection> gens;
+  if (!data_)
+    ev.getByLabel("genParticles",gens);
+
   // get jetcollection
   edm::Handle<reco::VertexCollection > vertices;
   ev.getByLabel(vertexSrc_, vertices);
@@ -113,6 +133,15 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 
   edm::Handle<edm::View<reco::MET> > met;
   ev.getByLabel(metSrc_, met);
+
+  edm::Handle<double > ra2HT;
+  ev.getByLabel(ra2HTSrc_, ra2HT);
+
+  edm::Handle<edm::View<reco::MET> > ra2MHT;
+  ev.getByLabel(ra2MHTSrc_, ra2MHT);
+
+  edm::Handle<edm::View<reco::MET> > ra2MET;
+  ev.getByLabel(ra2METSrc_, ra2MET);
 
   ///top tagger variables
   edm::Handle<double> hLoosebestTopJetMass;
@@ -226,16 +255,13 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 
   edm::Handle<bool> elVeto;
   edm::Handle<bool> muVeto;
-  edm::Handle<bool> tauVeto;
   edm::Handle<bool> isoTrkVeto;
 
   if (storeExtraVetos_) {
     ev.getByLabel(electronVetoSrc_,elVeto);
-    m_passElVeto = *elVeto;
+    m_passDirIsoElVeto = *elVeto;
     ev.getByLabel(muonVetoSrc_,muVeto);
-    m_passMuVeto = *muVeto;
-    ev.getByLabel(tauVetoSrc_,tauVeto);
-    m_passTauVeto = *tauVeto;
+    m_passDirIsoMuVeto = *muVeto;
     ev.getByLabel(isoTrkVetoSrc_,isoTrkVeto);
     m_passIsoTrkVeto = *isoTrkVeto;
   }
@@ -278,6 +304,9 @@ void RA2ZInvDiMuonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_HT  = *ht;
   m_MHT = (*mht)[0].pt();
   m_MET = (*met)[0].pt();
+  m_ra2_HT  = *ra2HT;
+  m_ra2_MHT = (*ra2MHT)[0].pt();
+  m_ra2_MET = (*ra2MET)[0].pt();
 
   m_passLooseTopTagger = true;
   m_passLooseTopJetIdx = true;
@@ -613,6 +642,9 @@ void RA2ZInvDiMuonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_HTMInv",   &m_HTMInv,   "m_HTMInv/D" );
   reducedValues->Branch("ra2_MHT",      &m_MHT,      "m_MHT/D");
   reducedValues->Branch("ra2_MET",      &m_MET,      "m_MET/D");
+  reducedValues->Branch("ra2_ra2HT",    &m_ra2_HT,   "m_ra2_HT/D" );
+  reducedValues->Branch("ra2_ra2MHT",   &m_ra2_MHT,  "m_ra2_MHT/D");
+  reducedValues->Branch("ra2_ra2MET",   &m_ra2_MET,  "m_ra2_MET/D");
   reducedValues->Branch("ra2_Vertices", &m_Vertices, "m_Vertices/I");
   reducedValues->Branch("ra2_Event",    &m_event,    "m_event/I");
   reducedValues->Branch("ra2_Run",      &m_run,      "m_run/I");
@@ -729,10 +761,11 @@ void RA2ZInvDiMuonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "m_nJetsPt50Eta25MInv/I" );
 
   if (storeExtraVetos_) {
-    reducedValues->Branch("ra2_passElVeto",         &m_passElVeto    , "m_passElVeto/O"    );
-    reducedValues->Branch("ra2_passMuVeto",         &m_passMuVeto    , "m_passMuVeto/O"    );
-    reducedValues->Branch("ra2_passTauVeto",        &m_passTauVeto   , "m_passTauVeto/O"   );
-    reducedValues->Branch("ra2_passIsoTrkVeto",     &m_passIsoTrkVeto, "m_passIsoTrkVeto/O");
+    reducedValues->Branch("ra2_passRA2ElVeto",    &m_passRA2ElVeto   , "m_passRA2ElVeto/O"    );
+    reducedValues->Branch("ra2_passRA2MuVeto",    &m_passRA2MuVeto   , "m_passRA2MuVeto/O"    );
+    reducedValues->Branch("ra2_passDirIsoElVeto", &m_passDirIsoElVeto, "m_passDirIsoElVeto/O"    );
+    reducedValues->Branch("ra2_passDirIsoMuVeto", &m_passDirIsoMuVeto, "m_passDirIsoMuVeto/O"    );
+    reducedValues->Branch("ra2_passIsoTrkVeto",   &m_passIsoTrkVeto,   "m_passIsoTrkVeto/O");
   }
 
   reducedValues->SetAutoSave(1);

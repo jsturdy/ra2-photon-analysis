@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTemplateMaker.cc,v 1.1 2012/07/20 11:35:34 sturdy Exp $
+// $Id: RA2ZInvPhotonTemplateMaker.cc,v 1.14 2013/01/20 10:09:10 sturdy Exp $
 //
 //
 
@@ -36,28 +36,28 @@ RA2ZInvPhotonTemplateMaker::RA2ZInvPhotonTemplateMaker(const edm::ParameterSet& 
 
   // read parameters from config file
   debug_          = pset.getParameter<bool>("Debug");
+  debugString_    = pset.getParameter< std::string >( "DebugString" );
   data_           = pset.getParameter<bool>("Data");
   scale_          = pset.getParameter<double>("ScaleFactor");
   photonSrc_      = pset.getParameter<edm::InputTag>("PhotonSrc");
+  tightPhotonSrc_ = pset.getParameter<edm::InputTag>("TightPhotonSrc");
+  vertexSrc_      = pset.getParameter<edm::InputTag>("VertexSrc");
   jetSrc_         = pset.getParameter<edm::InputTag>("JetSrc");
-  bJetSrc_        = pset.getParameter<edm::InputTag>("bJetSrc");
-  jetHTSrc_       = pset.getParameter<edm::InputTag>("JetHTSource");
+  htJetSrc_       = pset.getParameter<edm::InputTag>("htJetSrc");
+  htSrc_          = pset.getParameter<edm::InputTag>("htSource");
+  mhtSrc_         = pset.getParameter<edm::InputTag>("mhtSource");
+  metSrc_         = pset.getParameter<edm::InputTag>("metSource");
   doPUReWeight_   = pset.getParameter<bool>("DoPUReweight");
   puWeightSrc_    = pset.getParameter<edm::InputTag>("PUWeightSource");
-  
-  //getHLTfromConfig_   = pset.getUntrackedParameter<bool>("getHLTfromConfig",false);
-  //if (getHLTfromConfig_)
-  //  hlTriggerResults_ = pset.getUntrackedParameter<edm::InputTag>("hlTriggerResults");
+  eventWeightSrc_ = pset.getParameter< edm::InputTag >( "EventWeightSource" );
 
-  //key to help getting the hlt process from event provenance
-  checkedProcess_ = false;
-  processName_    = "";
+  reducedValues = 0; 
 
 }
 
 RA2ZInvPhotonTemplateMaker::~RA2ZInvPhotonTemplateMaker() {
-  delete purityTemplates;
-  purityTemplates = 0; 
+  delete reducedValues;
+  reducedValues = 0; 
 }
 
 void RA2ZInvPhotonTemplateMaker::analyze(const edm::Event& ev, const edm::EventSetup& es) {
@@ -69,45 +69,49 @@ void RA2ZInvPhotonTemplateMaker::analyze(const edm::Event& ev, const edm::EventS
   unsigned int run   = (ev.id()).run();
   unsigned int lumi  =  ev.luminosityBlock();
 
-  // reject event if there an isolated electron or muon present
-  edm::Handle< std::vector<pat::Electron> > patElectrons;
-  ev.getByLabel("patElectronsIDIso", patElectrons);
-
-  edm::Handle< std::vector<pat::Muon> > patMuons;
-  ev.getByLabel("patMuonsIDIso", patMuons);
-  
-  if (patElectrons->size() != 0 || patMuons->size() != 0) { 
-    std::cout << "Isolated Lepton found : Event Rejected : ( run, event, lumi ) " 
-    << run << " " << event << " " << lumi << std::endl;
-    return;
-  }
-  
-  // get vertices
-  edm::Handle< std::vector<reco::Vertex> > Vertices;
-  ev.getByLabel("goodVertices", Vertices);
-  int nVertices = Vertices->size();
-  m_nVertices = nVertices;
+  m_event = event;
+  m_run   = run;
+  m_lumi  = lumi;
 
   // get photons 
   edm::Handle< std::vector<pat::Photon> > patPhotons;
   ev.getByLabel(photonSrc_, patPhotons); 
 
-  // get jetcollection
-  edm::Handle< std::vector<pat::Jet> > recoJets;
-  ev.getByLabel(jetSrc_, recoJets); 
-  
+  edm::Handle< std::vector<pat::Photon> > patPhotonsTight;
+  ev.getByLabel(tightPhotonSrc_, patPhotonsTight); 
+
+  edm::Handle<reco::GenParticleCollection> gens;
+  if (!data_)
+    ev.getByLabel("genParticles",gens);
+
+  edm::Handle<reco::VertexCollection > vertices;
+  ev.getByLabel(vertexSrc_, vertices);
+
   edm::Handle<edm::View<pat::Jet> > jets;
   ev.getByLabel(jetSrc_, jets);
 
-  // get jetcollection
-  edm::Handle< std::vector<pat::Jet> > recobJets;
-  ev.getByLabel(bJetSrc_, recobJets); 
+  edm::Handle<edm::View<pat::Jet> > htJets;
+  ev.getByLabel(htJetSrc_, htJets);
 
-  edm::Handle<edm::View<pat::Jet> > bJets;
-  ev.getByLabel(bJetSrc_, bJets);
+  edm::Handle<double > ht;
+  ev.getByLabel(htSrc_, ht);
 
-  edm::Handle<edm::View<pat::Jet> > jetsHT;
-  ev.getByLabel(jetHTSrc_, jetsHT);
+  edm::Handle<edm::View<reco::MET> > mht;
+  ev.getByLabel(mhtSrc_, mht);
+
+  edm::Handle<edm::View<reco::MET> > met;
+  ev.getByLabel(metSrc_, met);
+
+
+  if (debug_) {
+    std::cout<<"vertex collection has size "<<vertices->size()<<std::endl;
+    std::cout<<"Jet collection has size "   <<jets->size()<<std::endl;
+    std::cout<<"HT Jet collection has size "<<htJets->size()<<std::endl;
+    std::cout<<"HT value " <<*ht<<std::endl;
+    std::cout<<"MHT value "<<(*mht)[0].pt()<<std::endl;
+    std::cout<<"MET value "<<(*met)[0].pt()<<std::endl;
+   
+  }
 
   // if MC, do PU reweighting
   double pu_event_wt = 1.0;
@@ -117,412 +121,193 @@ void RA2ZInvPhotonTemplateMaker::analyze(const edm::Event& ev, const edm::EventS
     pu_event_wt = *puweight;
   }
 
-  m_EventWt = scale_;
+  double event_wt = 1.;
+  edm::Handle<double> eventWeight;
+  ev.getByLabel(eventWeightSrc_,eventWeight);
+  event_wt = *eventWeight;
+
+  //m_EventWt = scale_;
+  m_EventWt = event_wt;
   m_PUWt    = pu_event_wt;
-  std::vector<const pat::Photon*> IsoPhotons;
-  std::vector<const pat::Photon*> RA2Photons;
-  double photon_ptcut  = 30.0;
+  m_Vertices = vertices->size();
   
-  for(unsigned int iphot=0; iphot<patPhotons->size(); ++iphot) {
-    
-    const pat::Photon *p1 = &((*patPhotons)[iphot]);
-    
-    double eta          = p1->eta();
-    double sigEtaEta    = p1->sigmaIetaIeta();
+  //////
+  if(debug_ && patPhotons->size() > 0) {
+    std::cout<<debugString_<<std::endl;
+    std::cout << "Isolated photons passTightID  passTightISO | pt  eta  phi  conv  !pixel  hadTowOverEm  (cut)  sigieie  (cut) | PU  cut  isoAlt   puSub EA" << std::endl;
+    for( unsigned int iphot=0; iphot<patPhotons->size(); iphot++) {
+      bool passTightID = false;
+      bool passTightISO = false;
 
-    double hadOverEm2012 = p1->hadTowOverEm();
+      if ((*patPhotons)[iphot].et() > 100 &&
+	  (fabs((*patPhotons)[iphot].eta()) < 2.5 &&
+	   (
+	    fabs((*patPhotons)[iphot].eta()) < 1.4442 ||
+	    fabs((*patPhotons)[iphot].eta()) > 1.566 
+	    ))&&
+	  ((*patPhotons)[iphot].hadTowOverEm() < (*patPhotons)[iphot].userFloat("hadTowOverEmTightCut")) &&
+	  ((*patPhotons)[iphot].sigmaIetaIeta() < (*patPhotons)[iphot].userFloat("showerShapeTightCut"))
+	  )
+	passTightID = true;
+      
+      if (((*patPhotons)[iphot].userFloat("pfChargedPU") < (*patPhotons)[iphot].userFloat("pfChargedTightCut")) &&
+	  ((*patPhotons)[iphot].userFloat("pfNeutralPU") < (*patPhotons)[iphot].userFloat("pfNeutralTightCut")) &&
+	  ((*patPhotons)[iphot].userFloat("pfGammaPU")   < (*patPhotons)[iphot].userFloat("pfGammaTightCut"))
+	  )
+	passTightISO = true;
 
-    double pfChargedIso = p1->userFloat("pfChargedIsoAlt");
-    double pfNeutralIso = p1->userFloat("pfNeutralIsoAlt");
-    double pfGammaIso   = p1->userFloat("pfGammaIsoAlt");
-    
-    double pfChargedIsoPURel = p1->userFloat("pfChargedPURel");
-    double pfNeutralIsoPURel = p1->userFloat("pfNeutralPURel");
-    double pfGammaIsoPURel   = p1->userFloat("pfGammaPURel");
-    
-    double pfChargedIsoPU = p1->userFloat("pfChargedPU");
-    double pfNeutralIsoPU = p1->userFloat("pfNeutralPU");
-    double pfGammaIsoPU   = p1->userFloat("pfGammaPU");
-    
-    bool   isPixel      = p1->hasPixelSeed();
-    bool   passElecVeto = p1->userInt("passElectronConvVeto");
-    bool   hOverE2012  = ( hadOverEm2012 < p1->userFloat("hadTowOverEmTightCut"));
-    bool   kineAcc     = ( p1->et() > photon_ptcut && 
-			 ((p1->isEE() && std::fabs(eta) > 1.566 && std::fabs(eta) < 2.5) || 
-			  (p1->isEB() && std::fabs(eta) < 1.4442) ) ) ;
-    bool   showerShape = sigEtaEta < p1->userFloat("showerShapeTightCut");
-
-    bool   isPhotonPFChargedIso = (pfChargedIsoPU < p1->userFloat("pfChargedTightCut"));
-    bool   isPhotonPFNeutralIso = (pfNeutralIsoPU < p1->userFloat("pfNeutralTightCut"));
-    bool   isPhotonPFGammaIso   = (pfGammaIsoPU   < p1->userFloat("pfGammaTightCut"));
-    bool   isPhotonPFChargedIsoRel = (pfChargedIsoPURel < p1->userFloat("pfChargedRelTightCut"));
-    bool   isPhotonPFNeutralIsoRel = (pfNeutralIsoPURel < p1->userFloat("pfNeutralRelTightCut"));
-    bool   isPhotonPFGammaIsoRel   = (pfGammaIsoPURel   < p1->userFloat("pfGammaRelTightCut"));
-    bool   isPhotonPFIso = ( isPhotonPFChargedIso && isPhotonPFNeutralIso && isPhotonPFGammaIso );
-    //remove the shower shape cut for the shower shape template
-    bool   isPhoton2012PF  = ( kineAcc && passElecVeto && hOverE2012 && isPhotonPFIso );
-
-    if (debug_) {
-      std::cout<<
-	"photon("     <<iphot             <<"):("<< 
-	p1->pt()<<","<<p1->et()<<","<<p1->eta()<<","<<p1->phi()<<") - (";
-      if (p1->genPhoton()) {
-	std::cout<<
-	  p1->genPhoton()->pdgId()<<","<<
-	  p1->genPhoton()->status()<<","<<
-	  p1->genPhoton()->mother()->pdgId()<<") - ";
-      }
-      else 
-	std::cout<<") - ";
-      std::cout<<"isPhoton2012PF("<<isPhoton2012PF      <<") - ";
-      //<< //std::endl<<
-      if (!kineAcc)
-	std::cout<<"kineAcc("     <<kineAcc               <<") - ";//<< 
-      if (isPixel)
-	std::cout<<"!isPixel("    <<!isPixel              <<") - ";//<< 
-      if (!passElecVeto)
-	std::cout<<"passElecVeto("<<passElecVeto          <<") - ";//<< 
-      if (!hOverE2012)
-	std::cout<<"hOverE2012("  <<hOverE2012            <<","<<hadOverEm2012<<") - ";//<< 
-      if (!showerShape)
-	std::cout<<"showerShape(" <<showerShape           <<","<<sigEtaEta    <<") - ";//<<// std::endl<<
-      if (!isPhotonPFChargedIso || !isPhotonPFChargedIsoRel){
-	std::cout<<"pfChargedIso("<<pfChargedIso<<","<<p1->userFloat("pfChargedTightCut")<<","<<p1->userFloat("pfChargedRelTightCut")<<") - "<<
-	  "pfChargedIso("<<isPhotonPFChargedIso<<","<<pfChargedIsoPU<<") - "<<
-	  "pfChargedIsoRel("<<isPhotonPFChargedIsoRel<<","<<pfChargedIsoPURel<<") - ";//<<
-      }
-      if (!isPhotonPFNeutralIso || !isPhotonPFNeutralIsoRel){
-	std::cout<<"pfNeutralIso("<<pfNeutralIso<<","<<p1->userFloat("pfNeutralTightCut")<<","<<p1->userFloat("pfNeutralRelTightCut")<<") - "<<
-	  "pfNeutralIso("<<isPhotonPFNeutralIso<<","<<pfNeutralIsoPU<<") - "<<
-	  "pfNeutralIsoRel("<<isPhotonPFNeutralIsoRel<<","<<pfNeutralIsoPURel<<") - ";//<<
-      }
-      if (!isPhotonPFGammaIso || !isPhotonPFGammaIsoRel) {
-	std::cout<<"pfGammaIso("  <<pfGammaIso  <<","<<p1->userFloat("pfGammaTightCut")  <<","<<p1->userFloat("pfGammaRelTightCut")  <<") - "<<
-	  "pfGammaIso("  <<isPhotonPFGammaIso  <<","<<pfGammaIsoPU  <<") - "<<
-	  "pfGammaIsoRel("  <<isPhotonPFGammaIsoRel  <<","<<pfGammaIsoPURel  <<")";
-      }
-      //"isPhotonPFIso       ("<<isPhotonPFIso       <<") - "<<
-      std::cout<<std::endl;
-    }
-   
-    if( isPhoton2012PF ) IsoPhotons.push_back(p1);
-  } // loop over patPhotons
-
-  // require atleast one isolated photon else return
-  if (IsoPhotons.size()<1) {
-    std::cout << "No isolated photons found : Event Rejected : ( run, event, lumi ) " 
-    << run << " " << event << " " << lumi << std::endl;
-    return;
-    }
-
-  double photon_eta = IsoPhotons[0]->eta();
-  double photon_phi = IsoPhotons[0]->phi();
-
-  double photon2_eta = -999.;
-  double photon2_phi = -999.;
-  
-  // clean jet collection
-
-  std::vector<const pat::Jet*> Jets; // clean jet collection
-  std::vector<const pat::Jet*> BJets; // clean jet collection
-
-  int    bestDRPhot = -1;
-  int    bestDRJet  = -1;
-  double bestDRMin  =999.0;
-
-  double dRMin=999.0;
-  int    dRMinJetIdx = -1;
-  double dRMin2=999.0;
-  int    dRMinJetIdx2 = -1;
-  for(unsigned int i=0; i<recoJets->size(); i++) {
-    const pat::Jet *r = &((*recoJets)[i]);
-   
-    double jet_pt  = r->pt();
-    double jet_eta = r->eta();
-    double jet_phi = r->phi();
-    
-    if( jet_pt<30.0 ) continue;
-    
-    double dR = reco::deltaR(photon_eta, photon_phi, jet_eta, jet_phi);
-    if(dR<dRMin) { 
-      dRMin       = dR;
-      dRMinJetIdx = i;
-    }
-
-    if (IsoPhotons.size() > 1) {
-      double dR2 = reco::deltaR(photon2_eta, photon2_phi, jet_eta, jet_phi);
-      if(dR2<dRMin2) { 
-	dRMin2       = dR2;
-	dRMinJetIdx2 = i;
-      }
-    }
-  }
-  
-  //original
-  if (dRMin < dRMin2) {
-    bestDRMin = dRMin;
-    bestDRPhot = 0;
-    bestDRJet = dRMinJetIdx;
-  }
-  else if (dRMin2 < dRMin) {
-    bestDRMin = dRMin2;
-    bestDRPhot = 1;
-    bestDRJet = dRMinJetIdx2;
-  }
-
-
-  // if no matching jet found in dRMin<0.1 then reject this event
-  //if(dRMinJetIdx<0 || dRMin>0.1 ) return;
-  if(bestDRJet<0 || bestDRMin>0.1 ) {
-    if (debug_) {
-      std::cout << "No jet matched to isolated photon found : Event Rejected : ( run, event, lumi ) " 
-		<< run << " " << event << " " << lumi << std::endl;
-    }
-    return;
-  }
-
-  //original
-  if (dRMin < dRMin2) {
-    bestDRMin = dRMin;
-    bestDRPhot = 0;
-    bestDRJet = dRMinJetIdx;
-  }
-  else if (dRMin2 < dRMin) {
-    bestDRMin = dRMin2;
-    bestDRPhot = 1;
-    bestDRJet = dRMinJetIdx2;
-  }
-  
-
-  if ( bestDRPhot == 0 ) {
-    RA2Photons.push_back(IsoPhotons[0]);
-    if (IsoPhotons.size() > 1)
-      RA2Photons.push_back(IsoPhotons[1]);
-  }
-  if ( bestDRPhot == 1 ) {
-    RA2Photons.push_back(IsoPhotons[1]);
-    RA2Photons.push_back(IsoPhotons[0]);
-    }
-
-  m_nPhotonsIso = RA2Photons.size();
-  p_Pt  = RA2Photons[0]->pt();
-  p_Eta = RA2Photons[0]->eta();
-  p_Phi = RA2Photons[0]->phi();
-
-  p_HoverECut = RA2Photons[0]->userFloat("hadTowOverEmTightCut");
-  p_HoverE    = RA2Photons[0]->hadTowOverEm();
-  p_sigEtaEtaCut = RA2Photons[0]->userFloat("showerShapeTightCut");
-  p_sigEtaEta    = RA2Photons[0]->sigmaIetaIeta();
-  p_pfChargedIsoPU    = RA2Photons[0]->userFloat("pfChargedPU");
-  p_pfChargedIsoPUCut = RA2Photons[0]->userFloat("pfChargedTightCut");
-  p_pfNeutralIsoPU    = RA2Photons[0]->userFloat("pfNeutralPU");
-  p_pfNeutralIsoPUCut = RA2Photons[0]->userFloat("pfNeutralTightCut");
-  p_pfGammaIsoPU      = RA2Photons[0]->userFloat("pfGammaPU");
-  p_pfGammaIsoPUCut   = RA2Photons[0]->userFloat("pfGammaTightCut");
-  
-  p_passElectronVeto  = RA2Photons[0]->userInt("passElectronConvVeto");
-  p_kinematicAccept   = (RA2Photons[0]->et() > photon_ptcut &&
-			 ((std::fabs(RA2Photons[0]->eta()) > 1.566 && std::fabs(RA2Photons[0]->eta()) < 2.5) ||
-			  std::fabs(RA2Photons[0]->eta()) < 1.4442));
-  
-  for(unsigned int i=0; i<recoJets->size(); ++i) {
-    const pat::Jet *r = &((*recoJets)[i]);
-    int jj = (int) i;
-    if( jj != bestDRJet ) {
-      Jets.push_back(r);
-      if (r->bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898)
-	//if (r->bDiscriminator("combinedSecondaryVertexMVABJetTags") > 0.898)
-	BJets.push_back(r);
-    }
-  }
-  /*
-  // clean b-jet collection
-  std::vector<const pat::Jet*> BJets; // clean jet collection
-
-  bestDRPhot = -1;
-  bestDRJet  = -1;
-  bestDRMin  =999.0;
-
-  dRMin=999.0;
-  dRMinJetIdx = -1;
-  dRMin2=999.0;
-  dRMinJetIdx2 = -1;
-  for(unsigned int i=0; i<recobJets->size(); i++) {
-    const pat::Jet *r = &((*recobJets)[i]);
-   
-    double jet_pt  = r->pt();
-    double jet_eta = r->eta();
-    double jet_phi = r->phi();
-    
-    if( jet_pt<30.0 ) continue;
-    
-    double dR = reco::deltaR(photon_eta, photon_phi, jet_eta, jet_phi);
-    if(dR<dRMin) { 
-      dRMin       = dR;
-      dRMinJetIdx = i;
-    }
-
-    if (IsoPhotons.size() > 1) {
-      double dR2 = reco::deltaR(photon2_eta, photon2_phi, jet_eta, jet_phi);
-      if(dR2<dRMin2) { 
-	dRMin2       = dR2;
-	dRMinJetIdx2 = i;
-      }
-    }
-  }
-  
-  for(unsigned int i=0; i<recobJets->size(); ++i) {
-    const pat::Jet *r = &((*recobJets)[i]);
-    int jj = (int) i;
-    if( jj != bestDRJet ) BJets.push_back(r);
-  }
-  */
-
-  if(debug_) {
-    std::cout << "Isolated photons : " << std::endl;
-    for( unsigned int iphot=0; iphot<IsoPhotons.size(); iphot++) {
-      std::cout << iphot << " " <<IsoPhotons[iphot]->pt() << " " << IsoPhotons[iphot]->eta()
-		<< IsoPhotons[iphot]->phi() 
+      std::cout << "ph" << iphot 
+		<< " " << passTightID
+		<< " " << passTightISO<<std::endl
+		<< " | " <<(*patPhotons)[iphot].pt() 
+		<< " " << (*patPhotons)[iphot].eta()
+		<< " " << (*patPhotons)[iphot].phi();
+      if (!data_ && (*patPhotons)[iphot].genPhoton())
+	std::cout<< " " << (*patPhotons)[iphot].genPhoton()->pdgId();
+      std::cout<< " " << (*patPhotons)[iphot].userFloat("passElectronConvVeto") 
+		<< " " << !((*patPhotons)[iphot].hasPixelSeed() )
+		<< " " << (*patPhotons)[iphot].hadTowOverEm() 
+		<< " " << (*patPhotons)[iphot].userFloat("hadTowOverEmTightCut") 
+		<< " " << (*patPhotons)[iphot].sigmaIetaIeta() 
+		<< " " << (*patPhotons)[iphot].userFloat("showerShapeTightCut") 
+		<< std::endl
+		<< " | pfCharged - " << (*patPhotons)[iphot].userFloat("pfChargedPU") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfChargedTightCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfChargedIsoAlt") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfChargedPUSub") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfChargedEA") 
+		<< std::endl
+		<< " | pfNeutral - " << (*patPhotons)[iphot].userFloat("pfNeutralPU") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralTightCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralIsoAlt") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralPUSub") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfNeutralEA")
+		<< std::endl
+		<< " | pfGamma - " << (*patPhotons)[iphot].userFloat("pfGammaPU") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfGammaTightCut") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfGammaIsoAlt") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfGammaPUSub") 
+		<< " " << (*patPhotons)[iphot].userFloat("pfGammaEA") 
 		<< std::endl;
     }
-    std::cout << "Jets("<<recoJets->size()<<") : " << std::endl;
-    for(unsigned int i=0; i<recoJets->size(); i++) {
-      const pat::Jet *r = &((*recoJets)[i]);
-      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
-    }
-    std::cout << "Cleaned Jets("<<Jets.size()<<") : " << std::endl;
-    for(unsigned int i=0; i<Jets.size(); ++i) {
-      const pat::Jet *r = Jets[i];
-      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
-    }
-    std::cout << "bJets("<<recobJets->size()<<") : " << std::endl;
-    for(unsigned int i=0; i<recobJets->size(); i++) {
-      const pat::Jet *r = &((*recobJets)[i]);
-      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
-    }
-    std::cout << "Cleaned bJets("<<BJets.size()<<") : " << std::endl;
-    for(unsigned int i=0; i<BJets.size(); ++i) {
-      const pat::Jet *r = BJets[i];
-      std::cout << i << " " << r->pt()<<" "<<r->eta()<<" "<<r->phi()<<std::endl;
+  }
+  //////
+
+  if (patPhotons->size() < 1)
+    return;
+
+  m_nPhotonsID         = patPhotons->size();
+  m_nPhotonsTightIso   = patPhotonsTight->size();
+
+  m_Photon1PDGID = 0;
+  double photon1MinDRGen = 100;
+  int tmpPhoton1PDGID = 0;
+  if (!data_) {
+    reco::GenParticleCollection::const_iterator genp = gens->begin();
+    for (; genp!= gens->end(); ++genp) {
+      double dR = reco::deltaR(genp->eta(),genp->phi(),(*patPhotons)[0].eta(), (*patPhotons)[0].phi());
+      if (dR < photon1MinDRGen) {
+	if (debug_ && dR < 1.) {
+	  std::cout<<"DR("<<dR<<"), pt("<<genp->pt()<<"), eta("<<genp->eta()<<"), phi("<<genp->phi()<<")"<<std::endl;
+	  std::cout<<"status("<<genp->status()<<"), pdgId("<<genp->pdgId()<<"), numberOfDaughters("<<genp->numberOfDaughters()<<")"<<std::endl;
+	}
+	photon1MinDRGen = dR;
+	tmpPhoton1PDGID = genp->pdgId();
+      }
     }
   }
+  if (photon1MinDRGen < 0.5)
+    m_Photon1PDGID = tmpPhoton1PDGID;
   
-  //compare the sizes of the collections computed within the code an with the external module
+  m_Photon1pfCH  = (*patPhotons)[0].userFloat("pfChargedPU");
+  m_Photon1pfNU  = (*patPhotons)[0].userFloat("pfNeutralPU");
+  m_Photon1pfGA  = (*patPhotons)[0].userFloat("pfGammaPU");
+  m_Photon1Pt  = (*patPhotons)[0].pt();
+  m_Photon1Eta = (*patPhotons)[0].eta();
+  m_Photon1Phi = (*patPhotons)[0].phi();
+  m_Photon1SigmaIetaIeta = (*patPhotons)[0].sigmaIetaIeta();
+  m_Photon1HadTowOverEm  = (*patPhotons)[0].hadTowOverEm();
+  m_Photon1EConvVeto  = (*patPhotons)[0].userFloat("passElectronConvVeto");
+  m_Photon1PixelVeto  = !((*patPhotons)[0].hasPixelSeed());
 
-  m_nJetsPt30Eta50 = 0;
-  m_nJetsPt50Eta25 = 0;
-  m_bJetsPt30Eta24 = 0;
-  m_HT  = 0.0;
-  reco::MET::LorentzVector mht(0,0,0,0);
-  for(unsigned int i=0; i<Jets.size(); ++i) {
-    //const pat::Jet *r = Jets[i];
-    if(Jets[i]->pt() > 50.0 && fabs(Jets[i]->eta()) < 2.50) {
-      m_nJetsPt50Eta25++;
-      m_HT  += Jets[i]->pt();
-    }
-    if(Jets[i]->pt() > 30.0 && fabs(Jets[i]->eta()) < 5.0) { 
-      m_nJetsPt30Eta50++;
-      mht  -= Jets[i]->p4();
-    }
-  }
-  reco::MET MHT = reco::MET(mht, reco::MET::Point());
-  m_MHT =  MHT.pt();
+  m_Photon1IsTightID  = (((*patPhotons)[0].hadTowOverEm() < (*patPhotons)[0].userFloat("hadTowOverEmTightCut")) &&
+			 ((*patPhotons)[0].sigmaIetaIeta() < (*patPhotons)[0].userFloat("showerShapeTightCut"))
+			 );
 
-  //count the photon cleaned bJets
-  for(unsigned int i=0; i<BJets.size(); ++i) {
-    //const pat::Jet *r = BJets[i];
-    if(BJets[i]->pt() > 30.0 && fabs(BJets[i]->eta()) < 2.40) {
-      m_bJetsPt30Eta24++;
-    }
-  }
-  const pat::Jet  *r1, *r2, *r3;
-  m_dPhi1 = -1.0;
-  m_dPhi2 = -1.0;
-  m_dPhi3 = -1.0;
+  m_Photon1IsTightPFIso  = (((*patPhotons)[0].userFloat("pfChargedPU")<(*patPhotons)[0].userFloat("pfChargedTightCut"))&&
+			    ((*patPhotons)[0].userFloat("pfNeutralPU")<(*patPhotons)[0].userFloat("pfNeutralTightCut"))&&
+			    ((*patPhotons)[0].userFloat("pfGammaPU")<(*patPhotons)[0].userFloat("pfGammaTightCut"))
+			    );
+  m_Photon1PassPFCh  = ((*patPhotons)[0].userFloat("pfChargedPU")<(*patPhotons)[0].userFloat("pfChargedTightCut"));
+  m_Photon1PassPFNu  = ((*patPhotons)[0].userFloat("pfNeutralPU")<(*patPhotons)[0].userFloat("pfNeutralTightCut"));
+  m_Photon1PassPFGa  = ((*patPhotons)[0].userFloat("pfGammaPU")<(*patPhotons)[0].userFloat("pfGammaTightCut"));
+  
+  
+  m_Photon1MinDR  = 10.;
+  m_Photon1DRJet1 = 10.;
+
+  m_nJetsPt30Eta50 = jets  ->size();
+  m_nJetsPt50Eta25 = htJets->size();
+  m_HT  = *ht;
+  m_MHT = (*mht)[0].pt();
+  m_MET = (*met)[0].pt();
+
+  const pat::Jet  *r1, *r2, *r3, *r4;
+  m_dPhiMHT1 = 10.0;  m_dPhiMET1 = 10.0;
+  m_dPhiMHT2 = 10.0;  m_dPhiMET2 = 10.0;
+  m_dPhiMHT3 = 10.0;  m_dPhiMET3 = 10.0;
+  m_dPhiMHT4 = 10.0;  m_dPhiMET4 = 10.0;
+
   if(m_nJetsPt30Eta50 >= 1) {
-    r1 = Jets[0];
-    m_dPhi1 = fabs(reco::deltaPhi(r1->phi(),MHT.phi()));
+    r1 = &((*jets)[0]);
+    m_dPhiMHT1 = fabs(reco::deltaPhi(r1->phi(),(*mht)[0].phi()));
+    m_dPhiMET1 = fabs(reco::deltaPhi(r1->phi(),(*met)[0].phi()));
     if(m_nJetsPt30Eta50 >= 2) {
-      r2 = Jets[1];
-      m_dPhi2 = fabs(reco::deltaPhi(r2->phi(),MHT.phi()));
-      
+      r2 = &((*jets)[1]);
+      m_dPhiMHT2 = fabs(reco::deltaPhi(r2->phi(),(*mht)[0].phi())); 
+      m_dPhiMET2 = fabs(reco::deltaPhi(r2->phi(),(*met)[0].phi())); 
+     
       if(m_nJetsPt30Eta50 >= 3) {
-	r3 = Jets[2];
-	m_dPhi3 = fabs(reco::deltaPhi(r3->phi(),MHT.phi()));
+	r3 = &((*jets)[2]);
+	m_dPhiMHT3 = fabs(reco::deltaPhi(r3->phi(),(*mht)[0].phi()));
+	m_dPhiMET3 = fabs(reco::deltaPhi(r3->phi(),(*met)[0].phi()));
+
+	if(m_nJetsPt30Eta50 >= 4) {
+	  r4 = &((*jets)[3]);
+	  m_dPhiMHT4 = fabs(reco::deltaPhi(r4->phi(),(*mht)[0].phi()));
+	  m_dPhiMET4 = fabs(reco::deltaPhi(r4->phi(),(*met)[0].phi()));
+	}
       }
     }
   }
 
-  /////Trigger information
-  m_Photon70PFMET100 = true;
-  m_Photon70PFHT400 = true;
-  m_Photon70PFNoPUHT400 = true;
-  m_Photon135 = true;
-  m_Photon150 = true;
+  m_dPhiMHTMin  = 10.;
+  m_dPhiMETMin  = 10.;
 
-  /******************************************************************
-   * Here we do all the HLT related trigger stuff
-   *
-   *
-   ******************************************************************/
-  // Get the HLT results and check validity
-  
-  if (data_) {
-    m_Photon70PFMET100 = false;
-    m_Photon70PFHT400 = false;
-    m_Photon70PFNoPUHT400 = false;
-    m_Photon135 = false;
-    m_Photon150 = false;
-
-    if (!getHLTfromConfig_) 
-      if (processName_=="") {
-	Handle<trigger::TriggerEvent> hltEventHandle;
-	ev.getByLabel("hltTriggerSummaryAOD", hltEventHandle);
-	processName_ = hltEventHandle.provenance()->processName();
-	if (debug_)
-	  std::cout<<processName_<<std::endl;
-      }
-    hlTriggerResults_ = InputTag("TriggerResults","",processName_);
-    
-    edm::LogInfo("HLTEventSelector") << "Using trigger results for InputTag " << hlTriggerResults_;
-    
-    edm::Handle<edm::TriggerResults> hltHandle;
-    ev.getByLabel(hlTriggerResults_, hltHandle);
-    
-    if ( !hltHandle.isValid() ) {
-      edm::LogWarning("HLTEventSelector") << "No trigger results for InputTag " << hlTriggerResults_;
-      if (debug_)
-	std::cout<<"HLT results not valid"<<std::endl;
-      return;
-    }
-    
-    const edm::TriggerNames& trgNames = ev.triggerNames(*hltHandle);
-    
-    int          prescaleSet = hltConfig.prescaleSet(ev,es);
-    
-    if (debug_)
-      std::cout<<"Prescale set is: "<<prescaleSet<<std::endl;
-    for (unsigned int hltnum = 0; hltnum < trgNames.size(); ++hltnum) {
-      std::string  tmpName     = trgNames.triggerName(hltnum);
-      unsigned int trgIndex    = trgNames.triggerIndex(tmpName);
-      int          trgResult   = hltHandle->accept(trgIndex);
-      
-      if (trgResult > 0) {
-	if (tmpName.rfind("HLT_Photon70_CaloIdXL_PFHT400_v") != std::string::npos)
-	  m_Photon70PFHT400 = true;
-	else if (tmpName.rfind("HLT_Photon70_CaloIdXL_PFNoPUHT400_v") != std::string::npos)
-	  m_Photon70PFNoPUHT400 = true;
-	else if (tmpName.rfind("HLT_Photon70_CaloIdXL_PFMET100_v") != std::string::npos)
-	  m_Photon70PFMET100 = true;
-	else if (tmpName.rfind("HLT_Photon135_v") != std::string::npos)
-	  m_Photon135 = true;
-	else if (tmpName.rfind("HLT_Photon150_v") != std::string::npos)
-	  m_Photon150 = true;
-      }
-    }
+  if (jets->size() > 0) {
+    double dR = reco::deltaR((*patPhotons)[0].eta(),(*patPhotons)[0].phi(),(*jets)[0].eta(), (*jets)[0].phi());
+    if (m_Photon1DRJet1 > dR)
+      m_Photon1DRJet1 = dR;
   }
-  //if (purityTemplates)
-  purityTemplates->Fill();
+
+  edm::View<pat::Jet>::const_iterator jet = jets->begin();
+  for (; jet!= jets->end(); ++jet) {
+    double dR = reco::deltaR((*patPhotons)[0].eta(),(*patPhotons)[0].phi(),jet->eta(), jet->phi());
+    if (m_Photon1MinDR > dR)
+      m_Photon1MinDR = dR;
+    
+    double tmpDPhi = fabs(reco::deltaPhi(jet->phi(),(*mht)[0].phi()));
+    if (tmpDPhi < m_dPhiMHTMin)
+      m_dPhiMHTMin = tmpDPhi;
+    
+    tmpDPhi = fabs(reco::deltaPhi(jet->phi(),(*met)[0].phi()));
+    if (tmpDPhi < m_dPhiMETMin)
+      m_dPhiMETMin = tmpDPhi;
+  }
+
+
+  //if (reducedValues)
+  reducedValues->Fill();
  
 }
 
@@ -539,62 +324,64 @@ void RA2ZInvPhotonTemplateMaker::endJob() {
 void RA2ZInvPhotonTemplateMaker::BookTree() {
 
   edm::Service<TFileService> fs;
-  purityTemplates = fs->make<TTree>( "RA2Values", "Variables for reduced studies" );
 
-  purityTemplates->Branch("ra2_HT",  &m_HT,  "m_HT/D" );
-  purityTemplates->Branch("ra2_MHT", &m_MHT, "m_MHT/D");
+  reducedValues = fs->make<TTree>( "RA2Values", "Variables for reduced studies" );
 
-  purityTemplates->Branch("ra2_dPhi1", &m_dPhi1, "m_dPhi1/D");
-  purityTemplates->Branch("ra2_dPhi2", &m_dPhi2, "m_dPhi2/D");
-  purityTemplates->Branch("ra2_dPhi3", &m_dPhi3, "m_dPhi3/D");
+  reducedValues->Branch("ra2_HT",       &m_HT,       "m_HT/D" );
+  reducedValues->Branch("ra2_MHT",      &m_MHT,      "m_MHT/D");
+  reducedValues->Branch("ra2_MET",      &m_MET,      "m_MET/D");
+  reducedValues->Branch("ra2_Vertices", &m_Vertices, "m_Vertices/I");
+  reducedValues->Branch("ra2_Event",    &m_event,    "m_event/I");
+  reducedValues->Branch("ra2_Run",      &m_run,      "m_run/I");
+  reducedValues->Branch("ra2_Lumi",     &m_lumi,     "m_lumi/I");
 
-  purityTemplates->Branch("ra2_PUWt",    &m_PUWt,    "m_PUWt/D");
-  purityTemplates->Branch("ra2_EventWt", &m_EventWt, "m_EventWt/D");
+  
+  reducedValues->Branch("ra2_dPhiMHT1", &m_dPhiMHT1, "m_dPhiMHT1/D");
+  reducedValues->Branch("ra2_dPhiMHT2", &m_dPhiMHT2, "m_dPhiMHT2/D");
+  reducedValues->Branch("ra2_dPhiMHT3", &m_dPhiMHT3, "m_dPhiMHT3/D");
+  reducedValues->Branch("ra2_dPhiMHT4", &m_dPhiMHT4, "m_dPhiMHT4/D");
+  reducedValues->Branch("ra2_dPhiMHTMin", &m_dPhiMHTMin, "m_dPhiMHTMin/D");
 
-  purityTemplates->Branch("ra2_nPhotonsIso", &m_nPhotonsIso, "nPhotonsIso/I");
-  purityTemplates->Branch("ra2_PhotonPt",    &p_Pt,    "p_Pt/D" );
-  purityTemplates->Branch("ra2_PhotonEta",   &p_Eta,   "p_Eta/D");
-  purityTemplates->Branch("ra2_PhotonPhi",   &p_Phi,   "p_Phi/D");
+  reducedValues->Branch("ra2_dPhiMET1", &m_dPhiMET1, "m_dPhiMET1/D");
+  reducedValues->Branch("ra2_dPhiMET2", &m_dPhiMET2, "m_dPhiMET2/D");
+  reducedValues->Branch("ra2_dPhiMET3", &m_dPhiMET3, "m_dPhiMET3/D");
+  reducedValues->Branch("ra2_dPhiMET4", &m_dPhiMET4, "m_dPhiMET4/D");
+  reducedValues->Branch("ra2_dPhiMETMin", &m_dPhiMETMin, "m_dPhiMETMin/D");
 
-  purityTemplates->Branch("ra2_PhotonpassElectronVeto",  &p_passElectronVeto,  "p_passElectronVeto/O");
-  purityTemplates->Branch("ra2_PhotonkinematicAccept",   &p_kinematicAccept,   "p_kinematicAccept/O");
-  purityTemplates->Branch("ra2_PhotonHoverE",            &p_HoverE,            "p_HoverE/D");
-  purityTemplates->Branch("ra2_PhotonHoverECut",         &p_HoverECut,         "p_HoverECut/D");
-  purityTemplates->Branch("ra2_PhotonsigEtaEta",         &p_sigEtaEta,         "p_sigEtaEta/D");
-  purityTemplates->Branch("ra2_PhotonsigEtaEtaCut",      &p_sigEtaEtaCut,      "p_sigEtaEtaCut/D");
-  purityTemplates->Branch("ra2_PhotonpfChargedIsoPU",    &p_pfChargedIsoPU,    "p_pfChargedIsoPU/D");
-  purityTemplates->Branch("ra2_PhotonpfChargedIsoPUCut", &p_pfChargedIsoPUCut, "p_pfChargedIsoPUCut/D");
-  purityTemplates->Branch("ra2_PhotonpfNeutralIsoPU",    &p_pfNeutralIsoPU,    "p_pfNeutralIsoPU/D");
-  purityTemplates->Branch("ra2_PhotonpfNeutralIsoPUCut", &p_pfNeutralIsoPUCut, "p_pfNeutralIsoPUCut/D");
-  purityTemplates->Branch("ra2_PhotonpfGammaIsoPU",      &p_pfGammaIsoPU,      "p_pfGammaIsoPU/D");
-  purityTemplates->Branch("ra2_PhotonpfGammaIsoPUCut",   &p_pfGammaIsoPUCut,   "p_pfGammaIsoPUCut/D");
+  reducedValues->Branch("ra2_PUWt",    &m_PUWt,    "m_PUWt/D");
+  reducedValues->Branch("ra2_EventWt", &m_EventWt, "m_EventWt/D");
 
-  purityTemplates->Branch("ra2_Photon70PFMET100",    &m_Photon70PFMET100,    "Photon70PFMET100/O" );
-  purityTemplates->Branch("ra2_Photon70PFHT400",     &m_Photon70PFHT400,     "Photon70PFHT400/O" );
-  purityTemplates->Branch("ra2_Photon70PFNoPUHT400", &m_Photon70PFNoPUHT400, "Photon70PFNoPUHT400/O" );
-  purityTemplates->Branch("ra2_Photon135",           &m_Photon135,           "Photon135/O" );
-  purityTemplates->Branch("ra2_Photon150",           &m_Photon150,           "Photon150/O" );
+  reducedValues->Branch("ra2_nPhotonsID",        &m_nPhotonsID,        "m_nPhotonsID/I");
+  reducedValues->Branch("ra2_nPhotonsTightIso",  &m_nPhotonsTightIso,  "m_nPhotonsTightIso/I");
 
-  purityTemplates->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "nJetsPt30Eta50/I" );
-  purityTemplates->Branch("ra2_bJetsPt30Eta24", &m_bJetsPt30Eta24, "bJetsPt30Eta24/I");
-  purityTemplates->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "nJetsPt50Eta25/I" );
+  reducedValues->Branch("ra2_Photon1PDGID",&m_Photon1PDGID,"m_Photon1PDGID/I");
 
-  purityTemplates->SetAutoSave(1);
+  reducedValues->Branch("ra2_Photon1pfCH", &m_Photon1pfCH, "m_Photon1pfCH/D");
+  reducedValues->Branch("ra2_Photon1pfNU", &m_Photon1pfNU, "m_Photon1pfNU/D");
+  reducedValues->Branch("ra2_Photon1pfGA", &m_Photon1pfGA, "m_Photon1pfGA/D");
+  reducedValues->Branch("ra2_Photon1Pt",   &m_Photon1Pt,   "m_Photon1Pt/D" );
+  reducedValues->Branch("ra2_Photon1Eta",  &m_Photon1Eta,  "m_Photon1Eta/D");
+  reducedValues->Branch("ra2_Photon1Phi",  &m_Photon1Phi,  "m_Photon1Phi/D");
+  reducedValues->Branch("ra2_Photon1SigmaIetaIeta", &m_Photon1SigmaIetaIeta, "m_Photon1SigmaIetaIeta/D");
+  reducedValues->Branch("ra2_Photon1HadTowOverEm",  &m_Photon1HadTowOverEm,  "m_Photon1HadTowOverEm/D");
+  reducedValues->Branch("ra2_Photon1MinDR", &m_Photon1MinDR, "m_Photon1MinDR/D");
+  reducedValues->Branch("ra2_Photon1DRJet1",&m_Photon1DRJet1,"m_Photon1DRJet1/D");
+  reducedValues->Branch("ra2_Photon1EConvVeto",   &m_Photon1EConvVeto,   "m_Photon1EConvVeto/O" );
+  reducedValues->Branch("ra2_Photon1PixelVeto",   &m_Photon1PixelVeto,   "m_Photon1PixelVeto/O" );
+  reducedValues->Branch("ra2_Photon1IsTightID",   &m_Photon1IsTightID,   "m_Photon1IsTightID/O" );
+  reducedValues->Branch("ra2_Photon1IsTightPFIso",   &m_Photon1IsTightPFIso,   "m_Photon1IsTightPFIso/O" );
+  reducedValues->Branch("ra2_Photon1PassPFCh",   &m_Photon1PassPFCh,   "m_Photon1PassPFCh/O" );
+  reducedValues->Branch("ra2_Photon1PassPFNu",   &m_Photon1PassPFNu,   "m_Photon1PassPFNu/O" );
+  reducedValues->Branch("ra2_Photon1PassPFGa",   &m_Photon1PassPFGa,   "m_Photon1PassPFGa/O" );
+
+  reducedValues->Branch("ra2_nJetsPt30Eta50", &m_nJetsPt30Eta50, "m_nJetsPt30Eta50/I" );
+  reducedValues->Branch("ra2_nJetsPt50Eta25", &m_nJetsPt50Eta25, "m_nJetsPt50Eta25/I" );
+
+  reducedValues->SetAutoSave(1);
 }
 
 
 void  RA2ZInvPhotonTemplateMaker::beginRun(edm::Run const& run, edm::EventSetup const& es) {
-  bool changed = false;
-  if (data_) {
-    if (hltConfig.init(run,es,"HLT",changed)) {
-      if (changed) {
-	edm::LogWarning("RA2ZInvPhotonTemplateMaker") << "beginRun: The HLT config has changed!";
-      }
-    }
-    else {
-      edm::LogError("TriggerEvent") << " HLT config extraction failure";
-    }
-  }
 }
 
 void RA2ZInvPhotonTemplateMaker::endRun(edm::Run const&, edm::EventSetup const&) {
@@ -617,3 +404,5 @@ void RA2ZInvPhotonTemplateMaker::fillDescriptions(edm::ConfigurationDescriptions
 //define this as a plug-in
 DEFINE_FWK_MODULE(RA2ZInvPhotonTemplateMaker);
 
+
+//  LocalWords:  reco

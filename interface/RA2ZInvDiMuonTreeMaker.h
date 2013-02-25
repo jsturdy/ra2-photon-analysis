@@ -53,8 +53,10 @@ private:
   bool debug_;
   bool data_;
   double scale_;
-  edm::InputTag muonSrc_, electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
-  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_;
+  edm::InputTag muonSrc_, electronVetoSrc_, muonVetoSrc_, isoTrkVetoSrc_,
+    ra2ElectronSrc_, ra2MuonSrc_;
+  edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_,
+    ra2HTSrc_, ra2MHTSrc_, ra2METSrc_;
   std::string looseTopTaggerSrc_, nominalTopTaggerSrc_;
   bool          doPUReWeight_, runTopTagger_, storeExtraVetos_;
   edm::InputTag puWeightSrc_, eventWeightSrc_;
@@ -77,7 +79,7 @@ private:
     m_nJetsPt30Eta50, m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
     m_nJetsCSVM, m_nJetsCSVT,
     m_Vertices,  m_event, m_run, m_lumi;
-  double m_HT, m_HTMInv, m_MHT, m_MET,
+  double m_HT, m_HTMInv, m_MHT, m_MET, m_ra2_HT, m_ra2_MHT, m_ra2_MET,
     m_dPhiMHT1, m_dPhiMHT2, m_dPhiMHT3, m_dPhiMHT4, m_dPhiMHTMin, m_dPhiMHTMinBCSVM, m_dPhiMHTMinBCSVT,
     m_dPhiMET1, m_dPhiMET2, m_dPhiMET3, m_dPhiMET4, m_dPhiMETMin, m_dPhiMETMinBCSVM, m_dPhiMETMinBCSVT,
     m_EventWt, m_PUWt, 
@@ -112,5 +114,6 @@ private:
     m_nominal_MTbestWJet, m_nominal_MTbestbJet, m_nominal_MTremainingTopJet, m_nominal_linearCombMTbJetPlusMTbestTopJet;
 
   //Lepton vetos
-  bool m_passElVeto, m_passMuVeto, m_passTauVeto, m_passIsoTrkVeto;
+  bool m_passDirIsoElVeto, m_passDirIsoMuVeto, m_passIsoTrkVeto,
+    m_passRA2ElVeto, m_passRA2MuVeto;
 };

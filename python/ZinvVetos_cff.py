@@ -17,30 +17,50 @@ patJetsForIndirectTauVetoDiElectrons.src = cms.InputTag("patJetsPFNoElectron")
 
 #######
 patJetsForIndirectTauVetoZInv = patJetsForIndirectTauVetoPhotonsID.clone()
-patJetsForIndirectTauVetoZInv.src = cms.InputTag("patJetsPF")
+patJetsForIndirectTauVetoZInv.src = cms.InputTag("newJetsMET")
 
 
 #================ configure filters =======================#
 
-from SandBox.HadSTopSkims.muonVetoFilter_cfi import muonVetoSTop
-sTopPFMuonVeto       = muonVetoSTop.clone()
-sTopPFMuonVetoDiMuon = muonVetoSTop.clone(MaxMuons = cms.int32(2))
+#from SandBox.HadSTopSkims.muonVetoFilter_cfi import muonVetoSTop
+#sTopPFMuonVeto       = muonVetoSTop.clone()
+#sTopPFMuonVetoDiMuon = muonVetoSTop.clone(MaxMuons = cms.int32(2))
+from SandBox.Stop.sakLooseMuonSelector_cfi import sakLooseMuonSelector
+sTopPFMuonVeto       = sakLooseMuonSelector.clone()
+sTopPFMuonVetoDiMuon = sakLooseMuonSelector.clone(MaxMuons = cms.int32(2))
+from SandBox.Skims.RA2Leptons_cff import countMuonsIDIso,countPFMuonsIDIso
+countRA2MuonsIDIso          = countMuonsIDIso.clone(minNumber = cms.uint32(0),
+                                                    maxNumber = cms.uint32(0))
+countRA2MuonsPFIDIso        = countPFMuonsIDIso.clone(minNumber = cms.uint32(0),
+                                                      maxNumber = cms.uint32(0))
+countRA2MuonsIDIsoDiMuons   = countMuonsIDIso.clone(minNumber = cms.uint32(2),maxNumber = cms.uint32(2))
+countRA2MuonsPFIDIsoDiMuons = countPFMuonsIDIso.clone(minNumber = cms.uint32(2),maxNumber = cms.uint32(2))
 
-from SandBox.HadSTopSkims.electronVetoFilter_cfi import electronVetoSTop
-sTopPFElectronVeto           = electronVetoSTop.clone()
-sTopPFElectronVetoDiElectron = electronVetoSTop.clone(MaxElectrons = cms.int32(2))
+##from SandBox.HadSTopSkims.electronVetoFilter_cfi import electronVetoSTop
+##sTopPFElectronVeto           = electronVetoSTop.clone()
+##sTopPFElectronVetoDiElectron = electronVetoSTop.clone(MaxElectrons = cms.int32(2))
+from SandBox.Stop.sakLooseElectronSelector_cfi import sakLooseElectronSelector
+sTopPFElectronVeto           = sakLooseElectronSelector.clone()
+sTopPFElectronVetoDiElectron = sakLooseElectronSelector.clone(MaxElectrons = cms.int32(2))
+from SandBox.Skims.RA2Leptons_cff import countElectronsIDIso
+countRA2ElectronsIDIso            = countElectronsIDIso.clone(minNumber = cms.uint32(0),
+                                                              maxNumber = cms.uint32(0))
+countRA2ElectronsIDIsoDiElectrons = countElectronsIDIso.clone(minNumber = cms.uint32(2),maxNumber = cms.uint32(2))
 
-from SandBox.HadSTopSkims.trackIsolationMaker_cfi import trackIsolationMaker
-sTopTrkIsolationMaker = trackIsolationMaker.clone()
+#from SandBox.HadSTopSkims.trackIsolationMaker_cfi import trackIsolationMaker
+#sTopTrkIsolationMaker = trackIsolationMaker.clone()
+from SandBox.Stop.trackIsolationMaker_cfi import trackIsolationFilter
+sTopTrkIsolationMaker = trackIsolationFilter.clone(doTrkIsoVeto = cms.bool(False))
+sTopTrkIsolationMakerDiLeptons = sTopTrkIsolationMaker.clone(MaxChargedCandidates = cms.uint32(2))
 
-from SandBox.HadSTopSkims.isolatedTrackVeto_cfi import isolatedTrackVeto
-sTopIsoTrkVeto          = isolatedTrackVeto.clone(
-    CandidatesCharge     = cms.InputTag("sTopTrkIsolationMaker","pfcandschg"),
-    CandidatesTrkIso     = cms.InputTag("sTopTrkIsolationMaker","pfcandstrkiso"),
-    CandidatesPt         = cms.InputTag("sTopTrkIsolationMaker","pfcandspt"),
-    CandidatesDZ         = cms.InputTag("sTopTrkIsolationMaker","pfcandsdzpv"),
-)
-sTopIsoTrkVetoDiLeptons = sTopIsoTrkVeto.clone(MaxChargedCandidates = cms.int32(2))
+##from SandBox.HadSTopSkims.isolatedTrackVeto_cfi import isolatedTrackVeto
+##sTopIsoTrkVeto          = isolatedTrackVeto.clone(
+##    CandidatesCharge     = cms.InputTag("sTopTrkIsolationMaker","pfcandschg"),
+##    CandidatesTrkIso     = cms.InputTag("sTopTrkIsolationMaker","pfcandstrkiso"),
+##    CandidatesPt         = cms.InputTag("sTopTrkIsolationMaker","pfcandspt"),
+##    CandidatesDZ         = cms.InputTag("sTopTrkIsolationMaker","pfcandsdzpv"),
+##)
+##sTopIsoTrkVetoDiLeptons = sTopIsoTrkVeto.clone(MaxChargedCandidates = cms.int32(2))
 
 from SandBox.HadSTopSkims.indirectTauVeto_cfi import indirectTauVeto
 sTopTauVetoDiMuon = indirectTauVeto.clone(
@@ -61,47 +81,47 @@ sTopTauVetoPhotonIDPFIso = indirectTauVeto.clone(
 )
 sTopTauVetoZInv = indirectTauVeto.clone(
     JetSource   = cms.InputTag("patJetsForIndirectTauVetoZInv"),
-    METSource   = cms.InputTag("patMETsPF"),
+    METSource   = cms.InputTag("newMETwPhiCorr"),
 )
 
 
 
 
 photonVetos = cms.Sequence(
-    patJetsForIndirectTauVetoPhotonsID
-    *patJetsForIndirectTauVetoPhotonsIDPFIso
-    *sTopPFMuonVeto
+    #patJetsForIndirectTauVetoPhotonsID
+    #*patJetsForIndirectTauVetoPhotonsIDPFIso
+    sTopPFMuonVeto
     *sTopPFElectronVeto
     *sTopTrkIsolationMaker
-    *sTopIsoTrkVeto
-    *sTopTauVetoPhotonID
-    *sTopTauVetoPhotonIDPFIso
+    #*sTopIsoTrkVeto
+    #*sTopTauVetoPhotonID
+    #*sTopTauVetoPhotonIDPFIso
 )
 
 zinvVetos = cms.Sequence(
-    patJetsForIndirectTauVetoZInv
-    *sTopPFMuonVeto
+    #patJetsForIndirectTauVetoZInv
+    sTopPFMuonVeto
     *sTopPFElectronVeto
     *sTopTrkIsolationMaker
-    *sTopIsoTrkVeto
-    *sTopTauVetoZInv
+    #*sTopIsoTrkVeto
+    #*sTopTauVetoZInv
 )
 
 zmumuVetos = cms.Sequence(
-    patJetsForIndirectTauVetoDiMuons
-    *sTopPFMuonVetoDiMuon
+    #patJetsForIndirectTauVetoDiMuons
+    sTopPFMuonVetoDiMuon
     *sTopPFElectronVeto
-    *sTopTrkIsolationMaker
-    *sTopIsoTrkVetoDiLeptons
-    *sTopTauVetoDiMuon
+    *sTopTrkIsolationMakerDiLeptons
+#    *sTopIsoTrkVetoDiLeptons
+    #*sTopTauVetoDiMuon
 )
 
 zelelVetos = cms.Sequence(
-    patJetsForIndirectTauVetoDiElectrons
-    *sTopPFMuonVeto
+    #patJetsForIndirectTauVetoDiElectrons
+    sTopPFMuonVeto
     *sTopPFElectronVetoDiElectron
-    *sTopTrkIsolationMaker
-    *sTopIsoTrkVetoDiLeptons
-    *sTopTauVetoDiElectron
+    *sTopTrkIsolationMakerDiLeptons
+#    *sTopIsoTrkVetoDiLeptons
+    #*sTopTauVetoDiElectron
 )
 

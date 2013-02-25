@@ -32,7 +32,8 @@ addphotonuserbasic = cms.EDProducer("AddPhotonUserData",
             'pfChargedEA','pfNeutralEA','pfGammaEA',
             'hadTowOverEmTightCut' ,'showerShapeTightCut' ,'pfChargedTightCut' ,'pfNeutralTightCut' ,'pfGammaTightCut',
             'hadTowOverEmMediumCut','showerShapeMediumCut','pfChargedMediumCut','pfNeutralMediumCut','pfGammaMediumCut',
-            'hadTowOverEmLooseCut' ,'showerShapeLooseCut' ,'pfChargedLooseCut' ,'pfNeutralLooseCut' ,'pfGammaLooseCut'
+            'hadTowOverEmLooseCut' ,'showerShapeLooseCut' ,'pfChargedLooseCut' ,'pfNeutralLooseCut' ,'pfGammaLooseCut',
+            'hadTowOverEmVeryLooseCut' ,'showerShapeVeryLooseCut' ,'pfChargedVeryLooseCut' ,'pfNeutralVeryLooseCut' ,'pfGammaVeryLooseCut'
         ),
         userFunctions = cms.vstring(
             """hcalTowerSumEtConeDR03 +
@@ -79,7 +80,13 @@ addphotonuserbasic = cms.EDProducer("AddPhotonUserData",
             """?0.0   <= abs(superCluster.eta) < 1.4442? 0.012:0.034""",#showerShape      
             """?0.0   <= abs(superCluster.eta) < 1.4442? 2.6 :2.3 """,  #pfCharged
             """?0.0   <= abs(superCluster.eta) < 1.4442? 3.5 + 0.04*pt :2.9 + 0.04*pt """,#pfNeutral
-            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.3 + 0.005*pt : 1e10 """   #pfGamma
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 1.3 + 0.005*pt : 1e10 """,   #pfGamma
+            ###VeryLoose
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.05 :0.05 """,#singleTowerHOverE
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.015:0.037""",#showerShape
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 5*(0.7) :5*(0.5) """,  #pfCharged
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 5*(0.4 + 0.04*pt) :5*(1.5 + 0.04*pt) """,  #pfNeutral
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 5*(0.5 + 0.005*pt):5*(1.0 + 0.005*pt) """,#pfGamma
         )
     )
 )
@@ -117,6 +124,7 @@ addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
             'hadTowOverEmTightCut' ,'showerShapeTightCut' ,'pfChargedTightCut' ,'pfNeutralTightCut' ,'pfGammaTightCut',
             'hadTowOverEmMediumCut','showerShapeMediumCut','pfChargedMediumCut','pfNeutralMediumCut','pfGammaMediumCut',
             'hadTowOverEmLooseCut' ,'showerShapeLooseCut' ,'pfChargedLooseCut' ,'pfNeutralLooseCut' ,'pfGammaLooseCut',
+            'hadTowOverEmVeryLooseCut' ,'showerShapeVeryLooseCut' ,'pfChargedVeryLooseCut' ,'pfNeutralVeryLooseCut' ,'pfGammaVeryLooseCut',
             'combIsoR03','combIsoR04',
         ),
         userFunctions = cms.vstring(
@@ -165,6 +173,12 @@ addphotonuserdata1 = cms.EDProducer("AddPhotonUserData",
             """?0.0   <= abs(superCluster.eta) < 1.4442? 2.6 :2.3 """,  #pfCharged
             """?0.0   <= abs(superCluster.eta) < 1.4442? 3.5 + 0.04*pt :2.9 + 0.04*pt """,#pfNeutral
             """?0.0   <= abs(superCluster.eta) < 1.4442? 1.3 + 0.005*pt : 1e10 """,   #pfGamma
+            ###VeryLoose
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.05 :0.05 """,#singleTowerHOverE
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 0.015:0.037""",#showerShape
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 5*(0.7) :5*(0.5) """,  #pfCharged
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 5*(0.4 + 0.04*pt) :5*(1.5 + 0.04*pt) """,  #pfNeutral
+            """?0.0   <= abs(superCluster.eta) < 1.4442? 5*(0.5 + 0.005*pt):5*(1.0 + 0.005*pt) """,#pfGamma
             'trkSumPtSolidConeDR03 + ecalRecHitSumEtConeDR03 + userFloat("hcalIsoConeDR03_2012")',
             'trkSumPtSolidConeDR04 + ecalRecHitSumEtConeDR04 + userFloat("hcalIsoConeDR04_2012")'
         )
