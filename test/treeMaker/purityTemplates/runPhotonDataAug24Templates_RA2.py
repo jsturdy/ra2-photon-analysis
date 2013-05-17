@@ -15,31 +15,29 @@ process.options = cms.untracked.PSet(
             wantSummary = cms.untracked.bool(True)
             )
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "FT53_V10A_AN3::All"
 
 #================= configure poolsource module ===================
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/lpcsusyhad/53X_ntuples/kasmi/TTJets_SemiLeptMGDecays_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V7A-v2_NOCUTS_12Oct2012V3_corrTag/b9d339f81100b66394e7e5c0a998fe80/susypat_963_1_VzF.root',
-        '/store/user/lpcsusyhad/53X_ntuples/kasmi/TTJets_SemiLeptMGDecays_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V7A-v2_NOCUTS_12Oct2012V3_corrTag/b9d339f81100b66394e7e5c0a998fe80/susypat_962_1_S91.root',
-        '/store/user/lpcsusyhad/53X_ntuples/kasmi/TTJets_SemiLeptMGDecays_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V7A-v2_NOCUTS_12Oct2012V3_corrTag/b9d339f81100b66394e7e5c0a998fe80/susypat_961_1_c5j.root',
-        '/store/user/lpcsusyhad/53X_ntuples/kasmi/TTJets_SemiLeptMGDecays_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V7A-v2_NOCUTS_12Oct2012V3_corrTag/b9d339f81100b66394e7e5c0a998fe80/susypat_960_1_INY.root',
-        '/store/user/lpcsusyhad/53X_ntuples/kasmi/TTJets_SemiLeptMGDecays_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V7A-v2_NOCUTS_12Oct2012V3_corrTag/b9d339f81100b66394e7e5c0a998fe80/susypat_95_1_aLz.root',
-        '/store/user/lpcsusyhad/53X_ntuples/kasmi/TTJets_SemiLeptMGDecays_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V7A-v2_NOCUTS_12Oct2012V3_corrTag/b9d339f81100b66394e7e5c0a998fe80/susypat_959_1_Pvs.root',
-        '/store/user/lpcsusyhad/53X_ntuples/kasmi/TTJets_SemiLeptMGDecays_8TeV-madgraph/Summer12_DR53X-PU_S10_START53_V7A-v2_NOCUTS_12Oct2012V3_corrTag/b9d339f81100b66394e7e5c0a998fe80/susypat_958_1_UpC.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/SingleMu/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_777_1_PFV.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/SingleMu/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_778_1_jUd.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/SingleMu/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_773_1_lDn.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/SingleMu/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_774_1_7PV.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/SingleMu/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_775_1_ZMU.root',
+        '/store/user/lpcsusyhad/53X_ntuples/PhotonHad_Run2012C_PromptReco_v2_lpc1/seema/SingleMu/PhotonHad_Run2012C-PromptReco-v2_NoHepTopTagger_NOCUTS_HLTPhoton70Inc_12Oct2012V3/0cc7c0df13c0d8758c7e8d5139d63072/susypat_781_1_zBt.root',
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000) )
 process.source.skipEvents = cms.untracked.uint32(0)
-process.GlobalTag.globaltag = "START53_V7G::All"
-###========================= analysis module =====================================
+#========================= analysis module =====================================
 
-scaleF = 103.0*10*1000/11081685.
+scaleF = 1.
 from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
 process.eventWeight = weightProducer.clone(
-    weight = cms.double(scaleF),
+    weight = cms.double(1.0),
 )
 from RA2Classic.WeightProducer.puWeightProducer_cfi import puWeightProducer
 process.puWeight = puWeightProducer.clone(
@@ -47,10 +45,10 @@ process.puWeight = puWeightProducer.clone(
 )
 from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
 process.analysisID = photonTree.clone(
-    #Debug           = cms.bool(True),
-    Data            = cms.bool(False),
+    #Debug           = cms.bool(False),
+    Data            = cms.bool(True),
     ScaleFactor     = cms.double(scaleF),
-    DoPUReweight    = cms.bool(True),
+    DoPUReweight    = cms.bool(False),
     PhotonSrc       = cms.InputTag("patPhotonsID"),
     TightPhotonSrc  = cms.InputTag("patPhotonsIDPFIso"),
 
@@ -62,7 +60,7 @@ process.analysisID = photonTree.clone(
 )
 
 process.analysisIDPFIso = process.analysisID.clone(
-    #Debug           = cms.bool(True),
+    #Debug           = cms.bool(False),
     DebugString     = cms.string("photonIDPFIso"),
     PhotonSrc       = cms.InputTag("patPhotonsIDPFIso"),
     JetSrc          = cms.InputTag("patJetsPFNoPhotonIDPFIsoSpecialPt30"),
@@ -72,12 +70,38 @@ process.analysisIDPFIso = process.analysisID.clone(
     mhtSource       = cms.InputTag("mhtPFchsNoPhotIDPFIso"),
     metSource       = cms.InputTag("pfType1MetNoPhotonIDPFIso","pfcand"),
 )
+from ZInvisibleBkgds.Photons.templatemaker_cfi import photonTemplate
+process.analysisFitTemplate = photonTemplate.clone(
+#    ##Debug           = cms.bool(True),
+    Data            = cms.bool(True),
+    ScaleFactor     = cms.double(scaleF),
+    DoPUReweight    = cms.bool(False),
+    PhotonSrc       = cms.InputTag("patFitTemplatePhotons"),
+    TightPhotonSrc  = cms.InputTag("patPhotonsIDPFIso"),
+
+    JetSrc          = cms.InputTag("patJetsPFNoPhotonFitTemplateSpecialPt30"),
+    htJetSrc        = cms.InputTag("patJetsPFNoPhotonFitTemplateSpecialPt50Eta25"),
+    htSource        = cms.InputTag("htPFchsNoPhotFitTemplate"),
+    mhtSource       = cms.InputTag("mhtPFchsNoPhotFitTemplate"),
+    metSource       = cms.InputTag("pfType1MetNoPhotonFitTemplate","pfcand"),
+)
+
+process.analysisFakes = process.analysisFitTemplate.clone(
+    ##Debug           = cms.bool(True),
+    DebugString     = cms.string("photonFakes"),
+    PhotonSrc       = cms.InputTag("patJetFakePhotons"),
+    JetSrc          = cms.InputTag("patJetsPFNoPhotonJetFakeSpecialPt30"),
+    htJetSrc        = cms.InputTag("patJetsPFNoPhotonJetFakeSpecialPt50Eta25"),
+    htSource        = cms.InputTag("htPFchsNoPhotJetFake"),
+    mhtSource       = cms.InputTag("mhtPFchsNoPhotJetFake"),
+    metSource       = cms.InputTag("pfType1MetNoPhotonJetFake","pfcand"),
+)
 #================ configure filters and analysis sequence=======================
 
 process.load("SandBox.Skims.RA2Leptons_cff")
 process.load("SandBox.Skims.jesChange_cfi")
-process.newJetsMET.JECLevel = cms.string('ak5PFchsL1FastL2L3')
-process.patMETPhiCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_mc
+process.newJetsMET.JECLevel = cms.string('ak5PFchsL1FastL2L3Residual')
+process.patMETPhiCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_data
                         
 process.load('SandBox.Skims.RA2Objects_cff')
 process.patJetsPFchsPt30.src      = cms.InputTag('newJetsMET')
@@ -91,7 +115,6 @@ process.load('ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvPhotonJets_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvBkgdJets_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvBkgdObjects_cff')
-process.load('ZInvisibleBkgds.Photons.ZinvBkgdGenPhotons_cff')
 
 process.load('ZInvisibleBkgds.Photons.addphotonuserdata_cfi')
 
@@ -115,6 +138,9 @@ process.load('SandBox.Skims.RA2CleaningFilterResults_cfg')
 process.load('SandBox.Skims.RA2CaloVsPFMHTFilterSequence_cff')
 process.RA2CaloVsPFMHTFilter.TaggingMode = cms.bool(False)
 process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
+process.hcalLaserEventsSingleMu = multiEventFilter.clone(
+    file = cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_SingleMu.txt'))
 
 from SandBox.Skims.jetMHTDPhiFilter_cfi  import *
 process.photonDPhiFilter   = jetMHTDPhiFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotFitTemplate"),
@@ -137,6 +163,7 @@ process.photonJetFakeMHTFilter     = mhtFilter.clone(MHTSource = cms.InputTag("m
 process.analysisSeq = cms.Sequence(
     process.ecalLaserCorrFilter
     * process.cleaningOnFilterResults
+    * process.hcalLaserEventsSingleMu
     * process.newra2PFchsJets
     * process.ra2Electrons
     * process.ra2PFchsJets
@@ -167,13 +194,40 @@ process.idisoPhotons = cms.Sequence(
     * process.analysisIDPFIso
     * process.countMaxPhotonsIDPFIso
 )
+process.truePhotons = cms.Sequence(
+    process.countFitTemplatePhotons
+    * process.photonTemplateObjectsPF
+    * process.pfType1MetNoPhotonFitTemplate
+    #                                   * process.photonFitTemplateHTFilter
+    #                                   * process.photonFitTemplateMHTFilter
+    * process.analysisFitTemplate
+    * process.countMaxFitTemplatePhotons
+)
+process.fakePhotons = cms.Sequence(
+    process.countJetFakePhotons
+    * process.photonJetFakeObjectsPF
+    * process.pfType1MetNoPhotonJetFake
+    #                                   * process.photonJetFakeHTFilter
+    #                                   * process.photonJetFakeMHTFilter
+    * process.analysisFakes
+    * process.countMaxJetFakePhotons
+)
+
+#======================= output module configuration ===========================
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('photonMCTTJetsTrees.root')
+    fileName = cms.string('photonDataTemplates.root')
 )
 
-process.idiso = cms.Path(process.puWeight
-                       * process.eventWeight
-                       * process.analysisSeq
-                       * process.idisoPhotons
-)
+#============================== configure paths ===============================
+process.true = cms.Path(process.puWeight
+                      * process.eventWeight
+                      * process.analysisSeq
+                      * process.truePhotons )
+process.fake = cms.Path(process.puWeight
+                      * process.eventWeight
+                      * process.analysisSeq
+                      * process.fakePhotons )
+
+process.mySched = cms.Schedule(process.true,
+                               process.fake)

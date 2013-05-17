@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 process.source.skipEvents = cms.untracked.uint32(0)
 process.GlobalTag.globaltag = "START53_V7G::All"
 #========================= analysis module =====================================
@@ -103,7 +103,7 @@ from SandBox.Skims.jetMHTDPhiFilter_cfi  import *
 process.zinvDPhiFilter   = jetMHTDPhiFilter.clone(MHTSource = cms.InputTag("mhtPFchs"),
                                                   JetSource = cms.InputTag("patJetsPFchsPt30"))
 from SandBox.Skims.htFilter_cfi  import *
-process.zinvHTPreFilter   = htFilter.clone(HTSource = cms.InputTag("htPFchs"),MinHT = cms.double(300.0))
+process.zinvHTPreFilter   = htFilter.clone(HTSource = cms.InputTag("htPFchs"),MinHT = cms.double(200.0))
 process.zinvHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchs"),MinHT = cms.double(500.0))
 from SandBox.Skims.mhtFilter_cfi import *
 process.zinvMHTPreFilter   = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchs"),MinMHT = cms.double(100))
@@ -125,13 +125,14 @@ process.cleaningSeq = cms.Sequence(
     process.ecalLaserCorrFilter
     * process.cleaningOnFilterResults
     #* process.RA2CaloVsPFMHTFilterSequence
-    #                                   * process.countRA2ElectronsIDIso
-    #                                   * process.countRA2MuonsPFIDIso
+    #* process.countRA2ElectronsIDIso
+    #* process.countRA2MuonsPFIDIso
 )
 process.analysisSeq = cms.Sequence(
     process.countJetsPFchsPt50Eta25
     * process.zinvHTPreFilter
     * process.zinvMHTPreFilter
+    * process.zinvTopTaggers
     * process.analysis
     #* process.zinvDPhiFilter
     #* process.zinvHTFilter

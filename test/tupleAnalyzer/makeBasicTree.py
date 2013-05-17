@@ -40,42 +40,33 @@ def main() :
         "*_101?_?_???","*_102?_?_???","*_103?_?_???","*_104?_?_???","*_105?_?_???","*_106?_?_???","*_107?_?_???","*_108?_?_???","*_109?_?_???",#100
         ]
 
-    outFileName = "recoTreeDR%2.1f_%s_%s_%d.root"%(options.cutDR,options.sample,options.treeName,options.subsec)
+    outFileName = "basicTreeDR%2.1f_%s_%s_%d.root"%(options.cutDR,options.sample,options.treeName,options.subsec)
     if options.debug:
-        outFileName = "recoTreeDR%2.1f_%s_%s_test.root"%(options.cutDR,options.treeName,options.sample)
+        outFileName = "basicTreeDR%2.1f_%s_%s_test.root"%(options.cutDR,options.treeName,options.sample)
 
     print outFileName
     sys.stdout.flush()
     outFile  = r.TFile(outFileName,"RECREATE")
-    tree     = r.TTree( 'reco', 'tree for reco info ' )
+    tree     = r.TTree( 'basic', 'tree for basic info ' )
     
-    ra2_run     = array( 'i', [ 0 ] )
-    ra2_event   = array( 'i', [ 0 ] )
-    ra2_lumi    = array( 'i', [ 0 ] )
-    nVtx        = array( 'i', [ 0 ] )
-    nJetsHT     = array( 'i', [ 0 ] )
-    nJetsHTMInv = array( 'i', [ 0 ] )
-    nJetsMHT    = array( 'i', [ 0 ] )
+    nVtx           = array( 'i', [ 0 ] )
+    nJetsHT  = array( 'i', [ 0 ] )
+    nJetsMHT = array( 'i', [ 0 ] )
+    nJetsCSVM  = array( 'i', [ 0 ] )
+    nJetsCSVT  = array( 'i', [ 0 ] )
 
-    nPhotonsID      = array( 'i', [ 0 ] )
-    #nPhotonsLoose   = array( 'i', [ 0 ] )
-    nPhotonsTight   = array( 'i', [ 0 ] )
-    #nPhotonsCombR03 = array( 'i', [ 0 ] )
-    #nPhotonsCombR04 = array( 'i', [ 0 ] )
+    nPhotons      = array( 'i', [ 0 ] )
 
     htVal       = array( 'd', [ 0. ] )
-    htMInvVal   = array( 'd', [ 0. ] )
     mhtVal      = array( 'd', [ 0. ] )
+    htNoPhotVal       = array( 'd', [ 0. ] )
+    mhtNoPhotVal      = array( 'd', [ 0. ] )
     dphi1       = array( 'd', [ 0. ] )
     dphi2       = array( 'd', [ 0. ] )
     dphi3       = array( 'd', [ 0. ] )
     dphiMin     = array( 'd', [ 0. ] )
-    #bosonPt     = array( 'd', [ 0. ] )
-    
-#    photonIsTightID   = array( 'b', [ 0 ] )
-    #photonIsLooseIso  = array( 'b', [ 0 ] )
+
     photonIsTightIso  = array( 'b', [ 0 ] )
-    #photonIsCombIso   = array( 'b', [ 0 ] )
     photonPt  = array( 'd', [ 0. ] )
     photonEta = array( 'd', [ 0. ] )
     photonPhi = array( 'd', [ 0. ] )
@@ -89,20 +80,6 @@ def main() :
     photonEConvVeto    = array( 'b', [ 0 ] )
     photonPixelVeto    = array( 'b', [ 0 ] )
 
-    muon1Pt     = array( 'd', [ 0. ] )
-    muon1Eta    = array( 'd', [ 0. ] )
-    muon1MinDR  = array( 'd', [ 0. ] )
-    muon1Jet1DR = array( 'd', [ 0. ] )
-    muon2Pt     = array( 'd', [ 0. ] )
-    muon2Eta    = array( 'd', [ 0. ] )
-    muon2MinDR  = array( 'd', [ 0. ] )
-    muon2Jet1DR = array( 'd', [ 0. ] )
-    dimuonPt    = array( 'd', [ 0. ] )
-    dimuonEta   = array( 'd', [ 0. ] )
-    dimuonMinDR = array( 'd', [ 0. ] )
-    dimuonJet1DR= array( 'd', [ 0. ] )
-    dimuonM     = array( 'd', [ 0. ] )
-
     jet1Pt    = array( 'd', [ 0. ] )
     jet1Eta   = array( 'd', [ 0. ] )
     jet2Pt    = array( 'd', [ 0. ] )
@@ -115,41 +92,27 @@ def main() :
     eventWt   = array( 'd', [ 0. ] )
     puWt      = array( 'd', [ 0. ] )
 
-    passRA2ElVeto    = array( 'b', [ 0 ] )
-    passRA2MuVeto    = array( 'b', [ 0 ] )
-    passDirIsoElVeto = array( 'b', [ 0 ] )
-    passDirIsoMuVeto = array( 'b', [ 0 ] )
-    passIsoTrkVeto   = array( 'b', [ 0 ] )
     ##################
 
 
-    tree.Branch( 'ra2_run',    ra2_run,     'ra2_run/I' )
-    tree.Branch( 'ra2_event',  ra2_event,   'ra2_event/I' )
-    tree.Branch( 'ra2_lumi',   ra2_lumi,    'ra2_lumi/I' )
     tree.Branch( 'nVtx',       nVtx,        'nVtx/I' )
     tree.Branch( 'nJetsHT',    nJetsHT,     'nJetsHT/I' )
-    tree.Branch( 'nJetsHTMInv',nJetsHTMInv, 'nJetsHTMInv/I' )
     tree.Branch( 'nJetsMHT',   nJetsMHT,    'nJetsMHT/I' )
+    tree.Branch( 'nJetsCSVM',   nJetsCSVM,    'nJetsCSVM/I' )
+    tree.Branch( 'nJetsCSVT',   nJetsCSVT,    'nJetsCSVT/I' )
 
-    tree.Branch( 'nPhotonsID',      nPhotonsID,      'nPhotonsID/I' )
-#    tree.Branch( 'nPhotonsLoose',   nPhotonsLoose,   'nPhotonsLoose/I' )
-    tree.Branch( 'nPhotonsTight',   nPhotonsTight,   'nPhotonsTight/I' )
-#    tree.Branch( 'nPhotonsCombR03', nPhotonsCombR03, 'nPhotonsCombR03/I' )
-#    tree.Branch( 'nPhotonsCombR04', nPhotonsCombR04, 'nPhotonsCombR04/I' )
+    tree.Branch( 'nPhotons',      nPhotons,      'nPhotons/I' )
 
     tree.Branch( 'htVal',      htVal,       'htVal/D' )
-    tree.Branch( 'htMInvVal',  htMInvVal,   'htMInvVal/D' )
     tree.Branch( 'mhtVal',     mhtVal,      'mhtVal/D' )
+    tree.Branch( 'htNoPhotVal',      htNoPhotVal,       'htNoPhotVal/D' )
+    tree.Branch( 'mhtNoPhotVal',     mhtNoPhotVal,      'mhtNoPhotVal/D' )
     tree.Branch( 'dphi1',      dphi1,       'dphi1/D' )
     tree.Branch( 'dphi2',      dphi2,       'dphi2/D' )
     tree.Branch( 'dphi3',      dphi3,       'dphi3/D' )
     tree.Branch( 'dphiMin',    dphiMin,     'dphiMin/D' )
-    #tree.Branch( 'bosonPt',    bosonPt,   'bosonPt/D' )
 
-#    tree.Branch( 'photonIsTightID',   photonIsTightID,    'photonIsTightID/O' )
-#    tree.Branch( 'photonIsLooseIso',  photonIsLooseIso,   'photonIsLooseIso/O' )
     tree.Branch( 'photonIsTightIso',  photonIsTightIso,   'photonIsTightIso/O' )
-#    tree.Branch( 'photonIsCombIso',   photonIsCombIso,    'photonIsCombIso/O' )
     tree.Branch( 'photonPt',   photonPt,    'photonPt/D' )
     tree.Branch( 'photonEta',  photonEta,   'photonEta/D' )
     tree.Branch( 'photonPhi',  photonPhi,   'photonPhi/D' )
@@ -163,20 +126,6 @@ def main() :
     tree.Branch( 'photonEConvVeto', photonEConvVeto,  'photonEConvVeto/O' )
     tree.Branch( 'photonPixelVeto', photonPixelVeto,  'photonPixelVeto/O' )
     
-    tree.Branch( 'muon1Pt',    muon1Pt,    'muon1Pt/D' )
-    tree.Branch( 'muon1Eta',   muon1Eta,   'muon1Eta/D' )
-    tree.Branch( 'muon1MinDR', muon1MinDR, 'muon1MinDR/D' )
-    tree.Branch( 'muon1Jet1DR', muon1Jet1DR, 'muon1Jet1DR/D' )
-    tree.Branch( 'muon2Pt',    muon2Pt,    'muon2Pt/D' )
-    tree.Branch( 'muon2Eta',   muon2Eta,   'muon2Eta/D' )
-    tree.Branch( 'muon2MinDR', muon2MinDR, 'muon2MinDR/D' )
-    tree.Branch( 'muon2Jet1DR', muon2Jet1DR, 'muon2Jet1DR/D' )
-    tree.Branch( 'dimuonPt',   dimuonPt,   'dimuonPt/D' )
-    tree.Branch( 'dimuonEta',  dimuonEta,  'dimuonEta/D' )
-    tree.Branch( 'dimuonMinDR',dimuonMinDR,'dimuonMinDR/D' )
-    tree.Branch( 'dimuonJet1DR',dimuonJet1DR,'dimuonJet1DR/D' )
-    tree.Branch( 'dimuonM',    dimuonM,    'dimuonM/D' )
-
     tree.Branch( 'jet1Pt',   jet1Pt,    'jet1Pt/D' )
     tree.Branch( 'jet1Eta',  jet1Eta,   'jet1Eta/D' )
     tree.Branch( 'jet2Pt',   jet2Pt,    'jet2Pt/D' )
@@ -189,12 +138,6 @@ def main() :
     tree.Branch( 'eventWt',  eventWt,   'eventWt/D' )
     tree.Branch( 'puWt',     puWt,      'puWt/D' )
     
-    tree.Branch( 'passRA2ElVeto'   ,passRA2ElVeto   ,'passRA2ElVeto/O' )
-    tree.Branch( 'passRA2MuVeto'   ,passRA2MuVeto   ,'passRA2MuVeto/O' )
-    tree.Branch( 'passDirIsoElVeto',passDirIsoElVeto,'passDirIsoElVeto/O' )
-    tree.Branch( 'passDirIsoMuVeto',passDirIsoMuVeto,'passDirIsoMuVeto/O' )
-    tree.Branch( 'passIsoTrkVeto'  ,passIsoTrkVeto  ,'passIsoTrkVeto/O' )
-
     ##################
     myChain = r.TChain('%s/RA2Values'%(options.treeName))
     ##################
@@ -329,93 +272,53 @@ def main() :
             myChain.Add("dcache:///pnfs/cms/WAX/11/store/user/sturdy07/RA2_535_Flats/doublemu2012Dv1_trees_mar7/%s.root"%(subfiles[options.subsec]))
 
     fChain = myChain
-##    fChain.SetBranchStatus("*",0)
-##    fChain.SetBranchStatus("ra2_Event",1)
-##    fChain.SetBranchStatus("ra2_Run",1)
-##    fChain.SetBranchStatus("ra2_Lumi",1)
-##    fChain.SetBranchStatus("ra2_Vertices",1)
-##    fChain.SetBranchStatus("ra2_nJetsPt50Eta25",1)
-##    fChain.SetBranchStatus("ra2_nJetsPt50Eta25MInv",1)
-##    ###fChain.SetBranchStatus("ra2_nJetsCSVM",1)
-##    ###fChain.SetBranchStatus("ra2_nJetsCSVT",1)
-##    fChain.SetBranchStatus("ra2_nJetsPt30Eta50",1)
-##    fChain.SetBranchStatus("ra2_HT",1)
-##    fChain.SetBranchStatus("ra2_HTMInv",1)
-##    fChain.SetBranchStatus("ra2_MHT",1)
-##    ###fChain.SetBranchStatus("ra2_MET",1)
-##    fChain.SetBranchStatus("ra2_dPhiMHT1",1)
-##    fChain.SetBranchStatus("ra2_dPhiMHT2",1)
-##    fChain.SetBranchStatus("ra2_dPhiMHT3",1)
-##    ###fChain.SetBranchStatus("ra2_dPhiMHTMin",1)
-##    ###fChain.SetBranchStatus("ra2_dPhiMHTMinBCSVM",1)
-##    ###fChain.SetBranchStatus("ra2_dPhiMHTMinBCSVT",1)
-##    fChain.SetBranchStatus("ra2_Jet1Pt",1)
-##    fChain.SetBranchStatus("ra2_Jet1Eta",1)
-##    fChain.SetBranchStatus("ra2_Jet2Pt",1)
-##    fChain.SetBranchStatus("ra2_Jet2Eta",1)
-##    fChain.SetBranchStatus("ra2_Jet3Pt",1)
-##    fChain.SetBranchStatus("ra2_Jet3Eta",1)
-##    fChain.SetBranchStatus("ra2_Jet4Pt",1)
-##    fChain.SetBranchStatus("ra2_Jet4Eta",1)
-##    fChain.SetBranchStatus("ra2_PUWt",1)
-##    fChain.SetBranchStatus("ra2_EventWt",1)
-##    ###
-##    ###fChain.SetBranchStatus("ra2_passLooseTopTagger",1)
-##    ###fChain.SetBranchStatus("ra2_loose_bestTopJetMass",1)
-##    ###fChain.SetBranchStatus("ra2_loose_MTbJet",1)
-##    ###fChain.SetBranchStatus("ra2_loose_MTbestTopJet",1)
-##    ###fChain.SetBranchStatus("ra2_loose_MT2",1)
-##    ###fChain.SetBranchStatus("ra2_loose_MTbestWJet",1)
-##    ###fChain.SetBranchStatus("ra2_loose_MTbestbJet",1)
-##    ###fChain.SetBranchStatus("ra2_loose_MTremainingTopJet",1)
-##    ###fChain.SetBranchStatus("ra2_loose_linearCombMTbJetPlusMTbestTopJet",1)
-##    ###
-##    ###fChain.SetBranchStatus("ra2_passNominalTopTagger",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_bestTopJetMass",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_MTbJet",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_MTbestTopJet",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_MT2",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_MTbestWJet",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_MTbestbJet",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_MTremainingTopJet",1)
-##    ###fChain.SetBranchStatus("ra2_nominal_linearCombMTbJetPlusMTbestTopJet",1)
-##    ###
-##    ###
-##    if options.sample == "photon_ttbar" or options.sample == "wjets200" or options.sample == "wjets400" or options.sample == "wjets400v1" or options.sample == "wjets400v2" or options.sample == "gjets200" or options.sample == "gjets400"  or options.sample == "gjets400v1"  or options.sample == "gjets400v2"  or options.sample == "qcd" or options.sample == "photon2012a" or options.sample == "photon2012b" or options.sample == "photon2012c":
-##        print "setting photon branches active"
-##        fChain.SetBranchStatus("ra2_nPhotonsIso",1)
-##        fChain.SetBranchStatus("ra2_nPhotonsTightIso",1)
-##        fChain.SetBranchStatus("ra2_Photon1Eta",1)
-##        fChain.SetBranchStatus("ra2_Photon1MinDR",1)
-##        fChain.SetBranchStatus("ra2_Photon1DRJet1",1)
-##        fChain.SetBranchStatus("ra2_Photon1pfCH",1)
-##        fChain.SetBranchStatus("ra2_Photon1pfNU",1)
-##        fChain.SetBranchStatus("ra2_Photon1pfGA",1)
-##        fChain.SetBranchStatus("ra2_Photon1SigmaIetaIeta",1)
-##        fChain.SetBranchStatus("ra2_Photon1HadTowOverEm",1)
-##        if not options.isMC:
-##            fChain.SetBranchStatus("ra2_Photon70PFHT400",1)
-##            fChain.SetBranchStatus("ra2_Photon70PFNoPUHT400",1)
-##            
-##    if options.sample == "dimuon_ttbar" or options.sample == "zmumu200" or options.sample == "zmumu400" or options.sample == "zmumu400v1" or options.sample == "zmumu400v2" or options.sample == "muon2012a" or options.sample == "muon2012b" or options.sample == "muon2012c" or options.sample == "muon2012d":
-##        print "setting dimuon branches active"
-##        fChain.SetBranchStatus("ra2_Muon1Pt",1)
-##        fChain.SetBranchStatus("ra2_Muon1Eta",1)
-##        fChain.SetBranchStatus("ra2_Muon1MinDR",1)
-##        fChain.SetBranchStatus("ra2_Muon1DRJet1",1)
-##        fChain.SetBranchStatus("ra2_Muon2Pt",1)
-##        fChain.SetBranchStatus("ra2_Muon2Eta",1)
-##        fChain.SetBranchStatus("ra2_Muon2MinDR",1)
-##        fChain.SetBranchStatus("ra2_Muon2DRJet1",1)
-##        fChain.SetBranchStatus("ra2_DiMuonPt",1)
-##        fChain.SetBranchStatus("ra2_DiMuonEta",1)
-##        fChain.SetBranchStatus("ra2_DiMuonMinDR",1)
-##        fChain.SetBranchStatus("ra2_DiMuonDRJet1",1)
-##        fChain.SetBranchStatus("ra2_DiMuonInvM",1)
-##        if not options.isMC:
-##            fChain.SetBranchStatus("ra2_Mu13_Mu8",1)
-##            fChain.SetBranchStatus("ra2_Mu17_Mu8",1)
-#####
+    fChain.SetBranchStatus("*",0)
+    fChain.SetBranchStatus("ra2_Vertices",1)
+    fChain.SetBranchStatus("ra2_nJetsPt50Eta25",1)
+    fChain.SetBranchStatus("ra2_nJetsPt30Eta50",1)
+    fChain.SetBranchStatus("ra2_nJetsCSVM",1)
+    fChain.SetBranchStatus("ra2_nJetsCSVT",1)
+    fChain.SetBranchStatus("ra2_HT",1)
+    fChain.SetBranchStatus("ra2_MHT",1)
+    fChain.SetBranchStatus("ra2_ra2HT",1)
+    fChain.SetBranchStatus("ra2_ra2MHT",1)
+    fChain.SetBranchStatus("ra2_dPhiMHT1",1)
+    fChain.SetBranchStatus("ra2_dPhiMHT2",1)
+    fChain.SetBranchStatus("ra2_dPhiMHT3",1)
+    fChain.SetBranchStatus("ra2_dPhiMHTMin",1)
+    fChain.SetBranchStatus("ra2_Jet1Pt",1)
+    fChain.SetBranchStatus("ra2_Jet1Eta",1)
+    fChain.SetBranchStatus("ra2_Jet2Pt",1)
+    fChain.SetBranchStatus("ra2_Jet2Eta",1)
+    fChain.SetBranchStatus("ra2_Jet3Pt",1)
+    fChain.SetBranchStatus("ra2_Jet3Eta",1)
+    fChain.SetBranchStatus("ra2_Jet4Pt",1)
+    fChain.SetBranchStatus("ra2_Jet4Eta",1)
+    fChain.SetBranchStatus("ra2_PUWt",1)
+    fChain.SetBranchStatus("ra2_EventWt",1)
+
+    if options.sample in ["photon_ttbar", "wjets200", "wjets400", "wjets400v1", "wjets400v2",
+                          "gjets200", "gjets400", "gjets400v1", "gjets400v2", "qcd",
+                          "photon2012a", "photon2012b", "photon2012c", "photon2012d"]:
+        print "setting photon branches active"
+        fChain.SetBranchStatus("ra2_nPhotonsTightIso",1)
+        fChain.SetBranchStatus("ra2_Photon1IsTightPFIso",1)
+        fChain.SetBranchStatus("ra2_Photon1Pt",1)
+        fChain.SetBranchStatus("ra2_Photon1Eta",1)
+        fChain.SetBranchStatus("ra2_Photon1Phi",1)
+        fChain.SetBranchStatus("ra2_Photon1MinDR",1)
+        fChain.SetBranchStatus("ra2_Photon1DRJet1",1)
+        fChain.SetBranchStatus("ra2_Photon1pfCH",1)
+        fChain.SetBranchStatus("ra2_Photon1pfNU",1)
+        fChain.SetBranchStatus("ra2_Photon1pfGA",1)
+        fChain.SetBranchStatus("ra2_Photon1SigmaIetaIeta",1)
+        fChain.SetBranchStatus("ra2_Photon1HadTowOverEm",1)
+        fChain.SetBranchStatus("ra2_Photon1PixelVeto",1)
+        fChain.SetBranchStatus("ra2_Photon1EConvVeto",1)
+        if not options.isMC:
+            fChain.SetBranchStatus("ra2_Photon70PFHT400",1)
+            fChain.SetBranchStatus("ra2_Photon70PFNoPUHT400",1)
+            
     ###Timing information
     decade  = 0
     century = 0
@@ -424,6 +327,8 @@ def main() :
     onepcount = 1
 
 
+    if options.debug:
+        print "triggers, extra, nJetsHT[0], nPhotons[0],photonPt[0],htVal[0],htNoPhotVal[0],mhtVal[0],mhtNoPhotVal[0]"
     nentries = fChain.GetEntries()
     print "nentries %d"%(nentries)
     sys.stdout.flush()
@@ -459,17 +364,16 @@ def main() :
             sys.stdout.flush()
             onepcount = onepcount + 1
 
-        ra2_run[0]     = event.ra2_Run
-        ra2_event[0]   = event.ra2_Event
-        ra2_lumi[0]    = event.ra2_Lumi
-        nVtx[0]        = event.ra2_Vertices
+        nVtx[0]              = event.ra2_Vertices
         nJetsHT[0]     = event.ra2_nJetsPt50Eta25
-        nJetsHTMInv[0] = event.ra2_nJetsPt50Eta25MInv
         nJetsMHT[0]    = event.ra2_nJetsPt30Eta50
+        nJetsCSVM[0]   = event.ra2_nJetsCSVM
+        nJetsCSVT[0]   = event.ra2_nJetsCSVT
 
-        htVal[0]       = event.ra2_HT
-        htMInvVal[0]   = event.ra2_HTMInv
-        mhtVal[0]      = event.ra2_MHT
+        htVal[0]        = event.ra2_HT
+        mhtVal[0]       = event.ra2_MHT
+        htNoPhotVal[0]  = event.ra2_ra2HT
+        mhtNoPhotVal[0] = event.ra2_ra2MHT
 
         dphi1[0]       = event.ra2_dPhiMHT1
         dphi2[0]       = event.ra2_dPhiMHT2
@@ -488,23 +392,10 @@ def main() :
         puWt[0]        = event.ra2_PUWt
         eventWt[0]     = event.ra2_EventWt*sfCorr
 
-        passRA2ElVeto[0]     = event.ra2_passRA2ElVeto
-        passRA2MuVeto[0]     = event.ra2_passRA2MuVeto
-        passDirIsoElVeto[0]  = event.ra2_passDirIsoElVeto
-        passDirIsoMuVeto[0]  = event.ra2_passDirIsoMuVeto
-        passIsoTrkVeto[0]    = event.ra2_passIsoTrkVeto
-
         triggers = True
 
-        nPhotonsID[0]    = 0
-#        nPhotonsLoose[0] = 0
-        nPhotonsTight[0] = 0
-#        nPhotonsCombR03[0]  = 0
-#        nPhotonsCombR04[0]  = 0
-#        photonIsTightID[0]  = 0
-#        photonIsLooseIso[0] = 0
+        nPhotons[0]         = 0
         photonIsTightIso[0] = 0
-#        photonIsCombIso[0]  = 0
         photonPt[0]    = -10.
         photonEta[0]   = -10.
         photonPhi[0]   = -10.
@@ -518,32 +409,14 @@ def main() :
         photonEConvVeto[0]= 0
         photonPixelVeto[0]= 0
 
-        muon1Pt[0]     = -10.
-        muon1Eta[0]    = 10.
-        muon1MinDR[0]  = 10.
-        muon1Jet1DR[0] = 10.
-        muon2Pt[0]     = -10.
-        muon2Eta[0]    = 10.
-        muon2MinDR[0]  = 10.
-        muon2Jet1DR[0] = 10.
-        dimuonPt[0]    = -10.
-        dimuonEta[0]   = 10.
-        dimuonMinDR[0] = 10.
-        dimuonJet1DR[0]= 10.
-        dimuonM[0]     = -10.
 
         if options.sample in ["photon_ttbar", "wjets200", "wjets400", "wjets400v1", "wjets400v2",
                               "gjets200", "gjets400", "gjets400v1", "gjets400v2", "qcd",
                               "photon2012a", "photon2012b", "photon2012c", "photon2012d"]:
-            nPhotonsID[0]      = event.ra2_nPhotonsID
-#            nPhotonsLoose[0]   = event.ra2_nPhotonsLooseIso
-            nPhotonsTight[0]   = event.ra2_nPhotonsTightIso
-#            nPhotonsCombR03[0] = event.ra2_nPhotonsCombIsoR03
-#            nPhotonsCombR04[0] = event.ra2_nPhotonsCombIsoR04
-#            photonIsTightID[0]  = event.ra2_Photon1IsTightID
-#            photonIsLooseIso[0] = event.ra2_Photon1IsLoosePFIso
+            #if options.debug:
+            #    print "analyzing photon variables"
+            nPhotons[0]   = event.ra2_nPhotonsTightIso
             photonIsTightIso[0] = event.ra2_Photon1IsTightPFIso
-#            photonIsCombIso[0]  = event.ra2_Photon1IsCombIsoR03
             photonPt[0]    = event.ra2_Photon1Pt
             photonPhi[0]   = event.ra2_Photon1Phi
             photonEta[0]   = event.ra2_Photon1Eta
@@ -559,24 +432,6 @@ def main() :
             if not options.isMC:
                 triggers = (event.ra2_Photon70PFHT400 or event.ra2_Photon70PFNoPUHT400)
                 
-        elif options.sample in ["dimuon_ttbar", "zmumu200", "zmumu400", "zmumu400v1", "zmumu400v2",
-                                "muon2012a", "muon2012b", "muon2012c", "muon2012d"]:
-            muon1Pt[0]     = event.ra2_Muon1Pt
-            muon1Eta[0]    = event.ra2_Muon1Eta
-            muon1MinDR[0]  = event.ra2_Muon1MinDR
-            muon1Jet1DR[0] = event.ra2_Muon1DRJet1
-            muon2Pt[0]     = event.ra2_Muon2Pt
-            muon2Eta[0]    = event.ra2_Muon2Eta
-            muon2MinDR[0]  = event.ra2_Muon2MinDR
-            muon2Jet1DR[0] = event.ra2_Muon2DRJet1
-            dimuonPt[0]    = event.ra2_DiMuonPt
-            dimuonEta[0]   = event.ra2_DiMuonEta
-            dimuonMinDR[0] = event.ra2_DiMuonMinDR
-            dimuonJet1DR[0]= event.ra2_DiMuonDRJet1
-            dimuonM[0]     = event.ra2_DiMuonInvM
-            if not options.isMC:
-                triggers = (event.ra2_Mu13_Mu8 or event.ra2_Mu17_Mu8)
-
         if options.isMC:
             triggers = True
 
@@ -587,11 +442,13 @@ def main() :
                               "photon2012a", "photon2012b", "photon2012c", "photon2012d"]:
             extra = photonPt[0] > 100
 
-        elif options.sample in ["dimuon_ttbar", "zmumu200", "zmumu400", "zmumu400v1", "zmumu400v2",
-                                "muon2012a", "muon2012b", "muon2012c", "muon2012d"]:
-            extra = dimuonPt[0] > 100
-
-        if (triggers) and extra and mhtVal[0] > 100 and htVal[0] > 300 and nJetsHT[0] > 1:
+        if options.debug:
+            print "%d    %d    %d    %d    %2.4f    %2.4f    %2.4f    %2.4f    %2.4f"%(
+                triggers,extra,nJetsHT[0],
+                nPhotons[0],photonPt[0],
+                htVal[0],htNoPhotVal[0],
+                mhtVal[0],mhtNoPhotVal[0])
+        if (triggers) and extra and nJetsHT[0] > 1:
             tree.Fill()
 
         #########

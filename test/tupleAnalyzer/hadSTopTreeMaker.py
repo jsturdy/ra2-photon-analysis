@@ -34,7 +34,7 @@ def main() :
     tree     = r.TTree( 'tree', 'tree for sample ' )
     
     print ('%s/RA2Values'%(options.treeName))
-    chLoose   = r.TChain('%s/RA2Values'%(options.treeName))
+    myChain   = r.TChain('%s/RA2Values'%(options.treeName))
 
     sfCorr = 1.
     subfiles = [
@@ -56,137 +56,90 @@ def main() :
     
     if options.debug:
         if options.sample=="ttbar":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/ttjets_tunez2star_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-        elif options.sample=="zinv50":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht50to100_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-        elif options.sample=="zinv100":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht100to200_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-        elif options.sample=="zinv200":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht200to400_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-        elif options.sample=="zinv400":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht400toinf_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/ttjets_semilep_reco_tree_ra2_dec23/*_?_?_???.root")
+        elif options.sample=="wjets400":
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/wjets400_reco_tree_ra2_dec23/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/wjets400_v2_reco_tree_ra2_dec23/*_?_?_???.root")
         elif options.sample=="gjets200":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/gjetsht200to400_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Skims/gjetsht200_reco_tree_ra2_dec12/*_?_?_???.root")
         elif options.sample=="gjets400":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/gjetsht400toinf_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-        elif options.sample=="zmumu200":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zlljetsht200to400_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-        elif options.sample=="zmumu400":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zlljetsht400toinfv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/gjetsht400_reco_tree_ra2_dec12/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/gjetsht400_v1_reco_tree_ra2_dec12/*_?_?_???.root")
+            #sfCorr = 9534744./(9534744.+1611963.)
+        elif options.sample=="qcd":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/qcdht250to500_reco_tree_ra2_dec12/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/qcdht500to1000_reco_tree_ra2_dec12/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/qcdht1000toInf_reco_tree_ra2_dec12/*_?_?_???.root")
         elif options.sample=="photon2012a":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Av1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012a_v1_tree_ra2_dec23/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012a_recoverv1_tree_ra2_dec23/*_?_?_???.root")
         elif options.sample=="photon2012b":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Bv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
-        elif options.sample=="photon2012ab":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Av1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Bv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012b_tree_ra2_dec23/*_?_?_???.root")
         elif options.sample=="photon2012c":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Cv2_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
-        elif options.sample=="photonall":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Av1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Bv4_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Cv2_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012c_v1_tree_ra2_dec23/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012c_v2_tree_ra2_dec23/*_?_?_???.root")
+        elif options.sample=="zinv200":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zinvht200_reco_tree_ra2_dec19/*_?_?_???.root")
+        elif options.sample=="zinv400":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zinvht400_reco_tree_ra2_dec19/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zinvht400_ext_reco_tree_ra2_dec19/*_?_?_???.root")
+        elif options.sample=="zmumu200":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zmumuht200_reco_tree_ra2_dec19/*_?_?_???.root")
+        elif options.sample=="zmumu400":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zmumuht400_reco_tree_ra2_dec19/*_?_?_???.root")
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zmumuht400_ext_reco_tree_ra2_dec19/*_?_?_???.root")
         elif options.sample=="muon2012a":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_jan10/condor_output/*_?.root")
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_jan10/condor_output/*_?.root")
         elif options.sample=="muon2012b":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
-        elif options.sample=="muon2012ab":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_jan10/condor_output/*_?.root")
         elif options.sample=="muon2012c":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv2_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
-        elif options.sample=="muonall":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv2_reco_tree_topTagged_09Nov/condor_output/*_sTop_?.root")
-
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv1_reco_tree_jan10/condor_output/*_?.root")
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv2_reco_tree_jan10/condor_output/*_?.root")
 
     else:
         if options.sample=="ttbar":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/ttjets_tunez2star_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-        elif options.sample=="zinv50":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht50to100_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 2844517./24063998.
-        elif options.sample=="zinv100":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht100to200_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 2574000./4416646.
-        elif options.sample=="zinv200":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht200to400_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 3837885./9745619.
-        elif options.sample=="zinv400":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zinvjetsht400toinf_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 982928./5095710.#fixed
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/ttjets_semilep_reco_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
+        elif options.sample=="wjets400":
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/wjets400_reco_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/wjets400_v2_reco_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="gjets200":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/gjetsht200to400_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 7188617./10494617.
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/gjetsht200_reco_tree_ra2_dec12/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="gjets400":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/gjetsht400toinf_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 1599963./9539562.
-        elif options.sample=="zmumu200":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zlljetsht200to400_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 3599062./3789889.
-        elif options.sample=="zmumu400":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/zlljetsht400toinfv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            sfCorr = 1673863./2727789.
-            
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/gjetsht400_reco_tree_ra2_dec12/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/gjetsht400_v1_reco_tree_ra2_dec12/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/gjetsht400_v2_reco_tree_ra2_dec12/%s.root"%(subfiles[options.subsec]))
+            #sfCorr = 9534744./(9534744.+1611963.)
+        elif options.sample=="qcd":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/qcdht250to500_reco_tree_ra2_dec12/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/qcdht500to1000_reco_tree_ra2_dec12/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_525_Skims/qcdht1000toInf_reco_tree_ra2_dec12/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="photon2012a":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Av1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012a_v1_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012a_recoverv1_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="photon2012b":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Bv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
-        elif options.sample=="photon2012ab":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Av1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Bv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012b_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="photon2012c":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Cv2_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
-        elif options.sample=="photonall":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Av1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/photondata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Bv4_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/singlephotondata2012Cv2_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012c_v1_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sturdy07/RA2_535_Flats/photon_run2012c_v2_tree_ra2_dec23/%s.root"%(subfiles[options.subsec]))
+        elif options.sample=="zinv200":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zinvht200_reco_tree_ra2_dec19/%s.root"%(subfiles[options.subsec]))
+        elif options.sample=="zinv400":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zinvht400_reco_tree_ra2_dec19/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zinvht400_ext_reco_tree_ra2_dec19/%s.root"%(subfiles[options.subsec]))
+        elif options.sample=="zmumu200":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zmumuht200_reco_tree_ra2_dec19/%s.root"%(subfiles[options.subsec]))
+        elif options.sample=="zmumu400":
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zmumuht400_reco_tree_ra2_dec19/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("file:///eos/uscms/store/user/sudan/RA2_535_Flats/zmumuht400_ext_reco_tree_ra2_dec19/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="muon2012a":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_jan10/condor_output/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_jan10/condor_output/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="muon2012b":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
-        elif options.sample=="muon2012ab":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_jan10/condor_output/%s.root"%(subfiles[options.subsec]))
         elif options.sample=="muon2012c":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv2_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
-        elif options.sample=="muonall":
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Av1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Arecoverv1_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Bv4_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-            chLoose.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv2_reco_tree_topTagged_09Nov/condor_output/%s.root"%(subfiles[options.subsec]))
-
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv1_reco_tree_jan10/condor_output/%s.root"%(subfiles[options.subsec]))
+            myChain.Add("/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw535/treeMaker/doublemudata2012Cv2_reco_tree_jan10/condor_output/%s.root"%(subfiles[options.subsec]))
             
 
     run         = array( 'i', [ 0 ] )
@@ -242,15 +195,15 @@ def main() :
     jet4Pt    = array( 'd', [ 0. ] )
     jet4Eta   = array( 'd', [ 0. ] )
 
-    csvmet1Pt    = array( 'd', [ 0. ] )
-    csvmet1Eta   = array( 'd', [ 0. ] )
-    csvmet2Pt    = array( 'd', [ 0. ] )
-    csvmet2Eta   = array( 'd', [ 0. ] )
+    csvmJet1Pt    = array( 'd', [ 0. ] )
+    csvmJet1Eta   = array( 'd', [ 0. ] )
+    csvmJet2Pt    = array( 'd', [ 0. ] )
+    csvmJet2Eta   = array( 'd', [ 0. ] )
 
-    csvtet1Pt    = array( 'd', [ 0. ] )
-    csvtet1Eta   = array( 'd', [ 0. ] )
-    csvtet2Pt    = array( 'd', [ 0. ] )
-    csvtet2Eta   = array( 'd', [ 0. ] )
+    csvtJet1Pt    = array( 'd', [ 0. ] )
+    csvtJet1Eta   = array( 'd', [ 0. ] )
+    csvtJet2Pt    = array( 'd', [ 0. ] )
+    csvtJet2Eta   = array( 'd', [ 0. ] )
 
     loose_bestTopJetMass  = array( 'd', [ 0. ] )
     loose_MTbestTopJet    = array( 'd', [ 0. ] )
@@ -319,6 +272,15 @@ def main() :
     tree.Branch( 'jet4Pt', jet4Pt, 'jet4Pt/D' )
     tree.Branch( 'jet4Eta',jet4Eta,'jet4Eta/D' )
 
+    tree.Branch( 'csvmJet1Pt', csvmJet1Pt, 'csvmJet1Pt/D' )
+    tree.Branch( 'csvmJet1Eta',csvmJet1Eta,'csvmJet1Eta/D' )
+    tree.Branch( 'csvmJet2Pt', csvmJet2Pt, 'csvmJet2Pt/D' )
+    tree.Branch( 'csvmJet2Eta',csvmJet2Eta,'csvmJet2Eta/D' )
+    tree.Branch( 'csvtJet1Pt', csvtJet1Pt, 'csvtJet1Pt/D' )
+    tree.Branch( 'csvtJet1Eta',csvtJet1Eta,'csvtJet1Eta/D' )
+    tree.Branch( 'csvtJet2Pt', csvtJet2Pt, 'csvtJet2Pt/D' )
+    tree.Branch( 'csvtJet2Eta',csvtJet2Eta,'csvtJet2Eta/D' )
+
     tree.Branch( 'loose_bestTopJetMass',loose_bestTopJetMass,'loose_bestTopJetMass/D')
     tree.Branch( 'loose_MTbestTopJet',  loose_MTbestTopJet  ,'loose_MTbestTopJet/D')
     tree.Branch( 'loose_MTbJet',        loose_MTbJet        ,'loose_MTbJet/D')
@@ -341,7 +303,7 @@ def main() :
     tree.Branch( 'puWt',     puWt,      'puWt/D' )
 
     ##################
-    fChain = chNominal
+    fChain = myChain
 
     ###Timing information
     decade  = 0
@@ -355,7 +317,7 @@ def main() :
     print "nentries %d"%(nentries)
     sys.stdout.flush()
     i = 0
-    for evLoose,evNominal in itertools.izip(chLoose,chNominal):
+    for event in myChain:
         # ==============print number of events done == == == == == == == =
         if ( i==0):
             tsw.Start()
@@ -384,44 +346,44 @@ def main() :
             onepcount = onepcount + 1
 
         #sys.stdout.flush()
-        #print "PU_et %2.2f"%(evNominal.ra2_PUWt)
-        nVtx[0]         = evNominal.ra2_Vertices 
-        nJets[0]        = evNominal.ra2_nJetsPt30Eta24
-        nJetsCSVM[0]    = evNominal.ra2_nJetsCSVM
-        nJetsCSVT[0]    = evNominal.ra2_nJetsCSVT
-        puWt[0]         = evNominal.ra2_PUWt
-        eventWt[0]      = evNominal.ra2_EventWt/sfCorr
-        metVal[0]       = evNominal.ra2_MET
-        dphi1[0]        = evNominal.ra2_dPhiMET1
-        dphi2[0]        = evNominal.ra2_dPhiMET2
-        dphi3[0]        = evNominal.ra2_dPhiMET3
-        dphi4[0]        = evNominal.ra2_dPhiMET4
-        dphiMinCSVM[0]  = evNominal.ra2_dPhiMETMinBCSVM
-        dphiMinCSVT[0]  = evNominal.ra2_dPhiMETMinBCSVT
-        jet1Pt[0]       = evNominal.ra2_Jet1Pt
-        jet1Eta[0]      = evNominal.ra2_Jet1Eta
-        jet2Pt[0]       = evNominal.ra2_Jet2Pt
-        jet2Eta[0]      = evNominal.ra2_Jet2Eta
-        jet3Pt[0]       = evNominal.ra2_Jet3Pt
-        jet3Eta[0]      = evNominal.ra2_Jet3Eta
-        jet4Pt[0]       = evNominal.ra2_Jet4Pt
-        jet4Eta[0]      = evNominal.ra2_Jet4Eta
+        #print "PU_et %2.2f"%(event.ra2_PUWt)
+        nVtx[0]         = event.ra2_Vertices 
+        nJets[0]        = event.ra2_nJetsPt30Eta24
+        nJetsCSVM[0]    = event.ra2_nJetsCSVM
+        nJetsCSVT[0]    = event.ra2_nJetsCSVT
+        puWt[0]         = event.ra2_PUWt
+        eventWt[0]      = event.ra2_EventWt
+        metVal[0]       = event.ra2_MET
+        dphi1[0]        = event.ra2_dPhiMET1
+        dphi2[0]        = event.ra2_dPhiMET2
+        dphi3[0]        = event.ra2_dPhiMET3
+        dphi4[0]        = event.ra2_dPhiMET4
+        dphiMinCSVM[0]  = event.ra2_dPhiMETMinBCSVM
+        dphiMinCSVT[0]  = event.ra2_dPhiMETMinBCSVT
+        jet1Pt[0]       = event.ra2_Jet1Pt
+        jet1Eta[0]      = event.ra2_Jet1Eta
+        jet2Pt[0]       = event.ra2_Jet2Pt
+        jet2Eta[0]      = event.ra2_Jet2Eta
+        jet3Pt[0]       = event.ra2_Jet3Pt
+        jet3Eta[0]      = event.ra2_Jet3Eta
+        jet4Pt[0]       = event.ra2_Jet4Pt
+        jet4Eta[0]      = event.ra2_Jet4Eta
 
-        csvmJet1Pt[0]      = event.ra2_CSVMJet1Pt
-        csvmJet1Eta[0]     = event.ra2_CSVMJet1Eta
-        csvmJet2Pt[0]      = event.ra2_CSVMJet2Pt
-        csvmJet2Eta[0]     = event.ra2_CSVMJet2Eta
-        csvtJet1Pt[0]      = event.ra2_CSVTJet1Pt
-        csvtJet1Eta[0]     = event.ra2_CSVTJet1Eta
-        csvtJet2Pt[0]      = event.ra2_CSVTJet2Pt
-        csvtJet2Eta[0]     = event.ra2_CSVTJet2Eta
+        csvmJet1Pt[0]      = event.ra2_JetCSVM1Pt
+        csvmJet1Eta[0]     = event.ra2_JetCSVM1Eta
+        csvmJet2Pt[0]      = event.ra2_JetCSVM2Pt
+        csvmJet2Eta[0]     = event.ra2_JetCSVM2Eta
+        csvtJet1Pt[0]      = event.ra2_JetCSVT1Pt
+        csvtJet1Eta[0]     = event.ra2_JetCSVT1Eta
+        csvtJet2Pt[0]      = event.ra2_JetCSVT2Pt
+        csvtJet2Eta[0]     = event.ra2_JetCSVT2Eta
 
-        ra2_nJets[0]  = evNominal.ra2_nJetsPt50Eta25
-        ra2_htVal[0]  = evNominal.ra2_HT
-        ra2_mhtVal[0] = evNominal.ra2_MHT
-        ra2_dphi1[0]  = evNominal.ra2_dPhiMHT1
-        ra2_dphi2[0]  = evNominal.ra2_dPhiMHT2
-        ra2_dphi3[0]  = evNominal.ra2_dPhiMHT3
+        ra2_nJets[0]  = event.ra2_nJetsPt50Eta25
+        ra2_htVal[0]  = event.ra2_HT
+        ra2_mhtVal[0] = event.ra2_MHT
+        ra2_dphi1[0]  = event.ra2_dPhiMHT1
+        ra2_dphi2[0]  = event.ra2_dPhiMHT2
+        ra2_dphi3[0]  = event.ra2_dPhiMHT3
 
         bosonPt[0]     = 1000
         photonPt[0]    = -10
@@ -439,56 +401,58 @@ def main() :
         dimuonMinDR[0] = -1
         dimuonM[0]     = -10
 
-        passElVeto[0]     = evNominal.ra2_passElVeto
-        passTauVeto[0]    = evNominal.ra2_passTauVeto
-        passIsoTrkVeto[0] = evNominal.ra2_passIsoTrkVeto
+        passElVeto[0]     = event.ra2_passElVeto
+        passTauVeto[0]    = event.ra2_passTauVeto
+        passIsoTrkVeto[0] = event.ra2_passIsoTrkVeto
 
         if options.sample=="zmumu200" or options.sample=="zmumu400" or options.sample=="muon2012a" or options.sample=="muon2012b" or options.sample=="muon2012ab" or options.sample=="muon2012c" or options.sample=="muonall":
-            muon1Pt[0]     = evNominal.ra2_Muon1Pt
-            muon1Eta[0]    = evNominal.ra2_Muon1Eta
-            muon1MinDR[0]  = evNominal.ra2_Muon1MinDR
-            muon2Pt[0]     = evNominal.ra2_Muon2Pt
-            muon2Eta[0]    = evNominal.ra2_Muon2Eta
-            muon2MinDR[0]  = evNominal.ra2_Muon2MinDR
-            dimuonPt[0]    = evNominal.ra2_DiMuonPt
-            dimuonEta[0]   = evNominal.ra2_DiMuonEta
-            dimuonMinDR[0] = evNominal.ra2_DiMuonMinDR
-            dimuonM[0]     = evNominal.ra2_DiMuonInvM
+            muon1Pt[0]     = event.ra2_Muon1Pt
+            muon1Eta[0]    = event.ra2_Muon1Eta
+            muon1MinDR[0]  = event.ra2_Muon1MinDR
+            muon2Pt[0]     = event.ra2_Muon2Pt
+            muon2Eta[0]    = event.ra2_Muon2Eta
+            muon2MinDR[0]  = event.ra2_Muon2MinDR
+            dimuonPt[0]    = event.ra2_DiMuonPt
+            dimuonEta[0]   = event.ra2_DiMuonEta
+            dimuonMinDR[0] = event.ra2_DiMuonMinDR
+            dimuonM[0]     = event.ra2_DiMuonInvM
             bosonPt[0]     = dimuonPt[0]
             passMuVeto[0]  = True
 
         elif options.sample=="zinv50" or options.sample=="zinv100" or options.sample=="zinv200" or options.sample=="zinv400":
             bosonPt[0]     = 1000
-            passMuVeto[0] = evNominal.ra2_passMuVeto
+            passMuVeto[0] = event.ra2_passMuVeto
 
         else:
-            photonPt[0]    = evNominal.ra2_Photon1Pt
-            photonEta[0]   = evNominal.ra2_Photon1Eta
-            photonMinDR[0] = evNominal.ra2_Photon1MinDR
+            photonPt[0]    = event.ra2_Photon1Pt
+            photonEta[0]   = event.ra2_Photon1Eta
+            photonMinDR[0] = event.ra2_Photon1MinDR
             
             bosonPt[0]    = photonPt[0]
-            passMuVeto[0] = evNominal.ra2_passMuVeto
+            passMuVeto[0] = event.ra2_passMuVeto
 
         ##########
         passLeptonVeto[0] = passElVeto[0] and passTauVeto[0] and passIsoTrkVeto[0] and passMuVeto[0]
 
         ##top tagger variables 
-        loose_bestTopJetMass[0] = evLoose.ra2_bestTopJetMass 
-        loose_MTbestTopJet[0]   = evLoose.ra2_TbestTopJet    
-        loose_MTbJet[0]         = evLoose.ra2_TbJet          
-        loose_MT2[0]            = evLoose.ra2_MT2            
-        passTopTaggerL[0]       = cutF.topTaggerCuts(evLoose)
+        loose_bestTopJetMass[0] = event.ra2_loose_bestTopJetMass 
+        loose_MTbestTopJet[0]   = event.ra2_loose_MTbestTopJet    
+        loose_MTbJet[0]         = event.ra2_loose_MTbJet          
+        loose_MT2[0]            = event.ra2_loose_MT2            
+        #passTopTaggerL[0]       = cutF.topTaggerCuts(event)
+        passTopTaggerL[0]       = event.ra2_passLooseTopTagger
 
-        nominal_bestTopJetMass[0] = evNominal.ra2_bestTopJetMass 
-        nominal_MTbestTopJet[0]   = evNominal.ra2_TbestTopJet    
-        nominal_MTbJet[0]         = evNominal.ra2_TbJet          
-        nominal_MT2[0]            = evNominal.ra2_MT2            
-        passTopTaggerN[0]         = cutF.topTaggerCuts(evNominal)
+        nominal_bestTopJetMass[0] = event.ra2_nominal_bestTopJetMass 
+        nominal_MTbestTopJet[0]   = event.ra2_nominal_MTbestTopJet    
+        nominal_MTbJet[0]         = event.ra2_nominal_MTbJet          
+        nominal_MT2[0]            = event.ra2_nominal_MT2            
+        #passTopTaggerN[0]         = cutF.topTaggerCuts(event)
+        passTopTaggerN[0]       = event.ra2_passNominalTopTagger
 
         sTopSelection = jet1Pt[0] > 70 and abs(jet1Eta[0]) < 2.4 and jet2Pt[0] > 70 and abs(jet2Eta[0]) < 2.4 and metVal[0] > 75 and bosonPt[0] > 75
         ra2Selection = ra2_mhtVal[0] > 75 and bosonPt[0] > 75 and ra2_htVal[0] > 300 and ra2_dphi1[0] > 0.5 and ra2_dphi2[0] > 0.5 and ra2_dphi3[0] > 0.3
         passSelection = sTopSelection or ra2Selection
-        if (passSelection):
+        if (sTopSelection):
             tree.Fill()
         #########
         i = i + 1

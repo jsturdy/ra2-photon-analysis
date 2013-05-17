@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: SpecialMuonCollection.cc,v 1.2 2012/08/30 09:45:14 sturdy Exp $
+// $Id: SpecialMuonCollection.cc,v 1.3 2013/01/19 19:36:52 sturdy Exp $
 //
 //
 
@@ -69,15 +69,18 @@ void SpecialMuonCollection::produce(edm::Event& ev, const edm::EventSetup& es)
   if (!(cands->size()>0)) {
     if (debug_)
       std::cout<<"Candidate collecition empty"<<std::endl;
+    edm::LogWarning("SpecialMuonCollection")<<"Candidate collecition empty";
     // put genEvt object in Event
     std::auto_ptr<std::vector<pat::Muon> > myMuons(PATMuons);
     if (debug_)
       std::cout<<"Special muon collection has size "<<myMuons->size()<<std::endl;
+    edm::LogWarning("SpecialMuonCollection")<<"Special muon collection has size "<<myMuons->size();
     ev.put(myMuons);
     return;
   }
   if (debug_)
     std::cout<<"Candidate collection has size "<<cands->size()<<std::endl;
+  edm::LogWarning("SpecialMuonCollection")<<"Candidate collection has size "<<cands->size();
   //
   int candIndex = -1;
   double bestDMInv = 1000.;
@@ -86,6 +89,7 @@ void SpecialMuonCollection::produce(edm::Event& ev, const edm::EventSetup& es)
     double dMInv = fabs(itCand->mass() - mZ_);
     if (debug_)
       std::cout<<"mInv = "<<itCand->mass()<<std::endl;
+    edm::LogWarning("SpecialMuonCollection")<<"mInv = "<<itCand->mass();
     if (dMInv < bestDMInv) {
       bestDMInv = dMInv;
       candIndex = ican;
@@ -104,15 +108,18 @@ void SpecialMuonCollection::produce(edm::Event& ev, const edm::EventSetup& es)
   PATMuons->push_back(aMuon1);
   PATMuons->push_back(aMuon2);
   if (debug_){
-    std::cout<<"muon1 "<<aMuon1.pt()<<", "<<aMuon2.eta()<<std::endl;
+    std::cout<<"muon1 "<<aMuon1.pt()<<", "<<aMuon1.eta()<<std::endl;
     std::cout<<"muon2 "<<aMuon2.pt()<<", "<<aMuon2.eta()<<std::endl;
   }
+  edm::LogWarning("SpecialMuonCollection") << "muon1:"<<aMuon1.pt()<<", "<<aMuon1.eta();
+  edm::LogWarning("SpecialMuonCollection") << "muon2:"<<aMuon2.pt()<<", "<<aMuon2.eta();
   // sort Muons in ET
   std::sort(PATMuons->begin(), PATMuons->end(), eTComparator_);
   // put genEvt object in Event
   std::auto_ptr<std::vector<pat::Muon> > myMuons(PATMuons);
   if (debug_)
     std::cout<<"Special muon collection has size "<<myMuons->size()<<std::endl;
+  edm::LogWarning("SpecialMuonCollection")<<"Special muon collection has size "<<myMuons->size();
   ev.put(myMuons);
 }
 

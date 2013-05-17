@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.h,v 1.4 2012/12/09 22:12:09 sturdy Exp $
+// $Id: GenStudyTree.h,v 1.5 2013/01/19 19:36:51 sturdy Exp $
 //
 //
 
@@ -50,6 +50,8 @@ Implementation:
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 //For MC truth information
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -85,7 +87,8 @@ public:
   edm::InputTag vertexSrc_, recoPhotonSrc_, recoMuonSrc_;
   edm::InputTag recoJetSrc_,htJetSrc_, bJetSrc_,
     htSrc_, mhtSrc_, metSrc_, htNoBosonSrc_, mhtNoBosonSrc_, metNoBosonSrc_;
-  edm::InputTag electronVetoSrc_, muonVetoSrc_, tauVetoSrc_, isoTrkVetoSrc_;
+  edm::InputTag electronVetoSrc_, muonVetoSrc_, isoTrkVetoSrc_,
+    ra2ElectronSrc_, ra2MuonSrc_;
 
   bool doPUReweight_, storeExtraVetos_;
   edm::InputTag puWeightSrc_;
@@ -113,7 +116,12 @@ public:
     m_nJetsPt50Eta25MInv,  m_nBosons;
 
   int m_event, m_run, m_lumi;
-  bool m_genPassAcc, m_genPassRecoID, m_gen1PassRecoID, m_genPassRecoIDIso, m_gen1PassRecoIDIso;
+  bool m_genPassAcc,
+    m_genMatchRecoID,      m_gen1MatchRecoID,      m_reco1MatchRecoID, 
+    m_genMatchRecoTightID, m_gen1MatchRecoTightID, m_reco1MatchRecoTightID,
+    m_genMatchRecoIDPixV,  m_gen1MatchRecoIDPixV,  m_reco1MatchRecoIDPixV,
+    m_genMatchRecoIDCSEV,  m_gen1MatchRecoIDCSEV,  m_reco1MatchRecoIDCSEV,
+    m_genMatchRecoIDIso,   m_gen1MatchRecoIDIso,   m_reco1MatchRecoIDIso;
 
   double m_genHT,  m_genMHT,       m_genHTMInv,  m_genMET,  m_genMETNoBoson,
     m_genBoson1Pt, m_genBoson1Eta, m_genBoson1M, m_genBoson1MinDR,
@@ -133,7 +141,7 @@ public:
     m_dPhiMET1,    m_dPhiMET2,     m_dPhiMET3,     m_dPhiMET4,
     m_dPhiMETNoBoson1,    m_dPhiMETNoBoson2,     m_dPhiMETNoBoson3,     m_dPhiMETNoBoson4;
 
-  bool m_boson1PassPixV, m_boson1PassCSEV, m_boson1PassIso;
+  bool m_boson1PassTight, m_boson1PassPixV, m_boson1PassCSEV, m_boson1PassIso;
   double m_daughter1Pt,   m_daughter1Eta,    m_daughter1M,    m_daughter1MinDR,   m_daughter1ID,   
          m_daughter2Pt,   m_daughter2Eta,    m_daughter2M,    m_daughter2MinDR,   m_daughter2ID,   
          m_combDaughterPt,m_combDaughterEta, m_combDaughterM, m_combDaughterMinDR;
@@ -143,6 +151,7 @@ public:
     m_Jet4Pt,      m_Jet4Eta,
     m_boson2Pt,    m_boson2Eta, m_boson2M, m_boson2MinDR;
   
-  bool m_passElVeto, m_passMuVeto, m_passTauVeto, m_passIsoTrkVeto;
+  bool m_passDirIsoElVeto, m_passDirIsoMuVeto, m_passIsoTrkVeto,
+    m_passRA2ElVeto, m_passRA2MuVeto;
 };
 

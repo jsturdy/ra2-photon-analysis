@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jared Sturdy
 //         Created:  Wed Apr 18 16:06:24 CDT 2012
-// $Id: GenStudyTree.cc,v 1.5 2012/12/09 22:12:09 sturdy Exp $
+// $Id: GenStudyTree.cc,v 1.6 2013/01/19 19:36:52 sturdy Exp $
 //
 //
 // system include files
@@ -48,10 +48,11 @@ GenStudyTree::GenStudyTree(const edm::ParameterSet& pset) :
   puWeightSrc_   ( pset.getParameter< edm::InputTag >( "puWeights" ) ),
   eventWeightSrc_( pset.getParameter< edm::InputTag >( "eventWeights" ) ),
 
+  ra2ElectronSrc_ ( pset.getParameter<edm::InputTag>("ra2ElectronForVeto") ),
+  ra2MuonSrc_     ( pset.getParameter<edm::InputTag>("ra2MuonForVeto") ),
   electronVetoSrc_( pset.getParameter<edm::InputTag>("electronVetoSource") ),
   muonVetoSrc_    ( pset.getParameter<edm::InputTag>("muonVetoSource") ),
   isoTrkVetoSrc_  ( pset.getParameter<edm::InputTag>("isoTrkVetoSource") ),
-  tauVetoSrc_     ( pset.getParameter<edm::InputTag>("tauVetoSource") ),
 
   studyAcc_    ( pset.getParameter< bool >( "studyAcceptance" ) ),
   studyRecoIso_( pset.getParameter< bool >( "studyRecoIso" ) ),
@@ -185,18 +186,27 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
   m_PUWt    = pu_event_wt;
   m_Vertices = vertices->size();
 
+  edm::Handle< std::vector<pat::Electron> > ra2PATElectrons;
+  ev.getByLabel(ra2ElectronSrc_, ra2PATElectrons); 
+  m_passRA2ElVeto = true;
+  if (ra2PATElectrons->size()>0)
+    m_passRA2ElVeto = false;
+
+  edm::Handle< std::vector<pat::Muon> > ra2PATMuons;
+  ev.getByLabel(ra2MuonSrc_, ra2PATMuons); 
+  m_passRA2MuVeto = true;
+  if (ra2PATMuons->size()>0)
+    m_passRA2MuVeto = false;
+
   edm::Handle<bool> elVeto;
   edm::Handle<bool> muVeto;
-  edm::Handle<bool> tauVeto;
   edm::Handle<bool> isoTrkVeto;
 
   if (storeExtraVetos_) {
     ev.getByLabel(electronVetoSrc_,elVeto);
-    m_passElVeto = *elVeto;
+    m_passDirIsoElVeto = *elVeto;
     ev.getByLabel(muonVetoSrc_,muVeto);
-    m_passMuVeto = *muVeto;
-    ev.getByLabel(tauVetoSrc_,tauVeto);
-    m_passTauVeto = *tauVeto;
+    m_passDirIsoMuVeto = *muVeto;
     ev.getByLabel(isoTrkVetoSrc_,isoTrkVeto);
     m_passIsoTrkVeto = *isoTrkVeto;
   }
@@ -384,7 +394,7 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
   if (m_genBosons > 0) {
     m_genBoson1Pt  = (*gens)[0].pt();
     m_genBoson1Eta = (*gens)[0].eta();
-    double m_genBoson1Phi = (*gens)[0].phi();
+    //double m_genBoson1Phi = (*gens)[0].phi();
     m_genBoson1M   = (*gens)[0].mass();
     
     if (debug_) std::cout<<"found gen boson"<<std::endl;
@@ -470,15 +480,37 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
     //Match gen boson to reco/isolated photon
     //reco::Candidate::LorentzVector metNoBosonV = (*met)[0].p4();
     //reco::MET metNoBoson = (*met)[0];
-    m_genPassRecoID = false;
-    m_gen1PassRecoID = false;
-    m_genPassRecoIDIso = false;
-    m_gen1PassRecoIDIso = false;
+    m_genMatchRecoID        = false;
+    m_genMatchRecoIDPixV    = false;
+    m_genMatchRecoIDCSEV    = false;
+    m_genMatchRecoTightID   = false;
+    m_genMatchRecoIDIso     = false;
+    m_gen1MatchRecoID       = false;
+    m_gen1MatchRecoIDPixV   = false;
+    m_gen1MatchRecoIDCSEV   = false;
+    m_gen1MatchRecoTightID  = false;
+    m_gen1MatchRecoIDIso    = false;
+    m_reco1MatchRecoID      = false;
+    m_reco1MatchRecoIDPixV  = false;
+    m_reco1MatchRecoIDCSEV  = false;
+    m_reco1MatchRecoTightID = false;
+    m_reco1MatchRecoIDIso   = false;
     if (!studyRecoIso_) {
-      m_genPassRecoID = true;
-      m_gen1PassRecoID = true;
-      m_genPassRecoIDIso = true;
-      m_gen1PassRecoIDIso = true;
+      m_genMatchRecoID        = true;
+      m_genMatchRecoIDPixV    = true;
+      m_genMatchRecoIDCSEV    = true;
+      m_genMatchRecoTightID   = true;
+      m_genMatchRecoIDIso     = true;
+      m_gen1MatchRecoID       = true;
+      m_gen1MatchRecoIDPixV   = true;
+      m_gen1MatchRecoIDCSEV   = true;
+      m_gen1MatchRecoTightID  = true;
+      m_gen1MatchRecoIDIso    = true;
+      m_reco1MatchRecoID      = true;
+      m_reco1MatchRecoIDPixV  = true;
+      m_reco1MatchRecoIDCSEV  = true;
+      m_reco1MatchRecoTightID = true;
+      m_reco1MatchRecoIDIso   = true;
     }
     else {
 
@@ -486,9 +518,10 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
       m_boson1Eta = -10.;  //m_boson2Eta = -10.;
       m_boson1M   = -10.;  //m_boson2M   = -10.;
       m_boson1MinDR = 10.;
-      m_boson1PassPixV = false;
-      m_boson1PassCSEV = false;
-      m_boson1PassIso  = false;
+      m_boson1PassTight = false;
+      m_boson1PassPixV  = false;
+      m_boson1PassCSEV  = false;
+      m_boson1PassIso   = false;
       m_nBosons   = recoPhotons->size();
       if (debug_)
 	std::cout<<"found "<<m_nBosons<<" reconstructed photons"<<std::endl;
@@ -516,6 +549,9 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
 	m_boson1Pt  = (*recoPhotons)[0].pt();
 	m_boson1Eta = (*recoPhotons)[0].eta();
 	m_boson1M   = (*recoPhotons)[0].mass();
+	m_boson1PassTight = (((*recoPhotons)[0].hadTowOverEm()<(*recoPhotons)[0].userFloat("hadTowOverEmTightCut"))&&
+			     ((*recoPhotons)[0].sigmaIetaIeta()<(*recoPhotons)[0].userFloat("showerShapeTightCut")));
+	
 	m_boson1PassPixV  = !((*recoPhotons)[0].hasPixelSeed());
 	m_boson1PassCSEV  = (*recoPhotons)[0].userInt("passElectronConvVeto");
 	m_boson1PassIso  = (((*recoPhotons)[0].userFloat("pfChargedPU")<(*recoPhotons)[0].userFloat("pfChargedTightCut"))&&
@@ -544,34 +580,94 @@ void GenStudyTree::produce(edm::Event& ev, const edm::EventSetup& es)
       //int bestDRPhot = -1;
       reco::GenParticleCollection::const_iterator genp = gens->begin();
       int gphot = 0;
+      if (debug_) {
+	std::cout<<debugString_<<"::matching information"<<std::endl;
+	printf("gen idx(pt,eta,phi) reco idx(pt,eta,phi) -- dR   pixv  csev tightid iso\n");
+      }
       for (; genp != gens->end(); ++genp) {
+	int bestDRPhot = 0;
 	double bestDRMin = 999.0;
 	int phot = 0;
 	//here or outside the genp loop?
+	bool tmpPassTightID = false;
+	bool tmpPassPixV = false;
+	bool tmpPassCSEV = false;
 	bool tmpPassIso = false;
 	edm::View<pat::Photon>::const_iterator recop = recoPhotons->begin();
 	for (; recop != recoPhotons->end(); ++recop){
 	  double dR = reco::deltaR(genp->eta(),genp->phi(),recop->eta(), recop->phi());
-	  //double dR = reco::deltaR(m_genBoson1Eta,m_genBoson1Phi,recop->eta(), recop->phi());
-	  if (dR < bestDRMin) {
-	    //bestDRPhot = phot;
-	    bestDRMin = dR;
+	  if (debug_) {
+	    tmpPassPixV  = !(recop->hasPixelSeed());
+	    tmpPassCSEV  = recop->userFloat("pfChargedPU");
+	    tmpPassTightID  = ((recop->hadTowOverEm()<recop->userFloat("hadTowOverEmTightCut"))&&
+			       (recop->sigmaIetaIeta()<recop->userFloat("showerShapeTightCut")));
 	    tmpPassIso  = ((recop->userFloat("pfChargedPU")<recop->userFloat("pfChargedTightCut"))&&
 			   (recop->userFloat("pfNeutralPU")<recop->userFloat("pfNeutralTightCut"))&&
 			   (recop->userFloat("pfGammaPU")<recop->userFloat("pfGammaTightCut")));
+	    printf("gen%d(%2.2f,%2.2f,%2.2f) reco%d(%2.2f,%2.2f,%2.2f) -- dR(%2.2f)   pixv(%d)  csev(%d) tightid(%d) iso(%d)\n",
+		   gphot,genp->pt(),genp->eta(),genp->phi(),
+		   phot,recop->pt(),recop->eta(),recop->phi(),
+		   dR,tmpPassPixV,tmpPassCSEV,tmpPassTightID,tmpPassIso);
+	  }
+	  if (dR < bestDRMin) {
+	    bestDRPhot = phot;
+	    bestDRMin = dR;
+	    tmpPassPixV  = !(recop->hasPixelSeed());
+	    tmpPassCSEV  = recop->userFloat("pfChargedPU");
+	    tmpPassTightID  = ((recop->hadTowOverEm()<recop->userFloat("hadTowOverEmTightCut"))&&
+	    		       (recop->sigmaIetaIeta()<recop->userFloat("showerShapeTightCut")));
+	    tmpPassIso  = ((recop->userFloat("pfChargedPU")<recop->userFloat("pfChargedTightCut"))&&
+	    		   (recop->userFloat("pfNeutralPU")<recop->userFloat("pfNeutralTightCut"))&&
+	    		   (recop->userFloat("pfGammaPU")<recop->userFloat("pfGammaTightCut")));
 	  }
 	  ++phot;
 	}
 	if (bestDRMin < 0.2) {
-	  //recoMatched = &((*recoPhotons)[bestDRPhot]);
-	  m_genPassRecoID = true;
+	  ////recoMatched = &((*recoPhotons)[bestDRPhot]);
+	  //tmpPassPixV  = !((*recoPhotons)[bestDRPhot].hasPixelSeed());
+	  //tmpPassCSEV  = (*recoPhotons)[bestDRPhot].userFloat("pfChargedPU");
+	  //tmpPassTightID  = (((*recoPhotons)[bestDRPhot].hadTowOverEm()<(*recoPhotons)[bestDRPhot].userFloat("hadTowOverEmTightCut"))&&
+	  //		     ((*recoPhotons)[bestDRPhot].sigmaIetaIeta()<(*recoPhotons)[bestDRPhot].userFloat("showerShapeTightCut")));
+	  //tmpPassIso  = (((*recoPhotons)[bestDRPhot].userFloat("pfChargedPU")<(*recoPhotons)[bestDRPhot].userFloat("pfChargedTightCut"))&&
+	  //		 ((*recoPhotons)[bestDRPhot].userFloat("pfNeutralPU")<(*recoPhotons)[bestDRPhot].userFloat("pfNeutralTightCut"))&&
+	  //		 ((*recoPhotons)[bestDRPhot].userFloat("pfGammaPU")<(*recoPhotons)[bestDRPhot].userFloat("pfGammaTightCut")));
+	  
+	  m_genMatchRecoID = true;
+	  
+	  if (tmpPassPixV)
+	    m_genMatchRecoIDPixV = true;
+	  if (tmpPassCSEV)
+	    m_genMatchRecoIDCSEV = true;
+	  if (tmpPassTightID) 
+	    m_genMatchRecoTightID = true;
 	  if (tmpPassIso)
-	    m_genPassRecoIDIso = true;
+	    m_genMatchRecoIDIso = true;
+
+	  if (bestDRPhot==0) {
+	    m_reco1MatchRecoID = true;
+	    
+	    if (tmpPassPixV)
+	      m_reco1MatchRecoIDPixV = true;
+	    if (tmpPassCSEV)
+	      m_reco1MatchRecoIDCSEV = true;
+	    if (tmpPassTightID) 
+	      m_reco1MatchRecoTightID = true;
+	    if (tmpPassIso)
+	      m_reco1MatchRecoIDIso = true;
+	  }
+	  
 	}
-	if (m_genPassRecoID && gphot==0) {
-	  m_gen1PassRecoID = true;
+	if (m_genMatchRecoID && gphot==0) {
+	  m_gen1MatchRecoID = true;
+
+	  if (tmpPassPixV)
+	    m_gen1MatchRecoIDPixV = true;
+	  if (tmpPassCSEV)
+	    m_gen1MatchRecoIDCSEV = true;
+	  if (tmpPassTightID) 
+	    m_gen1MatchRecoTightID = true;
 	  if (tmpPassIso)
-	    m_genPassRecoIDIso = true;
+	    m_gen1MatchRecoIDIso = true;
 	}
 	++gphot;
       }//end loop over gen particles
@@ -739,16 +835,28 @@ void GenStudyTree::beginJob()
   reducedValues->Branch("ra2_MET",   &m_MET,   "ra2_MET/D");
   reducedValues->Branch("ra2_HTMInv",    &m_HTMInv,    "ra2_HTMInv/D" );
   
-  reducedValues->Branch("ra2_genPassRecoID",     &m_genPassRecoID,     "ra2_genPassRecoID/O");
-  reducedValues->Branch("ra2_gen1PassRecoID",    &m_gen1PassRecoID,    "ra2_gen1PassRecoID/O");
-  reducedValues->Branch("ra2_genPassRecoIDIso",  &m_genPassRecoIDIso,  "ra2_genPassRecoIDIso/O");
-  reducedValues->Branch("ra2_gen1PassRecoIDIso", &m_gen1PassRecoIDIso, "ra2_gen1PassRecoIDIso/O");
+  reducedValues->Branch("ra2_genMatchRecoID",       &m_genMatchRecoID,       "ra2_genMatchRecoID/O");
+  reducedValues->Branch("ra2_genMatchRecoIDPixV",   &m_genMatchRecoIDPixV,   "ra2_genMatchRecoIDPixV/O");
+  reducedValues->Branch("ra2_genMatchRecoIDCSEV",   &m_genMatchRecoIDCSEV,   "ra2_genMatchRecoIDCSEV/O");
+  reducedValues->Branch("ra2_genMatchRecoTightID",  &m_genMatchRecoTightID,  "ra2_genMatchRecoTightID/O");
+  reducedValues->Branch("ra2_genMatchRecoIDIso",    &m_genMatchRecoIDIso,    "ra2_genMatchRecoIDIso/O");
+  //reducedValues->Branch("ra2_gen1MatchRecoID",      &m_gen1MatchRecoID,      "ra2_gen1MatchRecoID/O");
+  //reducedValues->Branch("ra2_gen1MatchRecoIDPixV",  &m_gen1MatchRecoIDPixV,  "ra2_gen1MatchRecoIDPixV/O");
+  //reducedValues->Branch("ra2_gen1MatchRecoIDCSEV",  &m_gen1MatchRecoIDCSEV,  "ra2_gen1MatchRecoIDCSEV/O");
+  //reducedValues->Branch("ra2_gen1MatchRecoTightID", &m_gen1MatchRecoTightID, "ra2_gen1MatchRecoTightID/O");
+  //reducedValues->Branch("ra2_gen1MatchRecoIDIso",   &m_gen1MatchRecoIDIso,   "ra2_gen1MatchRecoIDIso/O");
+  reducedValues->Branch("ra2_reco1MatchRecoID",     &m_reco1MatchRecoID,     "ra2_reco1MatchRecoID/O");
+  reducedValues->Branch("ra2_reco1MatchRecoIDPixV", &m_reco1MatchRecoIDPixV, "ra2_reco1MatchRecoIDPixV/O");
+  reducedValues->Branch("ra2_reco1MatchRecoIDCSEV", &m_reco1MatchRecoIDCSEV, "ra2_reco1MatchRecoIDCSEV/O");
+  reducedValues->Branch("ra2_reco1MatchRecoTightID",&m_reco1MatchRecoTightID,"ra2_reco1MatchRecoTightID/O");
+  reducedValues->Branch("ra2_reco1MatchRecoIDIso",  &m_reco1MatchRecoIDIso,  "ra2_reco1MatchRecoIDIso/O");
   if (studyRecoIso_) {
     reducedValues->Branch("ra2_nBosons",  &m_nBosons,  "ra2_nBosons/I" );
     reducedValues->Branch("ra2_boson1Pt", &m_boson1Pt, "ra2_boson1Pt/D" );
     reducedValues->Branch("ra2_boson1Eta",&m_boson1Eta,"ra2_boson1Eta/D" );
     reducedValues->Branch("ra2_boson1M",  &m_boson1M,  "ra2_boson1M/D" );
     reducedValues->Branch("ra2_boson1MinDR",  &m_boson1MinDR,  "ra2_boson1MinDR/D" );
+    reducedValues->Branch("ra2_boson1PassTight", &m_boson1PassTight, "ra2_boson1PassTight/O" );
     reducedValues->Branch("ra2_boson1PassCSEV", &m_boson1PassCSEV, "ra2_boson1PassCSEV/O" );
     reducedValues->Branch("ra2_boson1PassPixV", &m_boson1PassPixV, "ra2_boson1PassPixV/O" );
     reducedValues->Branch("ra2_boson1PassIso",  &m_boson1PassIso,  "ra2_boson1PassIso/O" );
@@ -789,10 +897,11 @@ void GenStudyTree::beginJob()
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "nJetsPt50Eta25MInv/I" );
   
   if (storeExtraVetos_) {
-    reducedValues->Branch("ra2_passElVeto",         &m_passElVeto    , "ra2_passElVeto/O"    );
-    reducedValues->Branch("ra2_passMuVeto",         &m_passMuVeto    , "ra2_passMuVeto/O"    );
-    reducedValues->Branch("ra2_passTauVeto",        &m_passTauVeto   , "ra2_passTauVeto/O"   );
-    reducedValues->Branch("ra2_passIsoTrkVeto",     &m_passIsoTrkVeto, "ra2_passIsoTrkVeto/O");
+    reducedValues->Branch("ra2_passRA2ElVeto",   &m_passRA2ElVeto,   "ra2_passRA2ElVeto/O"    );
+    reducedValues->Branch("ra2_passRA2MuVeto",   &m_passRA2MuVeto,   "ra2_passRA2MuVeto/O"    );
+    reducedValues->Branch("ra2_passDirIsoElVeto",&m_passDirIsoElVeto,"ra2_passDirIsoElVeto/O"    );
+    reducedValues->Branch("ra2_passDirIsoMuVeto",&m_passDirIsoMuVeto,"ra2_passDirIsoMuVeto/O"    );
+    reducedValues->Branch("ra2_passIsoTrkVeto",  &m_passIsoTrkVeto,  "ra2_passIsoTrkVeto/O");
   }
 
   reducedValues->SetAutoSave(1);

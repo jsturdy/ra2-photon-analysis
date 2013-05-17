@@ -16,6 +16,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include <DataFormats/PatCandidates/interface/Jet.h>
 
+#include "ZInvisibleBkgds/Photons/interface/RA2ZInvTreeMakerFunctions.h"
+
 // TFile Service
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -46,17 +48,17 @@ private:
   bool data_;
   double scale_;
 
-  edm::InputTag genSrc_;
+  //edm::InputTag genSrc_;
   edm::InputTag genJetSrc_, genMETSrc_;
-  int m_nJetsGenPt30Eta50, m_nJetsGenPt30Eta24, 
-    m_bJetsGenPt30Eta24,   m_nJetsGenPt50Eta25,
+  int m_nGenJetsPt30Eta50, m_nGenJetsPt30Eta24, 
+    m_bGenJetsPt30Eta24,   m_nGenJetsPt50Eta25,
     m_genBosons;
 
   double m_genHT,  m_genMHT,       m_genMET,
     m_genBoson1Pt, m_genBoson1Eta, m_genBoson1M, m_genBoson1MinDR, m_genBoson1DRJet1,
     //m_genBoson2Pt, m_genBoson2Eta, m_genBoson2M, m_genBoson2MinDR, m_genBoson2DRJet1,
-    m_genDPhiMHT1, m_genDPhiMHT2,  m_genDPhiMHT3,m_genDPhiMHT4,
-    m_genDPhiMET1, m_genDPhiMET2,  m_genDPhiMET3,m_genDPhiMET4;
+    m_genDPhiMHT1, m_genDPhiMHT2,  m_genDPhiMHT3,m_genDPhiMHT4,m_genDPhiMHTMin,
+    m_genDPhiMET1, m_genDPhiMET2,  m_genDPhiMET3,m_genDPhiMET4,m_genDPhiMETMin;
   double m_genJet1Pt, m_genJet1Eta, 
     m_genJet2Pt,      m_genJet2Eta,
     m_genJet3Pt,      m_genJet3Eta,

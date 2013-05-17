@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 process.source.skipEvents = cms.untracked.uint32(0)
 process.GlobalTag.globaltag = "START53_V7G::All"
 ###========================= analysis module =====================================
@@ -46,22 +46,25 @@ process.puWeight = puWeightProducer.clone(
     weight = cms.double(1.0),
 )
 from ZInvisibleBkgds.Photons.treemaker_cfi import photonTree
-process.analysisID = photonTree.clone(
+process.analysisNoRem = photonTree.clone(
     #Debug           = cms.bool(True),
     Data            = cms.bool(False),
     ScaleFactor     = cms.double(scaleF),
     DoPUReweight    = cms.bool(True),
-    PhotonSrc       = cms.InputTag("patPhotonsID"),
+    PhotonSrc       = cms.InputTag("patPhotonsIDPFIso"),
     TightPhotonSrc  = cms.InputTag("patPhotonsIDPFIso"),
 
-    JetSrc          = cms.InputTag("patJetsPFNoPhotonIDSpecialPt30"),
-    htJetSrc        = cms.InputTag("patJetsPFNoPhotonIDSpecialPt50Eta25"),
-    htSource        = cms.InputTag("htPFchsNoPhotID"),
-    mhtSource       = cms.InputTag("mhtPFchsNoPhotID"),
-    metSource       = cms.InputTag("pfType1MetNoPhotonID","pfcand"),
+    JetSrc          = cms.InputTag("patJetsPFchsPt30"),
+    htJetSrc        = cms.InputTag("patJetsPFchsPt50Eta25"),
+    bJetSrc         = cms.InputTag("patCSVMJetsPFPt30Eta24"),
+    htSource        = cms.InputTag("htPFchs"),
+    mhtSource       = cms.InputTag("mhtPFchs"),
+    metSource       = cms.InputTag("newMETwPhiCorr"),
+    ra2HTSource     = cms.InputTag("htPFchsNoPhotIDPFIso"),
+    ra2MHTSource    = cms.InputTag("mhtPFchsNoPhotIDPFIso"),
 )
 
-process.analysisIDPFIso = process.analysisID.clone(
+process.analysisIDPFIso = process.analysisNoRem.clone(
     #Debug           = cms.bool(True),
     DebugString     = cms.string("photonIDPFIso"),
     PhotonSrc       = cms.InputTag("patPhotonsIDPFIso"),
@@ -71,8 +74,10 @@ process.analysisIDPFIso = process.analysisID.clone(
     htSource        = cms.InputTag("htPFchsNoPhotIDPFIso"),
     mhtSource       = cms.InputTag("mhtPFchsNoPhotIDPFIso"),
     metSource       = cms.InputTag("pfType1MetNoPhotonIDPFIso","pfcand"),
+    ra2HTSource     = cms.InputTag("htPFchs"),
+    ra2MHTSource    = cms.InputTag("mhtPFchs"),
 )
-process.analysisGEN = process.analysisID.clone(
+process.analysisGEN = process.analysisNoRem.clone(
     #Debug           = cms.bool(True),
     DebugString     = cms.string("photonGEN"),
     PhotonSrc       = cms.InputTag("patPhotonsID"),
@@ -81,6 +86,8 @@ process.analysisGEN = process.analysisID.clone(
     htSource        = cms.InputTag("htPFchsNoPhotID"),
     mhtSource       = cms.InputTag("mhtPFchsNoPhotID"),
     metSource       = cms.InputTag("pfType1MetNoPhotonID","pfcand"),
+    ra2HTSource     = cms.InputTag("htPFchs"),
+    ra2MHTSource    = cms.InputTag("mhtPFchs"),
     runGenStudy     = cms.bool(True),
     genSrc          = cms.InputTag("zinvBkgdDirectPhotons")
 )
@@ -124,6 +131,9 @@ process.load('SandBox.Skims.RA2Selection_cff')
 from SandBox.Skims.RA2Objects_cff import countJetsPFchsPt50Eta25
 process.countJetsPFchsPt50Eta25.src = cms.InputTag('patJetsPFNoPhotonIDPFIsoSpecialPt50Eta25')
 process.countJetsPFchsPt50Eta25.minNumber = cms.uint32(2)
+process.countJetsPFchsPt50Eta25NoRem = process.countJetsPFchsPt50Eta25.clone()
+process.countJetsPFchsPt50Eta25NoRem.src = cms.InputTag('patJetsPFchsPt50Eta25')
+process.countJetsPFchsPt50Eta25NoRem.minNumber = cms.uint32(2)
 
 process.load('ZInvisibleBkgds.Photons.ZinvBkgdPhotons_cff')
 process.load('ZInvisibleBkgds.Photons.ZinvPhotonJets_cff')
@@ -165,18 +175,18 @@ from SandBox.Skims.jetMHTDPhiFilter_cfi  import *
 process.photonDPhiFilter   = jetMHTDPhiFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotFitTemplate"),
                                                     JetSource = cms.InputTag("patJetsPFNoPhotonFitTemplateSpecialPt30"))
 from SandBox.Skims.htFilter_cfi  import *
-process.photonIDHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotID"),
-                                               MinHT = cms.double(300))
-process.photonIDPFIsoHTFilter     = htFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotIDPFIso"))
-process.photonFitTemplateHTFilter = htFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotFitTemplate"))
-process.photonJetFakeHTFilter     = htFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotJetFake"))
+process.photonNoRemHTFilter      = htFilter.clone(HTSource = cms.InputTag("htPFchs"),
+                                               MinHT = cms.double(200))
+process.photonIDPFIsoHTFilter     = process.photonNoRemHTFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotIDPFIso"))
+process.photonFitTemplateHTFilter = process.photonNoRemHTFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotFitTemplate"))
+process.photonJetFakeHTFilter     = process.photonNoRemHTFilter.clone(HTSource = cms.InputTag("htPFchsNoPhotJetFake"))
 
 from SandBox.Skims.mhtFilter_cfi import *
-process.photonIDMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotID"),
+process.photonNoRemMHTFilter      = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchs"),
                                                  MinMHT = cms.double(100))
-process.photonIDPFIsoMHTFilter     = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotIDPFIso"))
-process.photonFitTemplateMHTFilter = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotFitTemplate"))
-process.photonJetFakeMHTFilter     = mhtFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotJetFake"))
+process.photonIDPFIsoMHTFilter     = process.photonNoRemMHTFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotIDPFIso"))
+process.photonFitTemplateMHTFilter = process.photonNoRemMHTFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotFitTemplate"))
+process.photonJetFakeMHTFilter     = process.photonNoRemMHTFilter.clone(MHTSource = cms.InputTag("mhtPFchsNoPhotJetFake"))
 
 ####
 process.analysisSeq = cms.Sequence(
@@ -195,15 +205,15 @@ process.analysisSeq = cms.Sequence(
     * process.photonMETCollections
     * process.photonVetos
 )
+process.rawPhotons = cms.Sequence(
+      process.countJetsPFchsPt50Eta25NoRem
+    * process.countPhotonsIDPFIso
+    * process.photonNoRemHTFilter
+    * process.analysisNoRem
+    * process.countMaxPhotonsIDPFIso
+    * process.photonNoRemMHTFilter
+    )
 process.idisoPhotons = cms.Sequence(
-    #  process.countPhotonsID
-    #* process.photonIDHTFilter
-    #* process.photonIDMHTFilter
-    #* process.zinvBJetsPFNoPhotonIDSpecial
-    #* process.analysisID
-    #* process.countMaxPhotonsID
-    #)
-    #process.idisoPhotons = cms.Sequence(
       process.countJetsPFchsPt50Eta25
     * process.countPhotonsIDPFIso
     * process.photonIDPFIsoHTFilter
@@ -223,8 +233,8 @@ process.truePhotons = cms.Sequence(
     process.countFitTemplatePhotons
     * process.photonTemplateObjectsPF
     * process.pfType1MetNoPhotonFitTemplate
-    #                                   * process.photonFitTemplateHTFilter
-    #                                   * process.photonFitTemplateMHTFilter
+    #* process.photonFitTemplateHTFilter
+    #* process.photonFitTemplateMHTFilter
     * process.analysisFitTemplate
     * process.countMaxFitTemplatePhotons
 )
@@ -232,8 +242,8 @@ process.fakePhotons = cms.Sequence(
     process.countJetFakePhotons
     * process.photonJetFakeObjectsPF
     * process.pfType1MetNoPhotonJetFake
-    #                                   * process.photonJetFakeHTFilter
-    #                                   * process.photonJetFakeMHTFilter
+    #* process.photonJetFakeHTFilter
+    #* process.photonJetFakeMHTFilter
     * process.analysisFakes
     * process.countMaxJetFakePhotons
 )
@@ -242,14 +252,14 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('photonMC200Trees.root')
 )
 
+process.raw = cms.Path(process.puWeight
+                       * process.eventWeight
+                       * process.analysisSeq
+                       * process.rawPhotons )
 process.idiso = cms.Path(process.puWeight
                        * process.eventWeight
                        * process.analysisSeq
                        * process.idisoPhotons )
-#process.idiso = cms.Path(process.puWeight
-#                      * process.eventWeight
-#                      * process.analysisSeq
-#                      * process.idisoPhotons )
 process.gen = cms.Path(process.puWeight
                       * process.eventWeight
                       * process.analysisSeq
@@ -263,7 +273,8 @@ process.fake = cms.Path(process.puWeight
                       * process.analysisSeq
                       * process.fakePhotons )
 
-process.mySched = cms.Schedule(process.idpfiso,
+process.mySched = cms.Schedule(process.idiso,
                                process.gen,
                                process.true,
-                               process.fake)
+                               process.fake
+                               )

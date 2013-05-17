@@ -17,7 +17,7 @@ patJetsPFNoMuon.checkOverlaps.tkIsoElectrons.src      = cms.InputTag('patElectro
 patJetsPFNoMuon.checkOverlaps.photons.src             = cms.InputTag('patPhotonsRA2')
 
 patJetsPFNoMuonPt30     = patJetsPFNoMuon.clone()
-patJetsPFNoMuonPt30.src = cms.InputTag('patJetsPFPt30')
+patJetsPFNoMuonPt30.src = cms.InputTag('patJetsPFchsPt30')
 
 patJetsPFNoMuonPt50Eta25     = patJetsPFNoMuonPt30.clone()
 patJetsPFNoMuonPt50Eta25.src = cms.InputTag('patJetsPFchsPt50Eta25')

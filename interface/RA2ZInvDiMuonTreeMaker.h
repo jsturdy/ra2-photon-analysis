@@ -12,9 +12,12 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include <DataFormats/PatCandidates/interface/Jet.h>
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
-#include <DataFormats/PatCandidates/interface/Jet.h>
 
 // Trigger includes
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -24,6 +27,8 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+
+#include "ZInvisibleBkgds/Photons/interface/RA2ZInvTreeMakerFunctions.h"
 
 // TFile Service
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -53,12 +58,17 @@ private:
   bool debug_;
   bool data_;
   double scale_;
+
+  //edm::InputTag genSrc_;
+  bool runGenStudy_;
+  edm::InputTag genJetSrc_, genMETSrc_, genSrc_, genMuonSrc_, ra2JetSrc_;
+
   edm::InputTag muonSrc_, electronVetoSrc_, muonVetoSrc_, isoTrkVetoSrc_,
     ra2ElectronSrc_, ra2MuonSrc_;
   edm::InputTag vertexSrc_, jetSrc_, htJetSrc_, bJetSrc_, htSrc_, mhtSrc_, metSrc_,
     ra2HTSrc_, ra2MHTSrc_, ra2METSrc_;
   std::string looseTopTaggerSrc_, nominalTopTaggerSrc_;
-  bool          doPUReWeight_, runTopTagger_, storeExtraVetos_;
+  bool computeMET_, doPUReWeight_, runTopTagger_, storeExtraVetos_;
   edm::InputTag puWeightSrc_, eventWeightSrc_;
 
   //Trigger information
@@ -74,6 +84,29 @@ private:
   edm::Service<TFileService> fs;
   TTree *reducedValues;
 
+  double maxDR_;
+  int  m_genBosons, m_gen_nJetsPt30Eta50, m_gen_nJetsPt50Eta25,
+    m_gen_nGenJetsPt30Eta50, m_gen_nGenJetsPt50Eta25;
+  double m_genBoson1Pt, m_genBoson1Eta, m_genBoson1M, m_genBoson1MinDR, m_genBoson1DRJet1,
+    m_genBoson2Pt, m_genBoson2Eta, m_genBoson2M, m_genBoson2MinDR, m_genBoson2DRJet1;
+  double m_genDaughter1Pt, m_genDaughter1Eta, m_genDaughter1M, m_genDaughter1MinDR, m_genDaughter1DRJet1,
+    m_genDaughter2Pt, m_genDaughter2Eta, m_genDaughter2M, m_genDaughter2MinDR, m_genDaughter2DRJet1;
+  bool m_genPassAcc,       m_genMatchRecoID,      m_gen1MatchRecoID,      m_reco1MatchRecoID, 
+    m_genMatchRecoIDPixV,  m_gen1MatchRecoIDPixV,  m_reco1MatchRecoIDPixV,
+    m_genMatchRecoIDCSEV,  m_gen1MatchRecoIDCSEV,  m_reco1MatchRecoIDCSEV,
+    m_genMatchRecoIDIso,   m_gen1MatchRecoIDIso,   m_reco1MatchRecoIDIso;
+  double m_gen_HT, m_gen_MHT, m_gen_GenHT, m_gen_GenMHT,
+    m_gen_dPhiMHT1, m_gen_dPhiMHT2, m_gen_dPhiMHT3, m_gen_dPhiMHT4, m_gen_dPhiMHTMin,
+    m_gen_genDPhiMHT1, m_gen_genDPhiMHT2, m_gen_genDPhiMHT3, m_gen_genDPhiMHT4, m_gen_genDPhiMHTMin,
+    m_gen_genDPhiMET1, m_gen_genDPhiMET2, m_gen_genDPhiMET3, m_gen_genDPhiMET4, m_gen_genDPhiMETMin,
+    m_gen_MET, m_gen_GenMET, 
+    m_gen_dPhiMET1, m_gen_dPhiMET2, m_gen_dPhiMET3, m_gen_dPhiMET4, m_gen_dPhiMETMin;
+  double m_genJet1Pt, m_genJet1Eta,
+    m_genJet2Pt, m_genJet2Eta,
+    m_genJet3Pt, m_genJet3Eta,
+    m_genJet4Pt, m_genJet4Eta;
+
+  ///RECO level information
   int m_nMuonsIso,
     m_nJetsPt30Eta24, m_nJetsPt50Eta24, m_nJetsPt70Eta24,
     m_nJetsPt30Eta50, m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,

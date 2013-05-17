@@ -26,6 +26,8 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+#include "ZInvisibleBkgds/Photons/interface/RA2ZInvTreeMakerFunctions.h"
+
 // TFile Service
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -91,11 +93,17 @@ private:
     m_genMatchRecoIDIso,   m_gen1MatchRecoIDIso,   m_reco1MatchRecoIDIso;
   double m_gen_HT, m_gen_MHT, m_gen_GenHT, m_gen_GenMHT,
     m_gen_dPhiMHT1, m_gen_dPhiMHT2, m_gen_dPhiMHT3, m_gen_dPhiMHT4, m_gen_dPhiMHTMin,
+    m_gen_genDPhiMHT1, m_gen_genDPhiMHT2, m_gen_genDPhiMHT3, m_gen_genDPhiMHT4, m_gen_genDPhiMHTMin,
+    m_gen_genDPhiMET1, m_gen_genDPhiMET2, m_gen_genDPhiMET3, m_gen_genDPhiMET4, m_gen_genDPhiMETMin,
     m_gen_MET, m_gen_GenMET, 
     m_gen_dPhiMET1, m_gen_dPhiMET2, m_gen_dPhiMET3, m_gen_dPhiMET4, m_gen_dPhiMETMin;
+  double m_genJet1Pt, m_genJet1Eta,
+    m_genJet2Pt, m_genJet2Eta,
+    m_genJet3Pt, m_genJet3Eta,
+    m_genJet4Pt, m_genJet4Eta;
 
   ///RECO level information
-  int m_nPhotonsID, m_nPhotonsTightIso, m_Photon1PDGID, m_Photon2PDGID,
+  int m_nPhotonsID, m_nPhotonsTightIso, m_Photon1PDGID, m_Photon1Status, m_Photon2PDGID, m_Photon2Status,
     m_nJetsPt30Eta24, m_nJetsPt50Eta24, m_nJetsPt70Eta24,
     m_nJetsPt30Eta50, m_nJetsPt50Eta25, m_nJetsPt50Eta25MInv,
     m_nJetsCSVM, m_nJetsCSVT,

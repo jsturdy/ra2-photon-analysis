@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Jun 20 12:58:08 CDT 2011
-// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.14 2013/01/20 10:09:10 sturdy Exp $
+// $Id: RA2ZInvPhotonTreeMaker.cc,v 1.15 2013/02/25 13:51:38 sturdy Exp $
 //
 //
 
@@ -39,21 +39,33 @@ RA2ZInvPhotonTreeMaker::RA2ZInvPhotonTreeMaker(const edm::ParameterSet& pset) {
   debugString_    = pset.getParameter< std::string >( "DebugString" );
   data_           = pset.getParameter<bool>("Data");
   scale_          = pset.getParameter<double>("ScaleFactor");
+
   photonSrc_      = pset.getParameter<edm::InputTag>("PhotonSrc");
   tightPhotonSrc_ = pset.getParameter<edm::InputTag>("TightPhotonSrc");
+
   vertexSrc_      = pset.getParameter<edm::InputTag>("VertexSrc");
+
   jetSrc_         = pset.getParameter<edm::InputTag>("JetSrc");
   bJetSrc_        = pset.getParameter<edm::InputTag>("bJetSrc");
   htJetSrc_       = pset.getParameter<edm::InputTag>("htJetSrc");
+
   htSrc_          = pset.getParameter<edm::InputTag>("htSource");
   mhtSrc_         = pset.getParameter<edm::InputTag>("mhtSource");
-  ra2JetSrc_      = pset.getParameter< edm::InputTag >( "ra2JetSrc" );
+
+  ra2JetSrc_      = pset.getParameter<edm::InputTag>("ra2JetSrc");
   ra2HTSrc_       = pset.getParameter<edm::InputTag>("ra2HTSource");
   ra2MHTSrc_      = pset.getParameter<edm::InputTag>("ra2MHTSource");
+
+  computeMET_      = pset.getParameter<bool>("computeMET");
+  if (computeMET_) {
+    metSrc_         = pset.getParameter<edm::InputTag>("metSource");
+    ra2METSrc_      = pset.getParameter<edm::InputTag>("ra2METSource");
+  }
+
   triggerResults_ = pset.getParameter<edm::InputTag>("TriggerResults");
   doPUReWeight_   = pset.getParameter<bool>("DoPUReweight");
   puWeightSrc_    = pset.getParameter<edm::InputTag>("PUWeightSource");
-  eventWeightSrc_ = pset.getParameter< edm::InputTag >( "EventWeightSource" );
+  eventWeightSrc_ = pset.getParameter<edm::InputTag>("EventWeightSource");
 
   storeExtraVetos_ = pset.getParameter<bool>("storeExtraVetos");
   ra2ElectronSrc_  = pset.getParameter<edm::InputTag>("ra2ElectronForVeto");
@@ -62,11 +74,6 @@ RA2ZInvPhotonTreeMaker::RA2ZInvPhotonTreeMaker(const edm::ParameterSet& pset) {
   muonVetoSrc_     = pset.getParameter<edm::InputTag>("muonVetoSource");
   isoTrkVetoSrc_   = pset.getParameter<edm::InputTag>("isoTrkVetoSource");
 
-  computeMET_      = pset.getParameter<bool>("computeMET");
-  if (computeMET_) {
-    metSrc_         = pset.getParameter<edm::InputTag>("metSource");
-    ra2METSrc_      = pset.getParameter<edm::InputTag>("ra2METSource");
-  }
   genSrc_    = pset.getParameter< edm::InputTag >( "genSrc" );
   runGenStudy_     = pset.getParameter<bool>("runGenStudy");
   if (runGenStudy_) {
@@ -108,21 +115,10 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   edm::Handle< edm::View<pat::Photon> > patPhotonsTight;
   ev.getByLabel(tightPhotonSrc_, patPhotonsTight); 
 
-  edm::Handle< edm::View<pat::Electron> > ra2PATElectrons;
-  ev.getByLabel(ra2ElectronSrc_, ra2PATElectrons); 
-  m_passRA2ElVeto = true;
-  if (ra2PATElectrons.isValid() && ra2PATElectrons->size()>0)
-    m_passRA2ElVeto = false;
-
-  edm::Handle< edm::View<pat::Muon> > ra2PATMuons;
-  ev.getByLabel(ra2MuonSrc_, ra2PATMuons); 
-  m_passRA2MuVeto = true;
-  if (ra2PATMuons.isValid() && ra2PATMuons->size()>0)
-    m_passRA2MuVeto = false;
-
   edm::Handle<reco::GenParticleCollection> gens;
   ev.getByLabel(genSrc_,gens);
-  edm::Handle<reco::GenJetCollection> genJets;
+  //edm::Handle<reco::GenJetCollection> genJets;
+  edm::Handle<edm::View<reco::GenJet> > genJets;
   edm::Handle<edm::View<reco::GenMET> > genMET;
   if (runGenStudy_) {
     ev.getByLabel(genJetSrc_,genJets);
@@ -197,18 +193,24 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   m_PUWt    = pu_event_wt;
   m_Vertices = vertices->size();
   
+  edm::Handle<bool> ra2elVeto;
+  edm::Handle<bool> ra2muVeto;
   edm::Handle<bool> elVeto;
   edm::Handle<bool> muVeto;
   edm::Handle<bool> isoTrkVeto;
 
-  if (storeExtraVetos_) {
-    ev.getByLabel(electronVetoSrc_,elVeto);
-    m_passDirIsoElVeto = *elVeto;
-    ev.getByLabel(muonVetoSrc_,muVeto);
-    m_passDirIsoMuVeto = *muVeto;
-    ev.getByLabel(isoTrkVetoSrc_,isoTrkVeto);
-    m_passIsoTrkVeto = *isoTrkVeto;
-  }
+  //if (storeExtraVetos_) {
+  ev.getByLabel(ra2ElectronSrc_,ra2elVeto);
+  m_passRA2ElVeto = *ra2elVeto;
+  ev.getByLabel(ra2MuonSrc_,ra2muVeto);
+  m_passRA2MuVeto = *ra2muVeto;
+  ev.getByLabel(electronVetoSrc_,elVeto);
+  m_passDirIsoElVeto = *elVeto;
+  ev.getByLabel(muonVetoSrc_,muVeto);
+  m_passDirIsoMuVeto = *muVeto;
+  ev.getByLabel(isoTrkVetoSrc_,isoTrkVeto);
+  m_passIsoTrkVeto = *isoTrkVeto;
+  //}
   //////
   if(debug_ && patPhotons->size() > 0) {
     std::cout<<debugString_<<std::endl;
@@ -277,11 +279,15 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   if (patPhotons->size()>0) {
     
     m_Photon1PDGID = 0;
+    m_Photon1Status = 0;
     double photon1MinDRGen = 100;
     int tmpPhoton1PDGID = 0;
+    int tmpPhoton1Status = 0;
     m_Photon2PDGID = 0;
+    m_Photon2Status = 0;
     double photon2MinDRGen = 100;
     int tmpPhoton2PDGID = 0;
+    int tmpPhoton2Status = 0;
     if (!data_) {
       reco::GenParticleCollection::const_iterator genp = gens->begin();
       for (; genp!= gens->end(); ++genp) {
@@ -294,6 +300,7 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 	  }
 	  photon1MinDRGen = dR;
 	  tmpPhoton1PDGID = genp->pdgId();
+	  tmpPhoton1Status = genp->status();
 	}
 	if (m_nPhotonsID>1) {
 	  dR = reco::deltaR(genp->eta(),genp->phi(),(*patPhotons)[1].eta(), (*patPhotons)[1].phi());
@@ -305,14 +312,19 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
 	    }
 	    photon2MinDRGen = dR;
 	    tmpPhoton2PDGID = genp->pdgId();
+	    tmpPhoton2Status = genp->status();
 	  }
 	}
       }
     }
-    if (photon1MinDRGen < 0.5)
+    if (photon1MinDRGen < 0.5) {
       m_Photon1PDGID = tmpPhoton1PDGID;
-    if (photon2MinDRGen < 0.5)
+      m_Photon1Status = tmpPhoton1Status;
+    }
+    if (photon2MinDRGen < 0.5) {
       m_Photon2PDGID = tmpPhoton2PDGID;
+      m_Photon2Status = tmpPhoton2Status;
+    }
     
     m_Photon1pfCH  = (*patPhotons)[0].userFloat("pfChargedPU");
     m_Photon1pfNU  = (*patPhotons)[0].userFloat("pfNeutralPU");
@@ -335,9 +347,20 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     
     m_Photon2MinDR  = 10.;
     m_Photon2DRJet1 = 10.;
-    
     m_Photon2Pt  = -10.;
     m_Photon2Eta = -10.;
+    m_Photon2Phi = -10.;
+    m_Photon2pfCH = -10.;
+    m_Photon2pfNU = -10.;
+    m_Photon2pfGA = -10.;
+    m_Photon2SigmaIetaIeta = -1;
+    m_Photon2HadTowOverEm  = -1.;
+    m_Photon2MinDR  = 10.;
+    m_Photon2DRJet1 = 10.;
+    m_Photon2EConvVeto  = -1;
+    m_Photon2PixelVeto  = -1;
+    m_Photon2IsTightPFIso  = -1;
+
     if (m_nPhotonsID > 1) {
       m_Photon2pfCH = (*patPhotons)[1].userFloat("pfChargedPU");
       m_Photon2pfNU = (*patPhotons)[1].userFloat("pfNeutralPU");
@@ -374,59 +397,6 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     m_ra2_MET = (*ra2MET)[0].pt();
   }
   
-  const pat::Jet  *r1, *r2, *r3, *r4;
-  m_dPhiMHT1 = 10.0;  m_dPhiMET1 = 10.0;
-  m_dPhiMHT2 = 10.0;  m_dPhiMET2 = 10.0;
-  m_dPhiMHT3 = 10.0;  m_dPhiMET3 = 10.0;
-  m_dPhiMHT4 = 10.0;  m_dPhiMET4 = 10.0;
-  m_Jet1Pt  = -10.;   m_Jet3Pt  = -10.;
-  m_Jet1Eta = -10.;   m_Jet3Eta = -10.;
-  m_Jet2Pt  = -10.;   m_Jet4Pt  = -10.;
-  m_Jet2Eta = -10.;   m_Jet4Eta = -10.;
-
-  if(m_nJetsPt30Eta50 >= 1) {
-    r1 = &((*jets)[0]);
-    m_dPhiMHT1 = fabs(reco::deltaPhi(r1->phi(),(*mht)[0].phi()));
-    if (computeMET_) 
-      m_dPhiMET1 = fabs(reco::deltaPhi(r1->phi(),(*met)[0].phi()));
-    m_Jet1Pt = r1->pt();
-    m_Jet1Eta = r1->eta();
-    if(m_nJetsPt30Eta50 >= 2) {
-      r2 = &((*jets)[1]);
-      m_dPhiMHT2 = fabs(reco::deltaPhi(r2->phi(),(*mht)[0].phi())); 
-      if (computeMET_) 
-	m_dPhiMET2 = fabs(reco::deltaPhi(r2->phi(),(*met)[0].phi())); 
-      m_Jet2Pt = r2->pt();
-      m_Jet2Eta = r2->eta();
-     
-      if(m_nJetsPt30Eta50 >= 3) {
-	r3 = &((*jets)[2]);
-	m_dPhiMHT3 = fabs(reco::deltaPhi(r3->phi(),(*mht)[0].phi()));
-	if (computeMET_) 
-	  m_dPhiMET3 = fabs(reco::deltaPhi(r3->phi(),(*met)[0].phi()));
-	m_Jet3Pt = r3->pt();
-	m_Jet3Eta = r3->eta();
-
-	if(m_nJetsPt30Eta50 >= 4) {
-	  r4 = &((*jets)[3]);
-	  m_dPhiMHT4 = fabs(reco::deltaPhi(r4->phi(),(*mht)[0].phi()));
-	  if (computeMET_) 
-	    m_dPhiMET4 = fabs(reco::deltaPhi(r4->phi(),(*met)[0].phi()));
-	  m_Jet4Pt = r4->pt();
-	  m_Jet4Eta = r4->eta();
-	}
-      }
-    }
-  }
-
-  m_dPhiMHTMin  = 10.;
-  m_dPhiMETMin  = 10.;
-  m_nJetsPt30Eta24 = 0;
-  m_nJetsPt50Eta24 = 0;
-  m_nJetsPt70Eta24 = 0;
-  m_nJetsPt50Eta25MInv = 0;
-  m_HTMInv = 0.;
-
   if (jets->size() > 0 && patPhotons->size()) {
     double dR = reco::deltaR((*patPhotons)[0].eta(),(*patPhotons)[0].phi(),(*jets)[0].eta(), (*jets)[0].phi());
     if (m_Photon1DRJet1 > dR)
@@ -438,33 +408,49 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     }
   }
 
+  m_dPhiMHT1 = 10.0;  m_dPhiMET1 = 10.0;
+  m_dPhiMHT2 = 10.0;  m_dPhiMET2 = 10.0;
+  m_dPhiMHT3 = 10.0;  m_dPhiMET3 = 10.0;
+  m_dPhiMHT4 = 10.0;  m_dPhiMET4 = 10.0;
+  m_Jet1Pt  = -10.;   m_Jet3Pt  = -10.;
+  m_Jet1Eta = -10.;   m_Jet3Eta = -10.;
+  m_Jet2Pt  = -10.;   m_Jet4Pt  = -10.;
+  m_Jet2Eta = -10.;   m_Jet4Eta = -10.;
+
+  m_dPhiMHTMin  = 10.;
+  m_dPhiMETMin  = 10.;
+  m_nJetsPt30Eta24 = 0;
+  m_nJetsPt50Eta24 = 0;
+  m_nJetsPt70Eta24 = 0;
+
+  std::vector<double*> ptVals;
+  ptVals.push_back(&m_Jet1Pt);  ptVals.push_back(&m_Jet2Pt);  ptVals.push_back(&m_Jet3Pt);  ptVals.push_back(&m_Jet4Pt);
+  std::vector<double*> etaVals;
+  etaVals.push_back(&m_Jet1Eta);  etaVals.push_back(&m_Jet2Eta);  etaVals.push_back(&m_Jet3Eta);  etaVals.push_back(&m_Jet4Eta);
+  std::vector<double*> dphiValsMHT;
+  dphiValsMHT.push_back(&m_dPhiMHT1);  dphiValsMHT.push_back(&m_dPhiMHT2);  dphiValsMHT.push_back(&m_dPhiMHT3);  dphiValsMHT.push_back(&m_dPhiMHT4);
+  std::vector<double*> dphiValsMET;
+  if (computeMET_)
+    dphiValsMET.push_back(&m_dPhiMET1);  dphiValsMET.push_back(&m_dPhiMET2);  dphiValsMET.push_back(&m_dPhiMET3);  dphiValsMET.push_back(&m_dPhiMET4);
+  
+  RA2ZInvTreeMakerFunctions::computeAllJetVars((*jets),(*mht)[0],(*met)[0],
+					       &ptVals,&etaVals,
+					       &dphiValsMHT,&dphiValsMET,
+					       m_dPhiMHTMin, m_dPhiMETMin,
+					       m_nJetsPt30Eta24, m_nJetsPt50Eta24, m_nJetsPt70Eta24);
+  
+    
+  m_nJetsPt50Eta25MInv = 0;
+  m_HTMInv = 0.;
+
   edm::View<pat::Jet>::const_iterator jet = jets->begin();
   for (; jet!= jets->end(); ++jet) {
-    if (fabs(jet->eta() < 2.4)) {
-      if (jet->pt() > 30)
-	++m_nJetsPt30Eta24;
-      if (jet->pt() > 50)
-	++m_nJetsPt50Eta24;
-      if (jet->pt() > 70)
-	++m_nJetsPt70Eta24;
-    }
-    if (jet->pt() > 50 && fabs(jet->eta() < 2.5)) 
+    if (jet->pt() > 50 && fabs(jet->eta()) < 2.5) 
       if (patPhotons->size())
 	if ((jet->p4()+(*patPhotons)[0].p4()).mass() > 90.0) {
 	  ++m_nJetsPt50Eta25MInv;
 	  m_HTMInv += jet->pt();
 	}
-    
-    double tmpDPhi = fabs(reco::deltaPhi(jet->phi(),
-					 (*mht)[0].phi()));
-    if (tmpDPhi < m_dPhiMHTMin)
-      m_dPhiMHTMin = tmpDPhi;
-    
-    if (computeMET_) {
-      tmpDPhi = fabs(reco::deltaPhi(jet->phi(),(*met)[0].phi()));
-      if (tmpDPhi < m_dPhiMETMin)
-	m_dPhiMETMin = tmpDPhi;
-    }
     
     if (patPhotons->size()) {
       double dR = reco::deltaR((*patPhotons)[0].eta(),(*patPhotons)[0].phi(),jet->eta(), jet->phi());
@@ -479,18 +465,91 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
   }///end reco photon test
   
   //saving gen information
-  if (runGenStudy_ && gens->size()) {
+  if (runGenStudy_) {
     m_genBosons = gens->size();
+    m_genBoson1Pt  = 0;   m_genBoson2Pt  = 0;
+    m_genBoson1Eta = 0;   m_genBoson2Eta = 0;
+    m_genBoson1M   = 0;   m_genBoson2M   = 0;
+    m_genBoson1MinDR = 10;
+    m_genBoson2MinDR = 10;
+
     m_gen_nGenJetsPt30Eta50 = 0;
     m_gen_nGenJetsPt50Eta25 = 0;
-    //loop over the gen jets, compute genHT, genMHT and nGenJets
+    std::vector<const reco::Jet*> gen_htJets;
+    std::vector<const reco::Jet*> gen_mhtJets;
+    //reco::MET genMHT = reco::MET(0, reco::MET::Point());
+    m_gen_genDPhiMHT1 = 10.0;  m_gen_genDPhiMET1 = 10.0;
+    m_gen_genDPhiMHT2 = 10.0;  m_gen_genDPhiMET2 = 10.0;
+    m_gen_genDPhiMHT3 = 10.0;  m_gen_genDPhiMET3 = 10.0;
+    m_gen_genDPhiMHT4 = 10.0;  m_gen_genDPhiMET4 = 10.0;
+    m_genJet1Pt  = -10.;   m_genJet3Pt  = -10.;
+    m_genJet1Eta = -10.;   m_genJet3Eta = -10.;
+    m_genJet2Pt  = -10.;   m_genJet4Pt  = -10.;
+    m_genJet2Eta = -10.;   m_genJet4Eta = -10.;
+    
+    m_gen_genDPhiMHTMin  = 10.;
+    m_gen_genDPhiMETMin  = 10.;
+    
+    std::vector<double*> genPtVals;
+    genPtVals.push_back(&m_genJet1Pt);  genPtVals.push_back(&m_genJet2Pt);  genPtVals.push_back(&m_genJet3Pt);  genPtVals.push_back(&m_genJet4Pt);
+    std::vector<double*> genEtaVals;
+    genEtaVals.push_back(&m_genJet1Eta);  genEtaVals.push_back(&m_genJet2Eta);  genEtaVals.push_back(&m_genJet3Eta);  genEtaVals.push_back(&m_genJet4Eta);
+    std::vector<double*> genDPhiValsMHT;
+    genDPhiValsMHT.push_back(&m_gen_genDPhiMHT1);  genDPhiValsMHT.push_back(&m_gen_genDPhiMHT2);  genDPhiValsMHT.push_back(&m_gen_genDPhiMHT3);  genDPhiValsMHT.push_back(&m_gen_genDPhiMHT4);
+    std::vector<double*> genDPhiValsMET;
+    if (computeMET_)
+      genDPhiValsMET.push_back(&m_gen_genDPhiMET1);  genDPhiValsMET.push_back(&m_gen_genDPhiMET2);  genDPhiValsMET.push_back(&m_gen_genDPhiMET3);  genDPhiValsMET.push_back(&m_gen_genDPhiMET4);
+    
+    m_gen_GenHT  = 0;
+    m_gen_GenMHT = 0;
+
+    //RECO variables with gens removed
+    m_gen_nJetsPt50Eta25 = 0;
+    m_gen_nJetsPt30Eta50 = 0;
+    m_gen_MHT = 0;
+    m_gen_HT  = 0;
+    
+    m_gen_dPhiMHT1 = 10.0;  m_gen_dPhiMET1 = 10.0;
+    m_gen_dPhiMHT2 = 10.0;  m_gen_dPhiMET2 = 10.0;
+    m_gen_dPhiMHT3 = 10.0;  m_gen_dPhiMET3 = 10.0;
+    m_gen_dPhiMHT4 = 10.0;  m_gen_dPhiMET4 = 10.0;
+    
+    std::vector<double*> dPhiValsNoGenMHT;
+    dPhiValsNoGenMHT.push_back(&m_gen_dPhiMHT1);  dPhiValsNoGenMHT.push_back(&m_gen_dPhiMHT2);  dPhiValsNoGenMHT.push_back(&m_gen_dPhiMHT3);  dPhiValsNoGenMHT.push_back(&m_gen_dPhiMHT4);
+    std::vector<double*> dPhiValsNoGenMET;
+    if (computeMET_)
+      dPhiValsNoGenMET.push_back(&m_gen_dPhiMET1);  dPhiValsNoGenMET.push_back(&m_gen_dPhiMET2);  dPhiValsNoGenMET.push_back(&m_gen_dPhiMET3);  dPhiValsNoGenMET.push_back(&m_gen_dPhiMET4);
+    
+    if (gens->size()) {
+
+      m_genBoson1Pt  = (*gens)[0].pt();
+      m_genBoson1Eta = (*gens)[0].eta();
+      m_genBoson1M   = (*gens)[0].mass();
+      
+      if (m_genBosons > 1) {
+	m_genBoson2Pt  = (*gens)[1].pt();
+	m_genBoson2Eta = (*gens)[1].eta();
+	m_genBoson2M   = (*gens)[1].mass();
+      }
+
+      RA2ZInvTreeMakerFunctions::computeGenJetVars((*genJets),(*genMET)[0],
+						   m_gen_GenHT,m_gen_GenMHT,
+						   &genPtVals,&genEtaVals,
+						   &genDPhiValsMHT,&genDPhiValsMET,
+						   m_gen_dPhiMHTMin,m_gen_dPhiMETMin,
+						   m_gen_nGenJetsPt30Eta50,m_gen_nGenJetsPt50Eta25
+						   );
+    
+    /*    //loop over the gen jets, compute genHT, genMHT and nGenJets
     reco::GenJetCollection::const_iterator gjet = genJets->begin();
     double htGenJets(0.);
     reco::MET::LorentzVector mhtGen(0,0,0,0);
+    std::vector<const reco::Jet*> gen_mhtJets;
     for (; gjet != genJets->end(); ++gjet)
       if (gjet->pt() > 30) 
 	if (fabs(gjet->eta()) < 5.0) {
 	  ++m_gen_nGenJetsPt30Eta50 ;
+	  gen_mhtJets.push_back(&(*gjet));
 	  mhtGen -= gjet->p4();
 	  if (gjet->pt() > 50. && fabs(gjet->eta()) < 2.5) {
 	    ++m_gen_nGenJetsPt50Eta25;
@@ -500,230 +559,265 @@ void RA2ZInvPhotonTreeMaker::analyze(const edm::Event& ev, const edm::EventSetup
     reco::MET genMHT = reco::MET(mhtGen, reco::MET::Point());
     m_gen_GenMHT = genMHT.pt();
     m_gen_GenHT  = htGenJets;
+
+    m_gen_genDPhiMHT1 = 10.0;    m_gen_genDPhiMHT2 = 10.0;  
+    m_gen_genDPhiMHT3 = 10.0;    m_gen_genDPhiMHT4 = 10.0;  
     
+    if (m_gen_nGenJetsPt30Eta50 >= 1) {
+      m_gen_genDPhiMHT1 = fabs(reco::deltaPhi(gen_mhtJets.at(0)->phi(),genMHT.phi()));
+      if (m_gen_nGenJetsPt30Eta50 >= 2) {
+	m_gen_genDPhiMHT2 = fabs(reco::deltaPhi(gen_mhtJets.at(1)->phi(),genMHT.phi())); 
+	if (m_gen_nGenJetsPt30Eta50 >= 3) {
+	  m_gen_genDPhiMHT3 = fabs(reco::deltaPhi(gen_mhtJets.at(2)->phi(),genMHT.phi()));
+	  if (m_gen_nGenJetsPt30Eta50 >= 4) {
+	    m_gen_genDPhiMHT4 = fabs(reco::deltaPhi(gen_mhtJets.at(3)->phi(),genMHT.phi()));
+	  }
+	}
+      }
+    }
+    
+    m_gen_genDPhiMHTMin  = 10.;
+    for (unsigned int myGJet = 0; myGJet < gen_mhtJets.size(); ++myGJet) {
+      double tmpDPhi = fabs(reco::deltaPhi(gen_mhtJets.at(myGJet)->phi(),genMHT.phi()));
+      if (tmpDPhi < m_gen_genDPhiMHTMin)
+	m_gen_genDPhiMHTMin = tmpDPhi;
+    }
+    */
+      
     ///loop over the reco jets and compute quantities
     //std::vector<const pat::Jet*> genRemoved_htJets;
-    std::vector<const pat::Jet*> genRemoved_mhtJets;
-    int jetIndex = -1;
-    int genIndex  = -1;
-    double bestDR = 1000.;
-    int iJet(0);
-    jet = ra2Jets->begin();
-    for (; jet!= ra2Jets->end(); ++jet) {
-      double dR = reco::deltaR((*gens)[0].eta(),(*gens)[0].phi(),jet->eta(),jet->phi());
-      if (dR < bestDR) {
-	bestDR = dR;
-	jetIndex = iJet;
-	genIndex  = 0;
-      }
-      ++iJet;
-    }//presumably found the matched jet
-    //now recompute event without that jet
-    double htNoGen(0.);//, mhtGenJets(0.);
-    reco::MET::LorentzVector mhtNoGen(0,0,0,0);
-    m_gen_nJetsPt50Eta25 = 0;
-    m_gen_nJetsPt30Eta50 = 0;
-    iJet = 0;
-    jet = ra2Jets->begin();
-    for (; jet!= ra2Jets->end(); ++jet) {
-      if ((iJet == jetIndex && bestDR > maxDR_) || iJet != jetIndex) {
-	if (jet->pt() > 50 && fabs(jet->eta() < 2.5)) {
-	  htNoGen += jet->pt();
-	  ++m_gen_nJetsPt50Eta25;
-	}
-	if (jet->pt() > 30 && fabs(jet->eta() < 5.0)) {
-	  mhtNoGen -= jet->p4();
-	  genRemoved_mhtJets.push_back(&(*jet));
-	  ++m_gen_nJetsPt30Eta50;
-	}
-      }
-      ++iJet;
-    }
-    reco::MET ra2MHTNoGen = reco::MET(mhtNoGen, reco::MET::Point());
-    m_gen_MHT = ra2MHTNoGen.pt();
-    m_gen_HT  = htNoGen;
-    
-    //if (jet->pt() > 30 && fabs(jet->eta() < 5.0)) {
-    //  
-    //}
-    m_gen_dPhiMHT1 = 10.0;  m_gen_dPhiMET1 = 10.0;
-    m_gen_dPhiMHT2 = 10.0;  m_gen_dPhiMET2 = 10.0;
-    m_gen_dPhiMHT3 = 10.0;  m_gen_dPhiMET3 = 10.0;
-    m_gen_dPhiMHT4 = 10.0;  m_gen_dPhiMET4 = 10.0;
-    
-    if (genRemoved_mhtJets.size() > 0) {
-      m_gen_dPhiMHT1 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(0)->phi(), ra2MHTNoGen.phi()));
-      //m_gen_dPhiMET1 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(0)->phi(), (*genMET)[0].phi()));
-      if (genRemoved_mhtJets.size() > 1) {
-	m_gen_dPhiMHT2 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(1)->phi(), ra2MHTNoGen.phi()));
-	//m_gen_dPhiMET2 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(1)->phi(), (*genMET)[0].phi()));
-	if (genRemoved_mhtJets.size() > 2) {
-	  m_gen_dPhiMHT3 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(2)->phi(), ra2MHTNoGen.phi()));
-	  //m_gen_dPhiMET3 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(2)->phi(), (*genMET)[0].phi()));
-	  if (genRemoved_mhtJets.size() > 3) {
-	    m_gen_dPhiMHT4 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(3)->phi(), ra2MHTNoGen.phi()));
-	    //m_gen_dPhiMET4 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(3)->phi(), (*genMET)[0].phi()));
-	  }
-	}
-      }
-    }//done looping over mht jets with GEN removed
-    
-    m_genBoson1Pt  = (*gens)[0].pt();
-    m_genBoson1Eta = (*gens)[0].eta();
-    m_genBoson1M   = (*gens)[0].mass();
-    
-    if (m_genBosons > 1) {
-      m_genBoson2Pt  = (*gens)[1].pt();
-      m_genBoson2Eta = (*gens)[1].eta();
-      m_genBoson2M   = (*gens)[1].mass();
-    }
-    
-    unsigned int pjet = 0;
-    for (;pjet < genRemoved_mhtJets.size();++pjet) {
-      double dR = reco::deltaR((*gens)[0].eta(),(*gens)[0].phi(),
-			       genRemoved_mhtJets.at(pjet)->eta(),
-			       genRemoved_mhtJets.at(pjet)->phi());
-      if (m_genBoson1MinDR > dR)
-	m_genBoson1MinDR = dR;
-      if (gens->size()>1) {
-	dR = reco::deltaR((*gens)[1].eta(),(*gens)[1].phi(),
-			  genRemoved_mhtJets.at(pjet)->eta(),
-			  genRemoved_mhtJets.at(pjet)->phi());
-	if (m_genBoson2MinDR > dR)
-	  m_genBoson2MinDR = dR;
-      }
-    }
-    
-    ///now do the matching to a reco photon
-    m_genMatchRecoID        = false;
-    m_genMatchRecoIDPixV    = false;
-    m_genMatchRecoIDCSEV    = false;
-    m_genMatchRecoIDIso     = false;
-    m_gen1MatchRecoID       = false;
-    m_gen1MatchRecoIDPixV   = false;
-    m_gen1MatchRecoIDCSEV   = false;
-    m_gen1MatchRecoIDIso    = false;
-    m_reco1MatchRecoID      = false;
-    m_reco1MatchRecoIDPixV  = false;
-    m_reco1MatchRecoIDCSEV  = false;
-    m_reco1MatchRecoIDIso   = false;
-    
-    if (patPhotons->size()) {
-      reco::GenParticleCollection::const_iterator genp = gens->begin();
-      int gphot = 0;
-      if (debug_) {
-	std::cout<<debugString_<<"::matching information"<<std::endl;
-	printf("gen idx(pt,eta,phi) reco idx(pt,eta,phi) -- dR   pixv  csev iso\n");
-      }
-      for (; genp != gens->end(); ++genp) {
-	int bestDRPhot = 0;
-	double bestDRMin = 999.0;
-	int phot = 0;
-	//here or outside the genp loop?
-	bool tmpPassPixV = false;
-	bool tmpPassCSEV = false;
-	bool tmpPassIso = false;
-	edm::View<pat::Photon>::const_iterator recop = patPhotons->begin();
-	for (; recop != patPhotons->end(); ++recop){
-	  double dR = reco::deltaR(genp->eta(),genp->phi(),recop->eta(), recop->phi());
-	  if (debug_) {
-	    std::cout<<debugString_<<std::endl;
-	    tmpPassPixV  = !(recop->hasPixelSeed());
-	    tmpPassCSEV  = recop->userFloat("pfChargedPU");
-	    tmpPassIso  = ((recop->userFloat("pfChargedPU")<recop->userFloat("pfChargedTightCut"))&&
-			   (recop->userFloat("pfNeutralPU")<recop->userFloat("pfNeutralTightCut"))&&
-			   (recop->userFloat("pfGammaPU")<recop->userFloat("pfGammaTightCut")));
-	    printf("gen%d(%2.2f,%2.2f,%2.2f) reco%d(%2.2f,%2.2f,%2.2f) -- dR(%2.2f)   pixv(%d)  csev(%d) iso(%d)\n",
-		   gphot,genp->pt(),genp->eta(),genp->phi(),
-		   phot,recop->pt(),recop->eta(),recop->phi(),
-		   dR,tmpPassPixV,tmpPassCSEV,tmpPassIso);
-	  }
-	  if (dR < bestDRMin) {
-	    bestDRPhot = phot;
-	    bestDRMin = dR;
-	    tmpPassPixV  = !(recop->hasPixelSeed());
-	    tmpPassCSEV  = recop->userFloat("pfChargedPU");
-	    tmpPassIso  = ((recop->userFloat("pfChargedPU")<recop->userFloat("pfChargedTightCut"))&&
-			   (recop->userFloat("pfNeutralPU")<recop->userFloat("pfNeutralTightCut"))&&
-			   (recop->userFloat("pfGammaPU")<recop->userFloat("pfGammaTightCut")));
-	  }
-	  ++phot;
-	}
-	if (bestDRMin < 0.2) {
-	  ////recoMatched = &((*patPhotons)[bestDRPhot]);
-	  //tmpPassPixV  = !((*patPhotons)[bestDRPhot].hasPixelSeed());
-	  //tmpPassCSEV  = (*patPhotons)[bestDRPhot].userFloat("pfChargedPU");
-	  //tmpPassIso  = (((*patPhotons)[bestDRPhot].userFloat("pfChargedPU")<(*patPhotons)[bestDRPhot].userFloat("pfChargedTightCut"))&&
-	  //		 ((*patPhotons)[bestDRPhot].userFloat("pfNeutralPU")<(*patPhotons)[bestDRPhot].userFloat("pfNeutralTightCut"))&&
-	  //		 ((*patPhotons)[bestDRPhot].userFloat("pfGammaPU")<(*patPhotons)[bestDRPhot].userFloat("pfGammaTightCut")));
-	  
-	  m_genMatchRecoID = true;
-	  
-	  if (tmpPassPixV)
-	    m_genMatchRecoIDPixV = true;
-	  if (tmpPassCSEV)
-	    m_genMatchRecoIDCSEV = true;
-	  if (tmpPassIso)
-	    m_genMatchRecoIDIso = true;
-	  
-	  if (bestDRPhot==0) {
-	    m_reco1MatchRecoID = true;
-	    
-	    if (tmpPassPixV)
-	      m_reco1MatchRecoIDPixV = true;
-	    if (tmpPassCSEV)
-	      m_reco1MatchRecoIDCSEV = true;
-	    if (tmpPassIso)
-	      m_reco1MatchRecoIDIso = true;
-	  }
-	  
-	}
-	if (m_genMatchRecoID && gphot==0) {
-	  m_gen1MatchRecoID = true;
-	  
-	  if (tmpPassPixV)
-	    m_gen1MatchRecoIDPixV = true;
-	  if (tmpPassCSEV)
-	    m_gen1MatchRecoIDCSEV = true;
-	  if (tmpPassIso)
-	    m_gen1MatchRecoIDIso = true;
-	}
-	++gphot;
-      }//end loop over gen particles
-    }
       
+      RA2ZInvTreeMakerFunctions::computeJetVarsNoGen((*ra2Jets),(*gens),1,maxDR_,
+						     (*genMET)[0],
+						     m_gen_HT,m_gen_MHT,
+						     &dPhiValsNoGenMHT,&dPhiValsNoGenMET,
+						     m_gen_dPhiMHTMin,m_gen_dPhiMETMin,
+						     m_genBoson1MinDR,m_genBoson2MinDR,
+						     m_gen_nJetsPt30Eta50,m_gen_nJetsPt50Eta25
+						     );
+
+      /*      std::vector<const pat::Jet*> genRemoved_mhtJets;
+      int jetIndex = -1;
+      //int genIndex  = -1;
+      double bestDR = 1000.;
+      int iJet(0);
+      jet = ra2Jets->begin();
+      for (; jet!= ra2Jets->end(); ++jet) {
+	double dR = reco::deltaR((*gens)[0].eta(),(*gens)[0].phi(),jet->eta(),jet->phi());
+	if (dR < bestDR) {
+	  bestDR = dR;
+	  jetIndex = iJet;
+	  //genIndex  = 0;
+	}
+	++iJet;
+      }//presumably found the matched jet
+      //now recompute event without that jet
+      double htNoGen(0.);//, mhtGenJets(0.);
+      reco::MET::LorentzVector mhtNoGen(0,0,0,0);
+      m_gen_nJetsPt50Eta25 = 0;
+      m_gen_nJetsPt30Eta50 = 0;
+      iJet = 0;
+      jet = ra2Jets->begin();
+      for (; jet!= ra2Jets->end(); ++jet) {
+	if ((iJet == jetIndex && bestDR > maxDR_) || iJet != jetIndex) {
+	  if (jet->pt() > 30 && fabs(jet->eta()) < 5.0) {
+	    mhtNoGen -= jet->p4();
+	    genRemoved_mhtJets.push_back(&(*jet));
+	    ++m_gen_nJetsPt30Eta50;
+	    if (jet->pt() > 50 && fabs(jet->eta()) < 2.5) {
+	      htNoGen += jet->pt();
+	      ++m_gen_nJetsPt50Eta25;
+	    }
+	  }
+	}
+	++iJet;
+      }
+      reco::MET ra2MHTNoGen = reco::MET(mhtNoGen, reco::MET::Point());
+      m_gen_MHT = ra2MHTNoGen.pt();
+      m_gen_HT  = htNoGen;
+      
+      //if (jet->pt() > 30 && fabs(jet->eta() < 5.0)) {
+      //  
+      //}
+      m_gen_dPhiMHT1 = 10.0;  m_gen_dPhiMET1 = 10.0;
+      m_gen_dPhiMHT2 = 10.0;  m_gen_dPhiMET2 = 10.0;
+      m_gen_dPhiMHT3 = 10.0;  m_gen_dPhiMET3 = 10.0;
+      m_gen_dPhiMHT4 = 10.0;  m_gen_dPhiMET4 = 10.0;
+      
+      if (genRemoved_mhtJets.size() > 0) {
+	m_gen_dPhiMHT1 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(0)->phi(), ra2MHTNoGen.phi()));
+	//m_gen_dPhiMET1 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(0)->phi(), (*genMET)[0].phi()));
+	if (genRemoved_mhtJets.size() > 1) {
+	  m_gen_dPhiMHT2 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(1)->phi(), ra2MHTNoGen.phi()));
+	  //m_gen_dPhiMET2 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(1)->phi(), (*genMET)[0].phi()));
+	  if (genRemoved_mhtJets.size() > 2) {
+	    m_gen_dPhiMHT3 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(2)->phi(), ra2MHTNoGen.phi()));
+	    //m_gen_dPhiMET3 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(2)->phi(), (*genMET)[0].phi()));
+	    if (genRemoved_mhtJets.size() > 3) {
+	      m_gen_dPhiMHT4 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(3)->phi(), ra2MHTNoGen.phi()));
+	      //m_gen_dPhiMET4 = fabs(reco::deltaPhi(genRemoved_mhtJets.at(3)->phi(), (*genMET)[0].phi()));
+	    }
+	  }
+	}
+      }//done looping over mht jets with GEN removed
+      
+      m_genBoson1Pt  = (*gens)[0].pt();
+      m_genBoson1Eta = (*gens)[0].eta();
+      m_genBoson1M   = (*gens)[0].mass();
+      
+      if (m_genBosons > 1) {
+	m_genBoson2Pt  = (*gens)[1].pt();
+	m_genBoson2Eta = (*gens)[1].eta();
+	m_genBoson2M   = (*gens)[1].mass();
+      }
+      
+      unsigned int pjet = 0;
+      for (;pjet < genRemoved_mhtJets.size();++pjet) {
+	double dR = reco::deltaR((*gens)[0].eta(),(*gens)[0].phi(),
+				 genRemoved_mhtJets.at(pjet)->eta(),
+				 genRemoved_mhtJets.at(pjet)->phi());
+	if (m_genBoson1MinDR > dR)
+	  m_genBoson1MinDR = dR;
+	if (gens->size()>1) {
+	  dR = reco::deltaR((*gens)[1].eta(),(*gens)[1].phi(),
+			    genRemoved_mhtJets.at(pjet)->eta(),
+			    genRemoved_mhtJets.at(pjet)->phi());
+	  if (m_genBoson2MinDR > dR)
+	    m_genBoson2MinDR = dR;
+	}
+      }
+      */      
+      ///now do the matching to a reco photon
+      m_genMatchRecoID        = false;
+      m_genMatchRecoIDPixV    = false;
+      m_genMatchRecoIDCSEV    = false;
+      m_genMatchRecoIDIso     = false;
+      m_gen1MatchRecoID       = false;
+      m_gen1MatchRecoIDPixV   = false;
+      m_gen1MatchRecoIDCSEV   = false;
+      m_gen1MatchRecoIDIso    = false;
+      m_reco1MatchRecoID      = false;
+      m_reco1MatchRecoIDPixV  = false;
+      m_reco1MatchRecoIDCSEV  = false;
+      m_reco1MatchRecoIDIso   = false;
+    
+      if (patPhotons->size()) {
+	reco::GenParticleCollection::const_iterator genp = gens->begin();
+	int gphot = 0;
+	if (debug_) {
+	  std::cout<<debugString_<<"::matching information"<<std::endl;
+	  printf("gen idx(pt,eta,phi) reco idx(pt,eta,phi) -- dR   pixv  csev iso\n");
+	}
+	for (; genp != gens->end(); ++genp) {
+	  int bestDRPhot = 0;
+	  double bestDRMin = 999.0;
+	  int phot = 0;
+	  //here or outside the genp loop?
+	  bool tmpPassPixV = false;
+	  bool tmpPassCSEV = false;
+	  bool tmpPassIso = false;
+	  edm::View<pat::Photon>::const_iterator recop = patPhotons->begin();
+	  for (; recop != patPhotons->end(); ++recop){
+	    double dR = reco::deltaR(genp->eta(),genp->phi(),recop->eta(), recop->phi());
+	    if (debug_) {
+	      std::cout<<debugString_<<std::endl;
+	      tmpPassPixV  = !(recop->hasPixelSeed());
+	      tmpPassCSEV  = recop->userFloat("pfChargedPU");
+	      tmpPassIso  = ((recop->userFloat("pfChargedPU")<recop->userFloat("pfChargedTightCut"))&&
+			     (recop->userFloat("pfNeutralPU")<recop->userFloat("pfNeutralTightCut"))&&
+			     (recop->userFloat("pfGammaPU")<recop->userFloat("pfGammaTightCut")));
+	      printf("gen%d(%2.2f,%2.2f,%2.2f) reco%d(%2.2f,%2.2f,%2.2f) -- dR(%2.2f)   pixv(%d)  csev(%d) iso(%d)\n",
+		     gphot,genp->pt(),genp->eta(),genp->phi(),
+		     phot,recop->pt(),recop->eta(),recop->phi(),
+		     dR,tmpPassPixV,tmpPassCSEV,tmpPassIso);
+	    }
+	    if (dR < bestDRMin) {
+	      bestDRPhot = phot;
+	      bestDRMin = dR;
+	      tmpPassPixV  = !(recop->hasPixelSeed());
+	      tmpPassCSEV  = recop->userFloat("pfChargedPU");
+	      tmpPassIso  = ((recop->userFloat("pfChargedPU")<recop->userFloat("pfChargedTightCut"))&&
+			     (recop->userFloat("pfNeutralPU")<recop->userFloat("pfNeutralTightCut"))&&
+			     (recop->userFloat("pfGammaPU")<recop->userFloat("pfGammaTightCut")));
+	    }
+	    ++phot;
+	  }
+	  if (bestDRMin < 0.2) {
+	    ////recoMatched = &((*patPhotons)[bestDRPhot]);
+	    //tmpPassPixV  = !((*patPhotons)[bestDRPhot].hasPixelSeed());
+	    //tmpPassCSEV  = (*patPhotons)[bestDRPhot].userFloat("pfChargedPU");
+	    //tmpPassIso  = (((*patPhotons)[bestDRPhot].userFloat("pfChargedPU")<(*patPhotons)[bestDRPhot].userFloat("pfChargedTightCut"))&&
+	    //		 ((*patPhotons)[bestDRPhot].userFloat("pfNeutralPU")<(*patPhotons)[bestDRPhot].userFloat("pfNeutralTightCut"))&&
+	    //		 ((*patPhotons)[bestDRPhot].userFloat("pfGammaPU")<(*patPhotons)[bestDRPhot].userFloat("pfGammaTightCut")));
+	  
+	    m_genMatchRecoID = true;
+	  
+	    if (tmpPassPixV)
+	      m_genMatchRecoIDPixV = true;
+	    if (tmpPassCSEV)
+	      m_genMatchRecoIDCSEV = true;
+	    if (tmpPassIso)
+	      m_genMatchRecoIDIso = true;
+	  
+	    if (bestDRPhot==0) {
+	      m_reco1MatchRecoID = true;
+	    
+	      if (tmpPassPixV)
+		m_reco1MatchRecoIDPixV = true;
+	      if (tmpPassCSEV)
+		m_reco1MatchRecoIDCSEV = true;
+	      if (tmpPassIso)
+		m_reco1MatchRecoIDIso = true;
+	    }
+	  
+	  }
+	  if (m_genMatchRecoID && gphot==0) {
+	    m_gen1MatchRecoID = true;
+	  
+	    if (tmpPassPixV)
+	      m_gen1MatchRecoIDPixV = true;
+	    if (tmpPassCSEV)
+	      m_gen1MatchRecoIDCSEV = true;
+	    if (tmpPassIso)
+	      m_gen1MatchRecoIDIso = true;
+	  }
+	  ++gphot;
+	}//end loop over gen particles
+      }
+    }      
   }//end gen photon test
   
   //}
-  
-  const pat::Jet  *b1, *b2;
+
+  //btagging
+  double m_dPhiMHTMinBCSVM = 10.;
+  double m_dPhiMETMinBCSVM = 10.;
+  double m_dPhiMHTMinBCSVT = 10.;
+  double m_dPhiMETMinBCSVT = 10.;
   m_JetCSVM1Pt  = -10.;   m_JetCSVT1Pt  = -10.;
   m_JetCSVM1Eta = -10.;   m_JetCSVT1Eta = -10.;
   m_JetCSVM2Pt  = -10.;   m_JetCSVT2Pt  = -10.;
   m_JetCSVM2Eta = -10.;   m_JetCSVT2Eta = -10.;
-  edm::View<pat::Jet>::const_iterator bjet = bJets->begin();
-  for (; bjet!= bJets->end(); ++bjet) {
-    if (bjet->bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898) 
-      ++m_nJetsCSVT;
-    if (bJets->size()>0){
-      b1 = &((*bJets)[0]);
-      m_JetCSVM1Pt  = b1->pt();
-      m_JetCSVM1Eta = b1->eta();
-      if (b1->bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898) {
-	m_JetCSVT1Pt  = b1->pt();
-	m_JetCSVT1Eta = b1->eta();
-      }
-      if (bJets->size()>1){
-	b2 = &((*bJets)[1]);
-	m_JetCSVM2Pt  = b2->pt();
-	m_JetCSVM2Eta = b2->eta();
-	if (b2->bDiscriminator("combinedSecondaryVertexBJetTags") > 0.898) {
-	  m_JetCSVT2Pt  = b2->pt();
-	  m_JetCSVT2Eta = b2->eta();
-	}
-      }
-    }
-  }
+  std::vector<double*> ptValsCSVM;
+  std::vector<double*> ptValsCSVT;
+  std::vector<double*> etaValsCSVM;
+  std::vector<double*> etaValsCSVT;
+  ptValsCSVM.push_back(&m_JetCSVM1Pt);
+  ptValsCSVM.push_back(&m_JetCSVM2Pt);
+  ptValsCSVT.push_back(&m_JetCSVT1Pt);
+  ptValsCSVT.push_back(&m_JetCSVT2Pt);
+  etaValsCSVM.push_back(&m_JetCSVM1Eta);
+  etaValsCSVM.push_back(&m_JetCSVM2Eta);
+  etaValsCSVT.push_back(&m_JetCSVT1Eta);
+  etaValsCSVT.push_back(&m_JetCSVT2Eta);
+  
+  RA2ZInvTreeMakerFunctions::computeBJetVars(*bJets,(*mht)[0],(*met)[0],
+					     m_nJetsCSVT,
+					     &ptValsCSVM,&etaValsCSVM,
+					     &ptValsCSVT,&etaValsCSVT,
+					     m_dPhiMHTMinBCSVM, m_dPhiMHTMinBCSVT,
+					     m_dPhiMETMinBCSVM, m_dPhiMETMinBCSVT
+					     );
   
   /******************************************************************
    * Here we do all the HLT related trigger stuff
@@ -861,20 +955,44 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
     reducedValues->Branch("ra2_gen_dPhiMHT2",   &m_gen_dPhiMHT2,   "ra2_gen_dPhiMHT2/D");
     reducedValues->Branch("ra2_gen_dPhiMHT3",   &m_gen_dPhiMHT3,   "ra2_gen_dPhiMHT3/D");
     reducedValues->Branch("ra2_gen_dPhiMHT4",   &m_gen_dPhiMHT4,   "ra2_gen_dPhiMHT4/D");
+    reducedValues->Branch("ra2_gen_dPhiMHTMin",   &m_gen_dPhiMHTMin,   "ra2_gen_dPhiMHTMin/D");
+    
+    reducedValues->Branch("ra2_gen_genDPhiMHT1",   &m_gen_genDPhiMHT1,   "ra2_gen_genDPhiMHT1/D");
+    reducedValues->Branch("ra2_gen_genDPhiMHT2",   &m_gen_genDPhiMHT2,   "ra2_gen_genDPhiMHT2/D");
+    reducedValues->Branch("ra2_gen_genDPhiMHT3",   &m_gen_genDPhiMHT3,   "ra2_gen_genDPhiMHT3/D");
+    reducedValues->Branch("ra2_gen_genDPhiMHT4",   &m_gen_genDPhiMHT4,   "ra2_gen_genDPhiMHT4/D");
+    reducedValues->Branch("ra2_gen_genDPhiMHTMin", &m_gen_genDPhiMHTMin, "ra2_gen_genDPhiMHTMin/D");
     
     if (computeMET_) {
       reducedValues->Branch("ra2_gen_MET",      &m_gen_MET,      "ra2_gen_MET/D");
       reducedValues->Branch("ra2_gen_GenMET",   &m_gen_GenMET,   "ra2_gen_GenMET/D");
+
       reducedValues->Branch("ra2_gen_dPhiMET1", &m_gen_dPhiMET1, "ra2_gen_dPhiMET1/D");
       reducedValues->Branch("ra2_gen_dPhiMET2", &m_gen_dPhiMET2, "ra2_gen_dPhiMET2/D");
       reducedValues->Branch("ra2_gen_dPhiMET3", &m_gen_dPhiMET3, "ra2_gen_dPhiMET3/D");
       reducedValues->Branch("ra2_gen_dPhiMET4", &m_gen_dPhiMET4, "ra2_gen_dPhiMET4/D");
+      reducedValues->Branch("ra2_gen_genDPhiMETMin", &m_gen_genDPhiMETMin, "ra2_gen_genDPhiMETMin/D");
+
+      reducedValues->Branch("ra2_gen_genDPhiMET1", &m_gen_genDPhiMET1, "ra2_gen_genDPhiMET1/D");
+      reducedValues->Branch("ra2_gen_genDPhiMET2", &m_gen_genDPhiMET2, "ra2_gen_genDPhiMET2/D");
+      reducedValues->Branch("ra2_gen_genDPhiMET3", &m_gen_genDPhiMET3, "ra2_gen_genDPhiMET3/D");
+      reducedValues->Branch("ra2_gen_genDPhiMET4", &m_gen_genDPhiMET4, "ra2_gen_genDPhiMET4/D");
+      reducedValues->Branch("ra2_gen_genDPhiMETMin", &m_gen_genDPhiMETMin, "ra2_gen_genDPhiMETMin/D");    
     }
 
     reducedValues->Branch("ra2_gen_nJetsPt30Eta50",   &m_gen_nJetsPt30Eta50, "ra2_gen_nJetsPt30Eta50/I" );
     reducedValues->Branch("ra2_gen_nJetsPt50Eta25",   &m_gen_nJetsPt50Eta25, "ra2_gen_nJetsPt50Eta25/I" );
     reducedValues->Branch("ra2_gen_nGenJetsPt30Eta50",&m_gen_nGenJetsPt30Eta50, "ra2_gen_nGenJetsPt30Eta50/I" );
     reducedValues->Branch("ra2_gen_nGenJetsPt50Eta25",&m_gen_nGenJetsPt50Eta25, "ra2_gen_nGenJetsPt50Eta25/I" );
+
+    reducedValues->Branch("ra2_genJet1Pt",  &m_genJet1Pt,  "m_genJet1Pt/D");
+    reducedValues->Branch("ra2_genJet1Eta", &m_genJet1Eta, "m_genJet1Eta/D");
+    reducedValues->Branch("ra2_genJet2Pt",  &m_genJet2Pt,  "m_genJet2Pt/D");
+    reducedValues->Branch("ra2_genJet2Eta", &m_genJet2Eta, "m_genJet2Eta/D");
+    reducedValues->Branch("ra2_genJet3Pt",  &m_genJet3Pt,  "m_genJet3Pt/D");
+    reducedValues->Branch("ra2_genJet3Eta", &m_genJet3Eta, "m_genJet3Eta/D");
+    reducedValues->Branch("ra2_genJet4Pt",  &m_genJet4Pt,  "m_genJet4Pt/D");
+    reducedValues->Branch("ra2_genJet4Eta", &m_genJet4Eta, "m_genJet4Eta/D");
 
     reducedValues->Branch("ra2_gen_genMatchRecoID",      &m_genMatchRecoID,      "ra2_gen_genMatchRecoID/O");
     reducedValues->Branch("ra2_gen_genMatchRecoIDPixV",  &m_genMatchRecoIDPixV,  "ra2_gen_genMatchRecoIDPixV/O");
@@ -915,6 +1033,7 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_nPhotonsTightIso",  &m_nPhotonsTightIso,  "ra2_nPhotonsTightIso/I");
 
   reducedValues->Branch("ra2_Photon1PDGID",&m_Photon1PDGID,"ra2_Photon1PDGID/I");
+  reducedValues->Branch("ra2_Photon1Status",&m_Photon1Status,"ra2_Photon1Status/I");
   reducedValues->Branch("ra2_Photon1pfCH", &m_Photon1pfCH, "ra2_Photon1pfCH/D");
   reducedValues->Branch("ra2_Photon1pfNU", &m_Photon1pfNU, "ra2_Photon1pfNU/D");
   reducedValues->Branch("ra2_Photon1pfGA", &m_Photon1pfGA, "ra2_Photon1pfGA/D");
@@ -930,6 +1049,7 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_Photon1IsTightPFIso",&m_Photon1IsTightPFIso,"ra2_Photon1IsTightPFIso/O" );
 
   reducedValues->Branch("ra2_Photon2PDGID",&m_Photon2PDGID,"ra2_Photon2PDGID/I");
+  reducedValues->Branch("ra2_Photon2Status",&m_Photon2Status,"ra2_Photon2Status/I");
   reducedValues->Branch("ra2_Photon2pfCH", &m_Photon2pfCH, "ra2_Photon2pfCH/D");
   reducedValues->Branch("ra2_Photon2pfNU", &m_Photon2pfNU, "ra2_Photon2pfNU/D");
   reducedValues->Branch("ra2_Photon2pfGA", &m_Photon2pfGA, "ra2_Photon2pfGA/D");
@@ -960,13 +1080,13 @@ void RA2ZInvPhotonTreeMaker::BookTree() {
   reducedValues->Branch("ra2_nJetsPt50Eta25MInv", &m_nJetsPt50Eta25MInv, "ra2_nJetsPt50Eta25MInv/I" );
 
 
-  if (storeExtraVetos_) {
-    reducedValues->Branch("ra2_passRA2ElVeto",    &m_passRA2ElVeto   , "ra2_passRA2ElVeto/O"    );
-    reducedValues->Branch("ra2_passRA2MuVeto",    &m_passRA2MuVeto   , "ra2_passRA2MuVeto/O"    );
-    reducedValues->Branch("ra2_passDirIsoElVeto", &m_passDirIsoElVeto, "ra2_passDirIsoElVeto/O"    );
-    reducedValues->Branch("ra2_passDirIsoMuVeto", &m_passDirIsoMuVeto, "ra2_passDirIsoMuVeto/O"    );
-    reducedValues->Branch("ra2_passIsoTrkVeto",   &m_passIsoTrkVeto  , "ra2_passIsoTrkVeto/O");
-  }
+  //if (storeExtraVetos_) {
+  reducedValues->Branch("ra2_passRA2ElVeto",    &m_passRA2ElVeto   , "ra2_passRA2ElVeto/O"    );
+  reducedValues->Branch("ra2_passRA2MuVeto",    &m_passRA2MuVeto   , "ra2_passRA2MuVeto/O"    );
+  reducedValues->Branch("ra2_passDirIsoElVeto", &m_passDirIsoElVeto, "ra2_passDirIsoElVeto/O"    );
+  reducedValues->Branch("ra2_passDirIsoMuVeto", &m_passDirIsoMuVeto, "ra2_passDirIsoMuVeto/O"    );
+  reducedValues->Branch("ra2_passIsoTrkVeto",   &m_passIsoTrkVeto  , "ra2_passIsoTrkVeto/O");
+  //}
   
   reducedValues->SetAutoSave(1);
 }
